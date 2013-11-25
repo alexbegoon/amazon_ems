@@ -1,0 +1,6 @@
+application/cache/*
+application/logs/*
+upload/*
+application/config/*
+nbproject
+nbproject/*
