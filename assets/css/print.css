@@ -1,0 +1,108 @@
+/* 
+    Document   : print
+    Created on : Oct 10, 2013, 4:16:19 PM
+    Author     : Alexander.B <alexbassmusic@gmail.com> - https://www.odesk.com/users/~01ae8f6e1a81c189cf
+    Description:
+        Only for printer
+*/
+
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+        background: white;
+        font-size: 12pt; 
+        size: A4;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+/*Exclude this elements*/
+
+body header
+{
+    display: none;
+}
+
+body article *
+{
+    display: none;
+}
+
+article div.printer_document
+{
+    display: block!important;
+}
+
+article div.printer_document *
+{
+    display: block!important;
+}
+
+div.A4
+{
+    position: relative;
+    width: 21cm;
+    min-height: 29.7cm;
+    font-size: 14pt;
+    page-break-after: always;
+}
+
+table.order_table{
+    display: table!important;
+}
+
+table.order_table tr
+{
+    display: table-row!important;
+    border: 1px solid #000;
+}
+
+table.order_table tr td
+{
+    display: table-cell!important;
+    height: 15px;
+    padding: 3px;
+}
+
+div.A4 div.footer {
+    position: absolute;
+    bottom: 0;
+/*    left: 0;*/
+}
