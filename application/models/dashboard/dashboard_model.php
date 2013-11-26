@@ -359,10 +359,10 @@ class Dashboard_model extends CI_Model {
         
         // The rules if order takes the Tracking number then check old procesado
         $rules = array(
-            'PTE_ENVIO_GLS' => 'ENVIADO_GLS',
-            'PTE_ENVIO_FEDEX' => 'ENVIADO_FEDEX',
-            'PTE_ENVIO_PACK' => 'ENVIADO_PACK',
-            'PTE_ENVIO_TOURLINE' => 'ENVIADO_TOURLINE'
+            'PTE_ENVIO_GLS'         => 'ENVIADO_GLS',
+            'PTE_ENVIO_FEDEX'       => 'ENVIADO_FEDEX',
+            'PTE_ENVIO_PACK'        => 'ENVIADO_PACK',
+            'PTE_ENVIO_TOURLINE'    => 'ENVIADO_TOURLINE'
         );
                 
         if(isset($data['id']))
@@ -380,7 +380,7 @@ class Dashboard_model extends CI_Model {
             }
             
             // If we are try to set Tracking number
-            if(empty(trim($order->tracking)) && !empty(trim($data['tracking'])))
+            if(empty($order->tracking) && !empty($data['tracking']))
             {
                 if(array_key_exists($order->procesado, $rules))
                 {
