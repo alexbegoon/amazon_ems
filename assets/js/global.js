@@ -867,16 +867,16 @@ $(function() {
 
 function confirm(a)
 {
-    if ($( "#modal_window" ).length === 0)
+    if ($( "#modal_window_confirm" ).length === 0)
         {
-            $('body').append('<div id="modal_window"></div>');
+            $('body').append('<div id="modal_window_confirm"></div>');
         }
     
-    $( "#modal_window" ).empty();
+    $( "#modal_window_confirm" ).empty();
 
-    $( "#modal_window" ).append('<p>This operation can remove the temporal data from the DB.</p><br><p>Are you sure?</p>');
+    $( "#modal_window_confirm" ).append('<p>This operation can remove the temporal data from the DB.</p><br><p>Are you sure?</p>');
 
-    $( "#modal_window" ).dialog({
+    $( "#modal_window_confirm" ).dialog({
         resizable: false,
         height:250,
         modal: true,
@@ -888,7 +888,7 @@ function confirm(a)
           },
           Cancel: function() {
             $( this ).dialog( "close" );
-            $( "#modal_window" ).empty();
+            $( "#modal_window_confirm" ).empty();
             return false;
           }
         }
@@ -939,4 +939,19 @@ $(function() {
         // many thanks to http://stackoverflow.com/questions/12052132/jquery-mobile-click-event-binding-twice
         event.stopImmediatePropagation();
     });
+});
+
+
+//Main menu effects
+
+$(function() {
+   
+    $('body header').on('click', 'li', function(){
+        
+        var ul = $('header ul.'+$(this).attr('class'));
+        var options = {};
+        ul.toggle( 'slide', options, 100 );
+            
+    });
+    
 });

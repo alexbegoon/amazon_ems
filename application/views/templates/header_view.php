@@ -26,7 +26,7 @@
             <header>
                 <h1>
                     <span>
-                        AMAZONI VERSION 4.0
+                        AMAZONI 4
                     </span>
                 </h1>
                 <ul>
@@ -55,22 +55,30 @@
                         <a href="<?php echo base_url().'index.php/auth';?>">User Manager</a>
                     </li>
                     <li>
+                        <a href="<?php echo base_url().'index.php/tracking/';?>">Trackings</a>
+                    </li>
+                    <li>
                         <a href="<?php echo base_url().'index.php/auth/logout';?>">Logout</a>
                     </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="confirm(this);return false;">Exportar Preparacion Engelsa</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="confirm(this);return false;">Generar GLS</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/export_csv/generar_fedex_summary';?>" onclick="confirm(this);return false;">Generar FEDEX</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/export_csv/generar_pack_summary';?>" onclick="confirm(this);return false;">Generar PACK</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/tracking/';?>">Trackings</a>
+                    <li class="generar_menu">
+                        <span>Generar &#8711;</span>
+                        <ul class="dropdown generar_menu">
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="confirm(this);return false;">Exportar Preparacion Engelsa</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="confirm(this);return false;">Generar GLS</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_fedex_summary'; ?>" onclick="confirm(this);return false;">Generar FEDEX</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_pack_summary';?>" onclick="confirm(this);return false;">Generar PACK</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_tourline_summary';?>" onclick="confirm(this);return false;">Generar TOURLINE</a>
+                            </li>
+                        </ul>
                     </li>
                     <li>
                         <a href="<?php echo base_url().'index.php/products/page/';?>">Products</a>
@@ -97,7 +105,7 @@
             <header>
                 <h1>
                     <span>
-                        AMAZONI VERSION 4.0
+                        AMAZONI 4
                     </span>
                 </h1>
                 <ul>
@@ -119,20 +127,25 @@
                     <li>
                         <a href="<?php echo base_url().'index.php/amazon/';?>">Amazon</a>
                     </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="confirm(this);return false;">Exportar Preparacion Engelsa</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/auth/logout';?>">Logout</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="confirm(this);return false;">Generar GLS</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/export_csv/generar_fedex_summary'; ?>" onclick="confirm(this);return false;">Generar FEDEX</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/export_csv/generar_pack_summary';?>" onclick="confirm(this);return false;">Generar PACK</a>
+                    <li class="generar_menu">
+                        <span>Generar &#8711;</span>
+                        <ul class="dropdown generar_menu">
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="confirm(this);return false;">Exportar Preparacion Engelsa</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="confirm(this);return false;">Generar GLS</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_fedex_summary'; ?>" onclick="confirm(this);return false;">Generar FEDEX</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_pack_summary';?>" onclick="confirm(this);return false;">Generar PACK</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_tourline_summary';?>" onclick="confirm(this);return false;">Generar TOURLINE</a>
+                            </li>
+                        </ul>
                     </li>
                     <li>
                         <a href="<?php echo base_url().'index.php/tracking/';?>">Trackings</a>
@@ -142,6 +155,9 @@
                     </li>
                     <li>
                         <a href="<?php echo base_url().'index.php/magnet/';?>">Magnet</a>
+                    </li>
+                    <li>
+                        <a href="<?php echo base_url().'index.php/auth/logout';?>">Logout</a>
                     </li>
                     <li>
                         <a href="<?php echo base_url().'index.php/reviews/';?>">Reviews</a>

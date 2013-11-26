@@ -360,6 +360,26 @@ class Export_csv_model extends CI_Model
         }
     }
     
+    private function get_file_data_generar_tourline()
+    {
+        $query = ' SELECT * 
+                       FROM `pedidos` 
+                       WHERE `procesado` = \'PEDIDO_ENGELSA_TOURLINE_AQUI\' 
+            ';
+        
+        $result = $this->db->query($query);
+        
+        if($result)
+        {
+            $orders = $result->result();
+                        
+            foreach ($orders as $order)
+            {
+                $this->dashboard_model->set_status((int)$order->id, 'ENVIADO_TOURLINE');
+            }
+        }
+    }
+    
     public function get_summary($service)
     {
         if($service == 'generar_gls_summary')
@@ -419,6 +439,22 @@ class Export_csv_model extends CI_Model
                         ) AS `total_gasto` 
                        FROM `pedidos` 
                        WHERE `procesado` = \'PEDIDO_ENGELSA_PACK_AQUI\' 
+            ';
+        }
+        
+        if($service == 'generar_tourline_summary')
+        {
+            $query = ' SELECT *, 
+                       (SELECT SUM(`ingresos`) 
+                        FROM `pedidos` 
+                        WHERE  `procesado` =  \'PEDIDO_ENGELSA_TOURLINE_AQUI\' 
+                        ) AS `total_ingresos`, 
+                       (SELECT SUM(`gasto`) 
+                        FROM `pedidos` 
+                        WHERE  `procesado` =  \'PEDIDO_ENGELSA_TOURLINE_AQUI\' 
+                        ) AS `total_gasto` 
+                       FROM `pedidos` 
+                       WHERE `procesado` = \'PEDIDO_ENGELSA_TOURLINE_AQUI\' 
             ';
         }
         
