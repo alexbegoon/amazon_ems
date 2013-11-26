@@ -123,7 +123,13 @@
                     <td><input <?php echo $required;?> style="width:40px;" type="text" value="<?php $k='precio'.$i; echo $order->$k;?>" name="<?php echo $k;?>" /></td>
                     <td><a href="javascript:void(0);" title="Delete" class="remove" onclick="Amazoni.clear_product_in_order(<?php echo $i;?>);return false;"></a></td>
                 </tr>
-                <?php } else { ?>
+                <?php } else { 
+                    if ($i == 1) { 
+                        $required = 'required="required"';
+                    } else { 
+                        $required = '';
+                    }
+                ?>
                 <tr>
                     <td><b>Sku<?php echo $i;?></b></td>
                     <td><input <?php echo $required;?> style="width:auto;"  type="text" value="<?php $l = 'sku'.$i; $k='sku'.$i; echo !empty($order->$k)?$order->$k:null;?>" name="<?php echo $k;?>" /></td>
