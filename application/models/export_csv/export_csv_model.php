@@ -286,7 +286,7 @@ class Export_csv_model extends CI_Model
                 $row .= str_replace(';', ' ', $order->correo ? $order->correo : 'info@buyin.es') . ';';
                 $row .= "\r\n";
                 
-                $this->dashboard_model->set_status((int)$order->id, 'ENVIADO_GLS');
+                $this->dashboard_model->set_status((int)$order->id, 'PTE_ENVIO_GLS');
             }
             return utf8_decode($row);
         }
@@ -331,7 +331,7 @@ class Export_csv_model extends CI_Model
                 $row .= "\"BUYIN\"";
                 $row .= "\r\n";
                 
-                $this->dashboard_model->set_status((int)$order->id, 'ENVIADO_FEDEX');
+                $this->dashboard_model->set_status((int)$order->id, 'PTE_ENVIO_FEDEX');
             }
             
             return $row;
@@ -355,7 +355,7 @@ class Export_csv_model extends CI_Model
                         
             foreach ($orders as $order)
             {
-                $this->dashboard_model->set_status((int)$order->id, 'ENVIADO_PACK');
+                $this->dashboard_model->set_status((int)$order->id, 'PTE_ENVIO_PACK');
             }
         }
     }
@@ -375,7 +375,7 @@ class Export_csv_model extends CI_Model
                         
             foreach ($orders as $order)
             {
-                $this->dashboard_model->set_status((int)$order->id, 'ENVIADO_TOURLINE');
+                $this->dashboard_model->set_status((int)$order->id, 'PTE_ENVIO_TOURLINE');
             }
         }
     }

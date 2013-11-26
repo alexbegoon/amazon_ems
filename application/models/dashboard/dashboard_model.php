@@ -144,7 +144,8 @@ class Dashboard_model extends CI_Model {
             $query = 'INSERT INTO `pedidos` SET ';
         } 
         else 
-        {
+        {            
+            $data['procesado'] = $this->get_procesado($data);
             $query = 'UPDATE `pedidos` SET ';
         }
         
@@ -346,5 +347,49 @@ class Dashboard_model extends CI_Model {
         $order->web_field = $this->web_field_model->get_web_field($order->web);
                 
         return $order;
+    }
+    
+    /**
+     * Return correct procesado when update the order
+     * @param array $data
+     * @return mixed
+     */
+    private function get_procesado($data)
+    {
+        
+        // The rules if order takes the Tracking number then check old procesado
+        $rules = array(
+            'PTE_ENVIO_GLS' => 'ENVIADO_GLS',
+            'PTE_ENVIO_FEDEX' => 'ENVIADO_FEDEX',
+            'PTE_ENVIO_PACK' => 'ENVIADO_PACK',
+            'PTE_ENVIO_TOURLINE' => 'ENVIADO_TOURLINE'
+        );
+        
+        if(empty($data['procesado']) || !isset($data['procesado']))
+        {
+            return 'NO';
+        }
+        
+        if(isset($data['id']))
+        {
+            $order = $this->getOrder((int)$data['id']);
+            
+            if(!$order)
+            {
+                return $data['procesado'];
+            }
+            
+            // If we are try to set Tracking number
+            if(empty(trim($order->tracking)) && !empty(trim($data['tracking'])))
+            {
+                if(array_key_exists($order->procesado, $rules))
+                {
+                    $this->set_status((int)$order->id, $rules[$order->procesado]);
+                    return $rules[$order->procesado];
+                }
+            }
+        }
+        
+        return $data['procesado'];
     }
 }
