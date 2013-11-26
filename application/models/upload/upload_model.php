@@ -76,11 +76,10 @@ class Upload_model extends CI_Model {
                 if (!empty($data)) {
                     $data = utf8_encode($data);
                     $row_data = explode("\t", $data);
-                    $date = new DateTime($row_data[2]);
                     
                     $info[$row]['pedido']         = $row_data[0];
                     $info[$row]['nombre']         = $row_data[5];
-                    $info[$row]['fechaentrada']   = $date->format('Y-m-d');
+                    $info[$row]['fechaentrada']   = date('Y-m-d', time());
                     $info[$row]['direccion']      = trim($row_data[17] . ' ' . $row_data[18]);
                     $info[$row]['telefono']       = str_replace(' ', '', $row_data[6]);
                     $info[$row]['codigopostal']   = str_replace(' ', '', $row_data[22]);
