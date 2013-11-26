@@ -371,7 +371,12 @@ class Dashboard_model extends CI_Model {
             
             if(!$order)
             {
-                return $data['procesado'];
+                if(isset($data['procesado']))
+                {
+                    return $data['procesado'];
+                }
+
+                return 'NO';
             }
             
             // If we are try to set Tracking number
