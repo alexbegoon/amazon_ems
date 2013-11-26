@@ -5,7 +5,7 @@
  * @author Alexander.B <alexbassmusic@gmail.com> - https://www.odesk.com/users/~01ae8f6e1a81c189cf
  */
 $this->lang = new CI_Lang();
-$this->lang->load('print_order', $order->web_field->language);
+$this->lang->load('print_order', strtolower($order->web_field->language));
 ?>
 <div>
     <div class="A4">
