@@ -364,12 +364,7 @@ class Dashboard_model extends CI_Model {
             'PTE_ENVIO_PACK' => 'ENVIADO_PACK',
             'PTE_ENVIO_TOURLINE' => 'ENVIADO_TOURLINE'
         );
-        
-        if(empty($data['procesado']) || !isset($data['procesado']))
-        {
-            return 'NO';
-        }
-        
+                
         if(isset($data['id']))
         {
             $order = $this->getOrder((int)$data['id']);
@@ -390,6 +385,11 @@ class Dashboard_model extends CI_Model {
             }
         }
         
-        return $data['procesado'];
+        if(isset($data['procesado']))
+        {
+            return $data['procesado'];
+        }
+        
+        return 'NO';
     }
 }
