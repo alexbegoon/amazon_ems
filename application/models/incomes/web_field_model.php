@@ -366,9 +366,13 @@ class Web_field_model extends CI_Model
             return false;
         }
         
-        $query = ' SELECT *, DES_DECRYPT(`password`, \''.self::SECRET_KEY.'\') as `password` 
-                   FROM `'.$this->db->dbprefix('web_field').'` 
-                   WHERE `web` = \''.$web.'\' 
+        $query = ' SELECT `web_field`.*, 
+                   DES_DECRYPT(`web_field`.`password`, \''.self::SECRET_KEY.'\') as `password`, 
+                   `languages`.`language` 
+                   FROM `'.$this->db->dbprefix('web_field').'` as `web_field` 
+                   LEFT JOIN `'.$this->db->dbprefix('languages').'` as `languages` 
+                   ON `web_field`.`template_language` = `languages`.`code` 
+                   WHERE `web_field`.`web` = \''.$web.'\' 
         ';
         
         $result = $this->db->query($query);

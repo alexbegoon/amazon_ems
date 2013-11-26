@@ -60,9 +60,18 @@ body header
     display: none;
 }
 
-body article *
+body article *, .edit-ajax-container,
+.ui-dialog, .ui-widget, .ui-widget-content, 
+.ui-corner-all, .ui-front, .ui-draggable, .ui-resizable,
+ui-dialog-titlebar, .ui-widget-header, 
+.ui-corner-all, .ui-helper-clearfix,
+.ui-button, .ui-widget, .ui-state-default, 
+.ui-corner-all, .ui-button-icon-only, .ui-dialog-titlebar-close,
+.ui-dialog-title, .ui-resizable-handle, .ui-resizable-n, 
+.ui-dialog-titlebar, .ui-widget-header, .ui-corner-all, .ui-helper-clearfix, 
+div#modal_window, div#ajax-msg 
 {
-    display: none;
+    display: none!important;
 }
 
 article div.printer_document
@@ -99,6 +108,23 @@ table.order_table tr td
     display: table-cell!important;
     height: 15px;
     padding: 3px;
+}
+
+table.single_order_table
+{
+    border: 1px solid #000;
+}
+
+table.single_order_table tr td,
+table.single_order_table tr th
+{
+    border: 1px solid #000;
+    padding: 2px;
+}
+
+table.single_order_table tr td:first-child
+{
+    text-align: center;
 }
 
 div.A4 div.footer {

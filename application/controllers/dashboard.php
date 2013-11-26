@@ -132,6 +132,19 @@ class Dashboard extends CI_Controller {
         ->set_output(json_encode($data['order']));
     }
     
+    public function get_order_for_printer($id)
+    {
+        $data = array();
+        
+        $data['order'] = $this->dashboard_model->get_order_for_printer($id);
+        $data['method'] = humanize($this->router->method);
+        $data['html_of_order'] = $this->load->view('dashboard/print_order', $data, true);
+                
+        $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($data));
+    }
+
     public function create_order()
     {
         $post_data = $this->input->post();

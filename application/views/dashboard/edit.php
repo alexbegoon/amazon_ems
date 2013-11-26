@@ -96,7 +96,11 @@
         }
         ?>
         <b class="stokoni_in_edit_window"><?php echo $in_stokoni;?></b>
-        
+        <br>
+        <a href="javascript:void(0);" onclick="Amazoni.get_order_for_print(<?php echo $order->id;?>)">
+            <img src="<?php echo base_url().'assets/imgs/1-Normal-Printer-icon.png';?>" alt="Print Order" />
+            Print Order
+        </a>
     </div>
     <div class="bottom">
         <div>
@@ -120,12 +124,6 @@
                     <td><a href="javascript:void(0);" title="Delete" class="remove" onclick="Amazoni.clear_product_in_order(<?php echo $i;?>);return false;"></a></td>
                 </tr>
                 <?php } else { ?>
-                <?php if ($i == 1) { 
-                            $required = 'required="required"';
-                        } else { 
-                            $required = '';
-                        }
-                ?>
                 <tr>
                     <td><b>Sku<?php echo $i;?></b></td>
                     <td><input <?php echo $required;?> style="width:auto;"  type="text" value="<?php $l = 'sku'.$i; $k='sku'.$i; echo !empty($order->$k)?$order->$k:null;?>" name="<?php echo $k;?>" /></td>

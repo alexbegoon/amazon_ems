@@ -40,6 +40,30 @@ Amazoni.clear_product_in_order = function(n){
     }    
 };
 
+Amazoni.get_order_for_print = function(id){
+    
+    var order = {};
+    
+    $.ajax({
+            type: "POST",
+            url: url_before_index + "index.php/dashboard/get_order_for_printer/" + id
+          }).success(function( order ) {
+             
+            if ($( "#printer_document" ).length === 0)
+            {
+                $('body').append('<div id="printer_document" class="printer_document"></div>');
+            }
+
+            $( "#printer_document" ).empty();
+             console.log(order);
+             $( "#printer_document" ).html(order.html_of_order);
+
+            window.print();
+          });
+          
+    
+};
+
 $(function() {
     /* For zebra striping */
     $("table tr:nth-child(odd)").addClass("odd-row");

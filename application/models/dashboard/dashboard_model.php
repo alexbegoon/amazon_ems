@@ -102,7 +102,22 @@ class Dashboard_model extends CI_Model {
     
     public function getOrder($id) {
         
-        $query = ' SELECT * FROM `pedidos` WHERE id = '.(int)$id.' 
+        $query = ' SELECT *, 
+                   (`ingresos` - (
+                    `cantidad1` * `precio1` + 
+                    IFNULL(`cantidad2`,0) * IFNULL(`precio2`,0) + 
+                    IFNULL(`cantidad3`,0) * IFNULL(`precio3`,0) + 
+                    IFNULL(`cantidad4`,0) * IFNULL(`precio4`,0) + 
+                    IFNULL(`cantidad5`,0) * IFNULL(`precio5`,0) + 
+                    IFNULL(`cantidad6`,0) * IFNULL(`precio6`,0) + 
+                    IFNULL(`cantidad7`,0) * IFNULL(`precio7`,0) + 
+                    IFNULL(`cantidad8`,0) * IFNULL(`precio8`,0) + 
+                    IFNULL(`cantidad9`,0) * IFNULL(`precio9`,0) + 
+                    IFNULL(`cantidad10`,0) * IFNULL(`precio10`,0) 
+                    
+                    )) as `shipping_cost`  
+
+                    FROM `pedidos` WHERE id = '.(int)$id.' 
             
         ';
         
@@ -318,4 +333,18 @@ class Dashboard_model extends CI_Model {
         $this->db->cache_off();
     }
     
+    public function get_order_for_printer($id)
+    {
+        $this->load->model('incomes/web_field_model');
+        $this->load->model('incomes/shipping_costs_model');
+        $this->load->model('products/products_model');
+        
+        $order = $this->getOrder((int)$id);
+        
+        $order->products = $this->products_model->get_products_of_order((int)$id);
+        $order->country = $this->shipping_costs_model->get_country_name_by_code($order->pais);
+        $order->web_field = $this->web_field_model->get_web_field($order->web);
+                
+        return $order;
+    }
 }

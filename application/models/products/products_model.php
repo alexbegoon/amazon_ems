@@ -262,7 +262,7 @@ class Products_model extends CI_Model
      * Return product using SKU and WEB as index
      * @param string $sku
      * @param string $web
-     * @return string Name of product or boolean false on unsuccess
+     * @return mixed Object of product or boolean false on unsuccess
      */
     public function get_product($sku,$web)
     {
@@ -347,5 +347,36 @@ class Products_model extends CI_Model
         }
             
         return false;
+    }
+    
+    /**
+     * Return list of products for the order by order ID
+     * @param type $id
+     * @return array
+     */
+    public function get_products_of_order($id)
+    {
+        if(!is_integer($id))
+        {
+            return false;
+        }
+        
+        $products = array();
+        
+        $this->load->model('dashboard/dashboard_model');
+        
+        $order = $this->dashboard_model->getOrder($id);
+        
+        for($i=1;$i<=10;$i++)
+        {
+            if(!empty($order->{'sku'.$i}))
+            {
+                $products[$i] = $this->get_product($order->{'sku'.$i}, $order->web);
+                $products[$order->{'sku'.$i}] = $this->get_product($order->{'sku'.$i}, $order->web);
+                $products['product_'.$i] = $this->get_product($order->{'sku'.$i}, $order->web);
+            }
+        }
+        
+        return $products;
     }
 }
