@@ -167,6 +167,25 @@ class Export_csv extends CI_Controller {
         $this->load->template('export_csv/generar', $data);
     }
     
+    public function generar_tourline()
+    {
+        // Prepare data
+        $data['title'] = humanize($this->router->method);
+        $data['method'] = str_replace('_summary', '', $this->router->method);
+        
+        // Model tasks
+        $file = $this->export_csv_model->prepare_file($this->router->method);
+                
+        // Export file
+        if(!empty($file))
+        {
+            force_download($file->name, $file->data);
+        }
+        
+        // Load view 
+        $this->load->template('export_csv/generar', $data);
+    }
+    
     public function generar_gls_summary()
     {
         // Prepare data
@@ -196,6 +215,20 @@ class Export_csv extends CI_Controller {
     }
     
     public function generar_pack_summary()
+    {
+        // Prepare data
+        $data['title'] = humanize($this->router->method);
+        $data['method'] = str_replace('_summary', '', $this->router->method);
+        
+        // Model tasks
+        $data['summary'] = $this->export_csv_model->get_summary($this->router->method);
+        $data['orders_for_printer'] = $this->export_csv_model->get_orders_for_printer($this->router->method);
+        
+        // Load view 
+        $this->load->template('export_csv/generar', $data);
+    }
+    
+    public function generar_tourline_summary()
     {
         // Prepare data
         $data['title'] = humanize($this->router->method);
