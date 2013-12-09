@@ -171,7 +171,7 @@ class Export_csv_model extends CI_Model
                     {
                         $products['#'.$product_in_stock_temp->ean]['qty'] -= $product_in_stock_temp->quantity;
 
-                        if($products['#'.$product_in_stock_temp->ean]['qty'] == 0)
+                        if($products['#'.$product_in_stock_temp->ean]['qty'] <= 0)
                         {
                             unset($products['#'.$product_in_stock_temp->ean]);
                         }
