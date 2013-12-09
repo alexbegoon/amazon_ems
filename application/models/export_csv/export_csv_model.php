@@ -18,6 +18,7 @@ class Export_csv_model extends CI_Model
         $this->load->database();
         $this->load->model('dashboard/dashboard_model');
         $this->load->model('engelsa/engelsa_model');
+        $this->load->model('incomes/providers_model');
         
         $this->load->helper('my_string_helper');
     }
@@ -112,6 +113,12 @@ class Export_csv_model extends CI_Model
                     {
                         $order['sku'.$i] = str_replace('#', '', $order['sku'.$i]);
                         $order['sku'.$i] = '#'.$order['sku'.$i];
+                        
+                        // Only we need ENGELSA products
+                        if($this->providers_model->get_provider_name($order['sku'.$i], $order['web']) != 'ENGELSA')
+                        {
+                            continue;
+                        }
                         
                         if(array_key_exists($order['sku'.$i],$products))
                         {

@@ -255,6 +255,12 @@ class Stokoni_model extends CI_Model
     {
         if(is_object($product) && $quantity > 0)
         {
+            // Only we need ENGELSA products
+            if($product->proveedor != 'ENGELSA')
+            {
+                return false;
+            }
+            
             $query = ' INSERT INTO `'.$this->db->dbprefix('stock_temp').'` 
                        (`ean`, `price`, `quantity`, `name`)
                        VALUES
