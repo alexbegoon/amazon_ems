@@ -40,6 +40,7 @@ class Sync_general
         $this->_CI->load->model('incomes/shipping_costs_model');
         $this->_CI->load->model('incomes/taxes_model');
         $this->_CI->load->model('incomes/web_field_model');
+        $this->_CI->load->library('currency');
         
         $web = $this->_CI->web_field_model->get_web_field($this->_config->web);
         $this->_config->output_host          = $web->hostname;
@@ -106,10 +107,25 @@ class Sync_general
                 
                 if(!$this->isExist($order)) {
                     
+                    $order = $this->convert_currency($order);
+                    
                     $order[9]   = $this->getProcesado($order);
                     $order[45]  = $this->getGasto($order, false); //calculate Gasto
                     unset($order[48]); // Unset order status. We need no this in pedido table
                     unset($order[49]); // Unset order shipping phrase. We need no this in pedido table
+                    // Unset order currencies
+                    unset($order[50]);
+                    unset($order[51]);
+                    unset($order[52]);
+                    unset($order[53]);
+                    unset($order[54]);
+                    unset($order[55]);
+                    unset($order[56]);
+                    unset($order[57]);
+                    unset($order[58]);
+                    unset($order[59]);
+                    unset($order[60]);
+                    
                     $order[48]  = $this->get_stokoni_status($order);
                     
                     try {
@@ -478,5 +494,44 @@ class Sync_general
         }
         
         return null;
+    }
+    
+    /**
+     * Convert currency to default currency
+     * @param array $order
+     * @return array Order
+     */
+    protected function convert_currency($order)
+    {
+        $data = array();
+        
+        $data['currency']   = $order[50];
+        $data['price']      = $order[40];
+        
+        $data = $this->_CI->currency->convertCurrency($data);
+        
+        $order[50]   = $data['currency'];
+        $order[40]   = $data['price'];
+        
+        $j = 11;
+        
+        for($i = 51; $i <= 60; $i++)
+        {
+            $data['currency']   = $order[$i];
+            $data['price']      = $order[$j];
+            
+            if(empty($data['price']) || empty($data['currency']))
+            {
+                continue;
+            }
+            
+            $data = $this->_CI->currency->convertCurrency($data);
+            
+            $order[$j]   = $data['price'];
+            
+            $j += 3;
+        }
+        
+        return $order;
     }
 }

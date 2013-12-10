@@ -66,7 +66,18 @@ class Sync extends Sync_general
                          (SELECT `items`.`product_quantity`    FROM `'.$prefix.'virtuemart_order_items` AS `items` WHERE `items`.`virtuemart_order_id` = `orders`.`virtuemart_order_id` LIMIT 9,1) AS `cantidad10`,
                          `orders`.`order_total` AS `ingresos`, \''.$this->_config->web.'\' AS `web`, `orders`.`customer_note` AS `comentarios`, 
                          NULL AS `tracking`, `userinfo`.`email` AS `correo`, 0 AS `gasto`, NULL AS `localidad`, 
-                         `paymethod`.`payment_name` AS `formadepago`, `orders`.`order_status` , '.$this->get_shipment_methods_expression().'
+                         `paymethod`.`payment_name` AS `formadepago`, `orders`.`order_status` , '.$this->get_shipment_methods_expression().', 
+                         `currencies`.`currency_code_3` as `order_currency`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_1`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_2`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_3`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_4`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_5`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_6`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_7`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_8`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_9`, 
+                         `currencies`.`currency_code_3` as `order_item_currency_10`
             
                   FROM `'.$prefix.'virtuemart_orders` as `orders` 
                   LEFT JOIN `'.$prefix.'virtuemart_paymentmethods_es_es` AS `paymethod` 
@@ -77,6 +88,8 @@ class Sync extends Sync_general
                   ON `orders`.`virtuemart_user_id` = `user`.`id` 
                   LEFT JOIN `'.$prefix.'virtuemart_countries` AS `country` 
                   ON `country`.`virtuemart_country_id` = `userinfo`.`virtuemart_country_id` 
+                  LEFT JOIN `'.$prefix.'virtuemart_currencies` AS `currencies` 
+                  ON `orders`.`order_currency` = `currencies`.`virtuemart_currency_id` 
                   '.$this->get_shipment_methods_joins().' 
                   WHERE `orders`.`created_on` > \''.$start_date.'\' AND `userinfo`.`address_type` = \'BT\'
         ';

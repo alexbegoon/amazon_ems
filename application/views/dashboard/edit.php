@@ -47,11 +47,11 @@
             </tr>
             <tr>
                 <td>Ingresos</td>
-                <td><input type="text" name="ingresos" value="<?php echo $order->ingresos;?>" /></td>
+                <td><input type="text" name="ingresos" value="<?php echo round($order->ingresos,2);?>" /></td>
             </tr>
             <tr>
                 <td>Gasto</td>
-                <td><input type="text" name="gasto" value="<?php echo $order->gasto;?>" /></td>
+                <td><input type="text" name="gasto" value="<?php echo round($order->gasto,2);?>" /></td>
             </tr>
         </table>
     </div>   
@@ -120,7 +120,7 @@
                     <td><b>Cantidad<?php echo $i;?></b></td>
                     <td><input <?php echo $required;?> style="width:20px;" type="text" value="<?php $k='cantidad'.$i; echo $order->$k;?>" name="<?php echo $k;?>" /></td>
                     <td><b>Precio<?php echo $i;?></b></td>
-                    <td><input <?php echo $required;?> style="width:40px;" type="text" value="<?php $k='precio'.$i; echo $order->$k;?>" name="<?php echo $k;?>" /></td>
+                    <td><input <?php echo $required;?> style="width:40px;" type="text" value="<?php $k='precio'.$i; echo round($order->$k,2);?>" name="<?php echo $k;?>" /></td>
                     <td><a href="javascript:void(0);" title="Delete" class="remove" onclick="Amazoni.clear_product_in_order(<?php echo $i;?>);return false;"></a></td>
                 </tr>
                 <?php } else { 
@@ -136,7 +136,7 @@
                     <td><b>Cantidad<?php echo $i;?></b></td>
                     <td><input <?php echo $required;?> style="width:20px;" type="text" value="<?php $k='cantidad'.$i; echo !empty($order->$l)?$order->$k:null;?>" name="<?php echo $k;?>" /></td>
                     <td><b>Precio<?php echo $i;?></b></td>
-                    <td><input <?php echo $required;?> style="width:40px;" type="text" value="<?php $k='precio'.$i; echo !empty($order->$l)?$order->$k:null;?>" name="<?php echo $k;?>" /></td>
+                    <td><input <?php echo $required;?> style="width:40px;" type="text" value="<?php $k='precio'.$i; echo !empty($order->$l)?round($order->$k,2):null;?>" name="<?php echo $k;?>" /></td>
                     <td><a href="javascript:void(0);" title="Delete" class="remove" onclick="Amazoni.clear_product_in_order(<?php echo $i;?>);return false;"></a></td>
                 </tr>
                 <?php } ?>

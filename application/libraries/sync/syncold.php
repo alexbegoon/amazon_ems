@@ -68,8 +68,19 @@ class SyncOld extends Sync_general
                          (SELECT `items`.`product_quantity`    FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 9,1) AS `cantidad10`, 
                          ROUND(`orders`.`order_total`, 2) AS `ingresos`, \''.$this->_config->web.'\' AS `web`, `orders`.`customer_note` AS `comentarios`, 
                          NULL AS `tracking`, `vm_order_user_info`.`user_email` AS `correo`, 0 AS `gasto`, NULL AS `localidad`, 
-                         `paymethod`.`payment_method_name` AS `formadepago`, `orders`.`order_status`, `orders`.`ship_method_id` as `shipping_phrase` 
-            
+                         `paymethod`.`payment_method_name` AS `formadepago`, `orders`.`order_status`, `orders`.`ship_method_id` as `shipping_phrase`, 
+                         `orders`.`order_currency` as `order_currency`, 
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 0,1) AS `order_item_currency_1`, 
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 1,1) AS `order_item_currency_2`, 
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 2,1) AS `order_item_currency_3`,     
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 3,1) AS `order_item_currency_4`,     
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 4,1) AS `order_item_currency_5`, 
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 5,1) AS `order_item_currency_6`, 
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 6,1) AS `order_item_currency_7`, 
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 7,1) AS `order_item_currency_8`,     
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 8,1) AS `order_item_currency_9`,     
+                         (SELECT `items`.`order_item_currency` FROM `'.$prefix.'vm_order_item` AS `items` WHERE `items`.`order_id` = `orders`.`order_id` LIMIT 9,1) AS `order_item_currency_10`    
+                         
                   FROM `'.$prefix.'vm_orders` as `orders` 
                   LEFT JOIN `'.$prefix.'vm_order_payment` AS `payment` 
                   USING (`order_id`)    
