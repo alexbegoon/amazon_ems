@@ -41,6 +41,14 @@
                 <span>Edit French Email</span>
             </a>
         </div>
+        <div class="menu-item">
+            <a class="menu-item-img" href="<?php echo base_url().'index.php/magnet/edit_template/it';?>">
+                <img src="<?php echo base_url().'assets/imgs/flags/Italy.png';?>" alt="Edit French Email" />
+            </a>
+            <a class="menu-item" href="<?php echo base_url().'index.php/magnet/edit_template/it';?>">
+                <span>Edit Italian Email</span>
+            </a>
+        </div>
     </div>
 </article>
 
