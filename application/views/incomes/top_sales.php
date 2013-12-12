@@ -51,7 +51,7 @@
             <p><?php echo $total_rows;?> products found.</p>
             <?php } else { ?>
             <p>Have no products.</p>
-            <? } ?>
+            <?php } ?>
         </div>
     </div>
     

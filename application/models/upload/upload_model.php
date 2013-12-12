@@ -87,7 +87,10 @@ class Upload_model extends CI_Model {
                     $info[$row]['estado']         = $row_data[20];
                     $info[$row]['web']            = $web;
                     $info[$row]['sku']            = str_replace('FR#BUYIN2012-', '#', str_replace('DE-', '#', $row_data[7]));
-                    $info[$row]['price']          = $row_data[11];
+                    if($row_data[9] >= 1)
+                    {
+                        $info[$row]['price']      = $row_data[11] / $row_data[9];
+                    }
                     $info[$row]['quantity']       = $row_data[9];
                     $info[$row]['currency']       = $row_data[10];
                     $info[$row]['shipping_price'] = $row_data[13];
@@ -158,7 +161,7 @@ class Upload_model extends CI_Model {
                 $params[] = $order['sku'];
                 $params[] = $order['price'];
                 $params[] = (int)$order['quantity'];
-                $params[] = $this->get_ingresos($order['price'],$order['shipping_price']);
+                $params[] = $this->get_ingresos($order['price'],$order['shipping_price'],$order['quantity']);
                 $params[] = $order['in_stokoni'];
                        
                 try
@@ -779,11 +782,11 @@ class Upload_model extends CI_Model {
         return null;
     }
     
-    private function get_ingresos($price, $shipping_price)
+    private function get_ingresos($price, $shipping_price, $quantity)
     {
         $tax = $this->taxes_model->get_tax_by_name('Amazon')->percent;
         
-        $ingreso = ($price + $shipping_price) - (($price * $tax / 100) + ($shipping_price * $tax / 100));
+        $ingreso = ($price * $quantity + $shipping_price) - (($price * $quantity * $tax / 100) + ($shipping_price * $tax / 100));
         
         return $ingreso;
     }

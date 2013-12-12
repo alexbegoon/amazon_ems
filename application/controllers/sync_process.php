@@ -114,4 +114,13 @@ class Sync_process extends CI_Controller
         $this->reviews_model->sync_reviews();
     }
     
+    /**
+     * Be very carefull! Dangerous method!
+     */
+    public function fix_top_sales()
+    {
+//        $this->load->model('incomes/top_sales_model');
+//        $this->top_sales_model->fix_top_sales_table();
+    }
+    
 }

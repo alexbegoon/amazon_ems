@@ -144,7 +144,7 @@ class Top_sales_model extends CI_Model
             $limit      = '0, 50';
         }
         
-        $query = ' SELECT `sku`, `product_name`, SUM(`sales_price`) as `total_sold`, 
+        $query = ' SELECT `sku`, `product_name`, SUM(`sales_price` * `quantity`) as `total_sold`, 
                           SUM(`quantity`) as `total_quantity`, `provider_name`, MAX(`order_date`) as `last_date_purchase` 
                    FROM `'.$this->db->dbprefix('top_sales').'` 
                    '.$where.' 
@@ -196,7 +196,7 @@ class Top_sales_model extends CI_Model
         
         $start_date = date('Y-m-d', mktime(0, 0, 0, date('m') - $period, date('d'), date('Y')));
         
-        $query = ' SELECT `top`.`web`, SUM(`top`.`sales_price`) as `total_sold`, 
+        $query = ' SELECT `top`.`web`, SUM(`top`.`sales_price` * `top`.`quantity`) as `total_sold`, 
                            SUM(`top`.`quantity`) as `total_quantity`, 
                            MAX(`top`.`order_date`) as `last_date_purchase`, 
                            `top`.`sku`, `top`.`product_name`, 
@@ -413,5 +413,31 @@ class Top_sales_model extends CI_Model
         }
         
         return $sku;
+    }
+    
+    /**
+     * According to issue #258
+     * helps to fix Amazon's orders pricing. 
+     * Use only ONE time.
+     */
+    public function fix_top_sales_table()
+    {
+        $this->db->or_where('web =','AMAZON');
+        $this->db->or_where('web =','AMAZON-USA');
+        $result = $this->db->get('top_sales');
+        
+        $orders = $result->result();
+        
+        foreach ($orders as $order)
+        {
+            if($order->quantity >= 1)
+            {
+                $order->sales_price = $order->sales_price / $order->quantity;
+            }
+            
+            $this->db->where('id', $order->id);
+            $this->db->update('top_sales', $order);
+            
+        }
     }
 }
