@@ -87,8 +87,8 @@ article div.printer_document *
 div.A4
 {
     position: relative;
-    width: 21cm;
-    min-height: 29.7cm;
+    width: 22cm;
+    min-height: 28.7cm;
     font-size: 14pt;
     page-break-after: always;
 }

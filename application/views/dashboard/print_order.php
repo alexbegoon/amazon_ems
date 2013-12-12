@@ -24,7 +24,7 @@ $this->lang->load('print_order', strtolower($order->web_field->language));
         <hr>
         <span style="font-weight:bold;"><?php echo $this->lang->line('print_order_id');?>: <?php echo $order->pedido;?></span>
         <br>
-        <span><?php echo $order->web_field->title;?><span>
+        <span><?php echo $order->web_field->title;?></span>
         <hr>
         <table class="single_order_table">
             <tr>
