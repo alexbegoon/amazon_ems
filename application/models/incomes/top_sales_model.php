@@ -149,7 +149,7 @@ class Top_sales_model extends CI_Model
                    FROM `'.$this->db->dbprefix('top_sales').'` 
                    '.$where.' 
                    GROUP BY `sku` 
-                   ORDER BY `total_quantity` DESC 
+                   ORDER BY `total_sold` DESC 
                    LIMIT '.$limit.'
         ';
         
@@ -206,7 +206,7 @@ class Top_sales_model extends CI_Model
                    ON `orders`.`id` = `order_id` 
                    WHERE `sku` = \''.$sku.'\' AND `order_date` > \''.$start_date.'\' 
                    GROUP BY `web`, `country` 
-                   ORDER BY `total_quantity` DESC
+                   ORDER BY `total_sold` DESC
         ';
         
         $result = $this->db->query($query);
