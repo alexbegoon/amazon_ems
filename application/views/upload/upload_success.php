@@ -104,7 +104,7 @@
                 
             </tr>
             
-            <? } ?>
+            <?php } ?>
         </table>
 <p><?php echo count($orders);?> orders was parsed</p>
 <input type="submit" value="Store orders" />
