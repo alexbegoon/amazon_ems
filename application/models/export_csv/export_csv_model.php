@@ -111,14 +111,15 @@ class Export_csv_model extends CI_Model
                 {
                     if(!empty($order['sku'.$i]))
                     {
-                        $order['sku'.$i] = str_replace('#', '', $order['sku'.$i]);
-                        $order['sku'.$i] = '#'.$order['sku'.$i];
                         
                         // Only we need ENGELSA products
                         if($this->providers_model->get_provider_name($order['sku'.$i], $order['web']) != 'ENGELSA')
                         {
                             continue;
                         }
+                        
+                        $order['sku'.$i] = str_replace('#', '', $order['sku'.$i]);
+                        $order['sku'.$i] = '#'.$order['sku'.$i];
                         
                         if(array_key_exists($order['sku'.$i],$products))
                         {
