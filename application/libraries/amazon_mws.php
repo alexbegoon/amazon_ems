@@ -6,10 +6,22 @@
  */
 class Amazon_MWS
 {
+    private $_CI = null; // Instance of CodeIgniter
+
+
     public function __construct()
     {
         require_once 'MarketplaceWebService/config.php';
         require_once 'MarketplaceWebService/Interface.php';
+        require_once 'MarketplaceWebService/Mock.php';
+        
+        
+        
+        // Instance of Codeigniter App
+        $this->_CI =& get_instance();
+        
+        //Load
+        $this->_CI->load->model('amazon/amazon_model');
     }
     
     /**
@@ -76,32 +88,32 @@ class Amazon_MWS
     public function submit_feed_request($feed,$feed_type)
     {
         require_once 'MarketplaceWebService/Model/SubmitFeedRequest.php';
-               
-        var_dump($feed);
+                       
+        $marketplaceIdArray = array("Id" => array('A13V1IB3VIYZZH',
+                                                  'A1PA6795UKMFR9',
+                                                  'APJ6JRA9NG5V4',
+                                                  'A1RKKUPIHCS9HS',
+                                                  'A1F83G8C2ARO7P'
+                                                                    ));
         
-//        $marketplaceIdArray = array("Id" => array('A13V1IB3VIYZZH',
-//                                                  'A1PA6795UKMFR9',
-//                                                  'APJ6JRA9NG5V4',
-//                                                  'A1RKKUPIHCS9HS',
-//                                                  'A1F83G8C2ARO7P'
-//                                                                    ));
-//        
-//        $feedHandle = @fopen('php://memory', 'rw+');
-//        fwrite($feedHandle, $feed);
-//        rewind($feedHandle);
-//
-//        $request = new MarketplaceWebService_Model_SubmitFeedRequest();
-//        $request->setMerchant(MERCHANT_ID);
-//        $request->setMarketplaceIdList($marketplaceIdArray);
-//        $request->setFeedType($feed_type);
-//        $request->setContentMd5(base64_encode(md5(stream_get_contents($feedHandle), true)));
-//        rewind($feedHandle);
-//        $request->setPurgeAndReplace(false);
-//        $request->setFeedContent($feedHandle);
-//
-//        rewind($feedHandle);
-//        
-//        $this->invoke_submit_feed($this->instance_of_client('gb'), $request);
+        $feedHandle = @fopen(APPPATH . 'logs/amazon_stock_upload_'.date('Y-m-d_h_m_s',time()).'.xml', 'w+');
+        fwrite($feedHandle, $feed);
+        rewind($feedHandle);
+
+        $request = new MarketplaceWebService_Model_SubmitFeedRequest();
+        $request->setMerchant(MERCHANT_ID);
+        //$request->setMarketplaceIdList($marketplaceIdArray);
+        $request->setFeedType($feed_type);
+        $request->setContentMd5(base64_encode(md5(stream_get_contents($feedHandle), true)));
+        rewind($feedHandle);
+        $request->setPurgeAndReplace(false);
+        $request->setFeedContent($feedHandle);
+
+        rewind($feedHandle);
+        
+        $this->invoke_submit_feed($this->instance_of_client('gb'), $request);
+        
+        @fclose($feedHandle);
     }
     
     /**
@@ -173,6 +185,15 @@ class Amazon_MWS
                 } 
 
                 echo("            ResponseHeaderMetadata: " . $response->getResponseHeaderMetadata() . "\n");
+                
+                $this->_CI->amazon_model->log_response(
+                        $feedSubmissionInfo->getFeedSubmissionId(),
+                        $feedSubmissionInfo->getFeedType(),
+                        $feedSubmissionInfo->getSubmittedDate()->format(DATE_FORMAT),
+                        $feedSubmissionInfo->getFeedProcessingStatus(),
+                        $responseMetadata->getRequestId()
+                        );
+                
      } catch (MarketplaceWebService_Exception $ex) {
          echo("Caught Exception: " . $ex->getMessage() . "\n");
          echo("Response Status Code: " . $ex->getStatusCode() . "\n");
@@ -181,6 +202,16 @@ class Amazon_MWS
          echo("Request ID: " . $ex->getRequestId() . "\n");
          echo("XML: " . $ex->getXML() . "\n");
          echo("ResponseHeaderMetadata: " . $ex->getResponseHeaderMetadata() . "\n");
+         
+         $msg = "Caught Exception: " . $ex->getMessage() . "\n";
+         $msg .= "Response Status Code: " . $ex->getStatusCode() . "\n";
+         $msg .= "Error Code: " . $ex->getErrorCode() . "\n";
+         $msg .= "Error Type: " . $ex->getErrorType() . "\n";
+         $msg .= "Request ID: " . $ex->getRequestId() . "\n";
+         $msg .= "XML: " . $ex->getXML() . "\n";
+         $msg .= "ResponseHeaderMetadata: " . $ex->getResponseHeaderMetadata() . "\n";
+         
+         log_message('error', $msg);
      }
  }
  
@@ -195,38 +226,252 @@ class Amazon_MWS
      {
          return FALSE; 
      }
-     
+     $merchant_id = MERCHANT_ID;
      //prepare xml feed
-     $xml = '
-            <?xml version="1.0" encoding="utf-8" ?>
+     $xml = <<<EOD
+            <?xml version="1.0" encoding="UTF-8"?>
             <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
             <Header>
             <DocumentVersion>1.01</DocumentVersion>
-            <MerchantIdentifier>$merchant_token</MerchantIdentifier>
+            <MerchantIdentifier>$merchant_id</MerchantIdentifier>
             </Header>
             <MessageType>Inventory</MessageType>
-            <Message>
-    ';
+            <PurgeAndReplace>false</PurgeAndReplace>
+            
+EOD;
      
      $i = 1;
      foreach ($data as $product)
      {
-           $xml .= '<MessageID>'.$i.'</MessageID>
-                    <OperationType>Update</OperationType>
-                    <Inventory>
-                    <SKU>'.$product->sku.'</SKU>
-                    <Quantity>'.$product->stock.'</Quantity>
-                    <FulfillmentLatency>1</FulfillmentLatency>
-                    </Inventory>'; 
+         //B003OWXKGM
+           $xml .= <<<EOD
+            <Message>
+            <MessageID>$i</MessageID>
+            <OperationType>Update</OperationType>
+            <Inventory>
+            <SKU>$product->sku</SKU>
+            <Quantity>$product->stock</Quantity>
+            </Inventory>
+            </Message>
+                   
+EOD;
            $i++;
      }
      
-     $xml .= '
-            </Message>
+     $xml .= <<<EOD
             </AmazonEnvelope>
-    ';
+EOD;
+     
      $this->submit_feed_request($xml, '_POST_INVENTORY_AVAILABILITY_DATA_');
  }
  
+  
+ public function check_feed_submission_result($FeedSubmissionId)
+ {
+        require_once 'MarketplaceWebService/Model/GetFeedSubmissionListRequest.php';
+        require_once 'MarketplaceWebService/Model/StatusList.php';
+      
+        $request = new MarketplaceWebService_Model_GetFeedSubmissionListRequest();
+        $request->setMerchant(MERCHANT_ID);
+
+        $statusList = new MarketplaceWebService_Model_StatusList();
+        $request->setFeedProcessingStatusList($statusList->withStatus('_DONE_'));
+
+        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
+        
+        $request->setFeedProcessingStatusList($statusList->withStatus('_SUBMITTED_'));
+
+        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
+        
+        $request->setFeedProcessingStatusList($statusList->withStatus('_CANCELLED_'));
+
+        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
+        
+        $request->setFeedProcessingStatusList($statusList->withStatus('_IN_PROGRESS_'));
+
+        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
+        
+        $request->setFeedProcessingStatusList($statusList->withStatus('_IN_SAFETY_NET_'));
+
+        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
+        
+        $request->setFeedProcessingStatusList($statusList->withStatus('_UNCONFIRMED_'));
+
+        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
+ }
  
+  /**
+  * Get Feed Submission List Action Sample
+  * returns a list of feed submission identifiers and their associated metadata
+  *   
+  * @param MarketplaceWebService_Interface $service instance of MarketplaceWebService_Interface
+  * @param mixed $request MarketplaceWebService_Model_GetFeedSubmissionList or array of parameters
+  */
+  public function invokeGetFeedSubmissionList(MarketplaceWebService_Interface $service, $request) 
+  {
+      try {
+              $response = $service->getFeedSubmissionList($request);
+              
+                echo ("Service Response\n");
+                echo ("=============================================================================\n");
+                if ($response->isSetResponseMetadata()) { 
+                    echo("            ResponseMetadata\n");
+                    $responseMetadata = $response->getResponseMetadata();
+                    if ($responseMetadata->isSetRequestId()) 
+                    {
+                        echo("                RequestId\n");
+                        echo("                    " . $responseMetadata->getRequestId() . "\n");
+                    }
+                } 
+                echo("        GetFeedSubmissionListResponse\n");
+                if ($response->isSetGetFeedSubmissionListResult()) { 
+                    echo("            GetFeedSubmissionListResult\n");
+                    $getFeedSubmissionListResult = $response->getGetFeedSubmissionListResult();
+                    if ($getFeedSubmissionListResult->isSetNextToken()) 
+                    {
+                        echo("                NextToken\n");
+                        echo("                    " . $getFeedSubmissionListResult->getNextToken() . "\n");
+                    }
+                    if ($getFeedSubmissionListResult->isSetHasNext()) 
+                    {
+                        echo("                HasNext\n");
+                        echo("                    " . $getFeedSubmissionListResult->getHasNext() . "\n");
+                    }
+                    $feedSubmissionInfoList = $getFeedSubmissionListResult->getFeedSubmissionInfoList();
+                    foreach ($feedSubmissionInfoList as $feedSubmissionInfo) {
+                        echo("                FeedSubmissionInfo\n");
+                        if ($feedSubmissionInfo->isSetFeedSubmissionId()) 
+                        {
+                            echo("                    FeedSubmissionId\n");
+                            echo("                        " . $feedSubmissionInfo->getFeedSubmissionId() . "\n");
+                        }
+                        if ($feedSubmissionInfo->isSetFeedType()) 
+                        {
+                            echo("                    FeedType\n");
+                            echo("                        " . $feedSubmissionInfo->getFeedType() . "\n");
+                        }
+                        if ($feedSubmissionInfo->isSetSubmittedDate()) 
+                        {
+                            echo("                    SubmittedDate\n");
+                            echo("                        " . $feedSubmissionInfo->getSubmittedDate()->format(DATE_FORMAT) . "\n");
+                        }
+                        if ($feedSubmissionInfo->isSetFeedProcessingStatus()) 
+                        {
+                            echo("                    FeedProcessingStatus\n");
+                            echo("                        " . $feedSubmissionInfo->getFeedProcessingStatus() . "\n");
+                        }
+                        if ($feedSubmissionInfo->isSetStartedProcessingDate()) 
+                        {
+                            echo("                    StartedProcessingDate\n");
+                            echo("                        " . $feedSubmissionInfo->getStartedProcessingDate()->format(DATE_FORMAT) . "\n");
+                        }
+                        if ($feedSubmissionInfo->isSetCompletedProcessingDate()) 
+                        {
+                            echo("                    CompletedProcessingDate\n");
+                            echo("                        " . $feedSubmissionInfo->getCompletedProcessingDate()->format(DATE_FORMAT) . "\n");
+                        }
+                        
+                        $this->_CI->amazon_model->log_response(
+                                $feedSubmissionInfo->getFeedSubmissionId(),
+                                $feedSubmissionInfo->getFeedType(),
+                                $feedSubmissionInfo->getSubmittedDate()->format(DATE_FORMAT),
+                                $feedSubmissionInfo->getFeedProcessingStatus(),
+                                $responseMetadata->getRequestId(),
+                                @$feedSubmissionInfo->getStartedProcessingDate()->format(DATE_FORMAT),
+                                @$feedSubmissionInfo->getCompletedProcessingDate()->format(DATE_FORMAT),
+                                $this->get_request_result($feedSubmissionInfo->getFeedSubmissionId())
+                        );
+                    }
+                } 
+                
+
+                echo("            ResponseHeaderMetadata: " . $response->getResponseHeaderMetadata() . "\n");
+     } catch (MarketplaceWebService_Exception $ex) {
+         echo("Caught Exception: " . $ex->getMessage() . "\n");
+         echo("Response Status Code: " . $ex->getStatusCode() . "\n");
+         echo("Error Code: " . $ex->getErrorCode() . "\n");
+         echo("Error Type: " . $ex->getErrorType() . "\n");
+         echo("Request ID: " . $ex->getRequestId() . "\n");
+         echo("XML: " . $ex->getXML() . "\n");
+         echo("ResponseHeaderMetadata: " . $ex->getResponseHeaderMetadata() . "\n");
+         
+         $msg = "Caught Exception: " . $ex->getMessage() . "\n";
+         $msg .= "Response Status Code: " . $ex->getStatusCode() . "\n";
+         $msg .= "Error Code: " . $ex->getErrorCode() . "\n";
+         $msg .= "Error Type: " . $ex->getErrorType() . "\n";
+         $msg .= "Request ID: " . $ex->getRequestId() . "\n";
+         $msg .= "XML: " . $ex->getXML() . "\n";
+         $msg .= "ResponseHeaderMetadata: " . $ex->getResponseHeaderMetadata() . "\n";
+         
+         log_message('error', $msg);
+     }
+ }
+ 
+ 
+ 
+ public function get_request_result($FeedSubmissionId)
+ {
+     require_once 'MarketplaceWebService/Model/GetFeedSubmissionResultRequest.php';
+     
+     $this->_CI->load->helper('file');
+     
+     $request = new MarketplaceWebService_Model_GetFeedSubmissionResultRequest();
+     $request->setMerchant(MERCHANT_ID);
+     $request->setFeedSubmissionId($FeedSubmissionId);    
+     $request->setFeedSubmissionResult(@fopen(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.date('Y-m-d',time()).'.xml', 'w+'));
+     
+     $service = $this->instance_of_client('gb');
+          
+     $response = $service->getFeedSubmissionResult($request);
+          
+     return read_file(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.date('Y-m-d',time()). '.xml');
+     
+ }
+ 
+ /**
+  * Get Feed Submission Result Action Sample
+  * retrieves the feed processing report
+  *   
+  * @param MarketplaceWebService_Interface $service instance of MarketplaceWebService_Interface
+  * @param mixed $request MarketplaceWebService_Model_GetFeedSubmissionResult or array of parameters
+  */
+  public function invokeGetFeedSubmissionResult(MarketplaceWebService_Interface $service, $request) 
+  {
+      try {
+              $response = $service->getFeedSubmissionResult($request);
+              
+                echo ("Service Response\n");
+                echo ("=============================================================================\n");
+
+                echo("        GetFeedSubmissionResultResponse\n");
+                if ($response->isSetGetFeedSubmissionResultResult()) {
+                  $getFeedSubmissionResultResult = $response->getGetFeedSubmissionResultResult(); 
+                  echo ("            GetFeedSubmissionResult");
+                  
+                  if ($getFeedSubmissionResultResult->isSetContentMd5()) {
+                    echo ("                ContentMd5");
+                    echo ("                " . $getFeedSubmissionResultResult->getContentMd5() . "\n");
+                  }
+                }
+                if ($response->isSetResponseMetadata()) { 
+                    echo("            ResponseMetadata\n");
+                    $responseMetadata = $response->getResponseMetadata();
+                    if ($responseMetadata->isSetRequestId()) 
+                    {
+                        echo("                RequestId\n");
+                        echo("                    " . $responseMetadata->getRequestId() . "\n");
+                    }
+                } 
+
+                echo("            ResponseHeaderMetadata: " . $response->getResponseHeaderMetadata() . "\n");
+     } catch (MarketplaceWebService_Exception $ex) {
+         echo("Caught Exception: " . $ex->getMessage() . "\n");
+         echo("Response Status Code: " . $ex->getStatusCode() . "\n");
+         echo("Error Code: " . $ex->getErrorCode() . "\n");
+         echo("Error Type: " . $ex->getErrorType() . "\n");
+         echo("Request ID: " . $ex->getRequestId() . "\n");
+         echo("XML: " . $ex->getXML() . "\n");
+         echo("ResponseHeaderMetadata: " . $ex->getResponseHeaderMetadata() . "\n");
+     }
+ }
 }

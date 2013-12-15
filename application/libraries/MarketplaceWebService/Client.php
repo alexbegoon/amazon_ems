@@ -19,7 +19,7 @@
 /**
  *  @see MarketplaceWebService_Interface
  */
-require_once ('Interface.php');
+require_once ('MarketplaceWebService/Interface.php');
 require_once ('RequestType.php');
 
 define('CONVERTED_PARAMETERS_KEY', 'PARAMETERS');
@@ -1052,7 +1052,7 @@ class MarketplaceWebService_Client implements MarketplaceWebService_Interface
       CURLOPT_VERBOSE => true,
       CURLOPT_HEADERFUNCTION => array ($this, 'headerCallback'),
       CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_SSL_VERIFYPEER => true,
+      CURLOPT_SSL_VERIFYPEER => false,
       CURLOPT_SSL_VERIFYHOST => 2
     );
   }

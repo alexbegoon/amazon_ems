@@ -21,6 +21,7 @@
  */
 require_once ('MarketplaceWebService/Model.php'); 
 require_once ('MarketplaceWebService/Model/ContentType.php');
+require_once ('MarketplaceWebService/Model/IdList.php');
     
 
 /**

@@ -384,11 +384,13 @@ class Stokoni_model extends CI_Model
         
         $product = new stdClass();
         
-        $product->sku   = '#24021909237490';
-        $product->stock = 34;
+        $product->sku   = '#3607341605412';
+        $product->stock = 4;
         
         $data = array($product);
         
         $this->amazon_mws->update_stock($data);
+        
+        $this->amazon_mws->get_request_result('7154153988');
     }
 }

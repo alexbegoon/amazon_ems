@@ -33,3 +33,8 @@
     * marketplace ID.
     ***********************************************************************/
     define ('MERCHANT_ID', 'AYQ0NSWRNOTO4');
+
+    
+    set_include_path( APPPATH . 'libraries' );    
+    
+    
