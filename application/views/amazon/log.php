@@ -26,8 +26,22 @@
             <td><?php echo humanize($row->Feed_Type);?></td>
             <td><?php echo date('Y-m-d H:m:s',strtotime($row->Submitted_Date));?></td>
             <td><?php echo humanize($row->Feed_Processing_Status);?></td>
-            <td><?php echo date('Y-m-d H:m:s',strtotime($row->Started_Processing_Date));?></td>
-            <td><?php echo date('Y-m-d H:m:s',strtotime($row->Completed_Processing_Date));?></td>
+            <td>
+                <?php 
+                if($row->Started_Processing_Date)
+                {
+                    echo date('Y-m-d H:m:s',strtotime($row->Started_Processing_Date));
+                }
+                ?>
+            </td>
+            <td>
+                <?php 
+                if($row->Completed_Processing_Date)
+                {
+                    echo date('Y-m-d H:m:s',strtotime($row->Completed_Processing_Date));
+                }
+                ?>
+            </td>
             <td>
                 <?php if($row->Request_Result):?>
                     <a href="javascript:void(0)" class="xml_icon" onclick="open_modal_with_content($('#Request_Result_<?php echo $row->id;?>').html());"></a>
