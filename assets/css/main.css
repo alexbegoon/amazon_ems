@@ -492,7 +492,7 @@ table td a.remove,table td a.edit, table td a.comment {
     float: left;
     width: 25px;
     height: 25px;
-    background: url(/amazoni4/assets/imgs/sprite1.png);
+    background: url(../imgs/sprite1.png);
 }
 table td a.remove {
     background-position: 0 -25px;
@@ -652,7 +652,7 @@ div.pagination strong {
     height:11px;
     top:50%;
     left:47%;
-    background: url(/amazoni4/assets/imgs/ajax-loader.gif);
+    background: url(../imgs/ajax-loader.gif);
     display: none;
 }
 #success-icon, #error-icon {
@@ -666,10 +666,10 @@ div.pagination strong {
     display: none;
 }
 #success-icon {
-    background: url(/amazoni4/assets/imgs/success-icon.png);
+    background: url(../imgs/success-icon.png);
 }
 #error-icon {
-    background: url(/amazoni4/assets/imgs/cancel-icon.png);
+    background: url(../imgs/cancel-icon.png);
 }
 
 #ajax-msg {
@@ -821,11 +821,11 @@ div.tracking_div_1 h2,div.tracking_div_2 h2{
     height: 64px;
 }
 div.tracking_div_1 h2{
-    background-image: url(/amazoniTest/assets/imgs/Truck-icon.png);
+    background-image: url(../imgs/Truck-icon.png);
     background-repeat: no-repeat;
 }
 div.tracking_div_2 h2{
-    background-image: url(/amazoniTest/assets/imgs/gls.png);
+    background-image: url(../imgs/gls.png);
     background-repeat: no-repeat;
 }
 div.tracking_order {
