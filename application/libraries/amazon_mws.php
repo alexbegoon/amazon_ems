@@ -76,6 +76,16 @@ class Amazon_MWS
             'MaxErrorRetry' => 3,
           );
         
+        if($country_code == 'us')
+        {
+            return new MarketplaceWebService_Client(
+                USA_AWS_ACCESS_KEY_ID, 
+                USA_AWS_SECRET_ACCESS_KEY, 
+                $config,
+                APPLICATION_NAME,
+                APPLICATION_VERSION);
+        }
+        
         return new MarketplaceWebService_Client(
             AWS_ACCESS_KEY_ID, 
             AWS_SECRET_ACCESS_KEY, 
@@ -85,23 +95,16 @@ class Amazon_MWS
 
     }
     
-    public function submit_feed_request($feed,$feed_type)
+    public function submit_feed_request($feed,$feed_type,$country_code,$merchant_id)
     {
         require_once 'MarketplaceWebService/Model/SubmitFeedRequest.php';
                        
-        $marketplaceIdArray = array("Id" => array('A13V1IB3VIYZZH',
-                                                  'A1PA6795UKMFR9',
-                                                  'APJ6JRA9NG5V4',
-                                                  'A1RKKUPIHCS9HS',
-                                                  'A1F83G8C2ARO7P'
-                                                                    ));
-        
         $feedHandle = @fopen(APPPATH . 'logs/amazon_stock_upload_'.date('Y-m-d_h_m_s',time()).'.xml', 'w+');
         fwrite($feedHandle, $feed);
         rewind($feedHandle);
 
         $request = new MarketplaceWebService_Model_SubmitFeedRequest();
-        $request->setMerchant(MERCHANT_ID);
+        $request->setMerchant($merchant_id);
         //$request->setMarketplaceIdList($marketplaceIdArray);
         $request->setFeedType($feed_type);
         $request->setContentMd5(base64_encode(md5(stream_get_contents($feedHandle), true)));
@@ -111,7 +114,7 @@ class Amazon_MWS
 
         rewind($feedHandle);
         
-        $this->invoke_submit_feed($this->instance_of_client('gb'), $request);
+        $this->invoke_submit_feed($this->instance_of_client($country_code), $request);
         
         @fclose($feedHandle);
     }
@@ -220,16 +223,16 @@ class Amazon_MWS
   * @param array $data
   * 
   */
- public function update_stock($data)
+ public function update_stock($data,$country_code,$merchant_id)
  {
      if(empty($data))
      {
          return FALSE; 
      }
-     $merchant_id = MERCHANT_ID;
+     
      //prepare xml feed
      $xml = <<<EOD
-            <?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
             <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
             <Header>
             <DocumentVersion>1.01</DocumentVersion>
@@ -249,7 +252,7 @@ EOD;
             <MessageID>$i</MessageID>
             <OperationType>Update</OperationType>
             <Inventory>
-            <SKU>$product->sku</SKU>
+            <SKU>$product->ean</SKU>
             <Quantity>$product->stock</Quantity>
             </Inventory>
             </Message>
@@ -262,42 +265,27 @@ EOD;
             </AmazonEnvelope>
 EOD;
      
-     $this->submit_feed_request($xml, '_POST_INVENTORY_AVAILABILITY_DATA_');
+     $this->submit_feed_request($xml, '_POST_INVENTORY_AVAILABILITY_DATA_',$country_code,$merchant_id);
  }
  
   
- public function check_feed_submission_result($FeedSubmissionId)
+ public function check_feed_submission_result($country_code,$merchant_id)
  {
         require_once 'MarketplaceWebService/Model/GetFeedSubmissionListRequest.php';
         require_once 'MarketplaceWebService/Model/StatusList.php';
       
         $request = new MarketplaceWebService_Model_GetFeedSubmissionListRequest();
-        $request->setMerchant(MERCHANT_ID);
+        $request->setMerchant($merchant_id);
 
         $statusList = new MarketplaceWebService_Model_StatusList();
-        $request->setFeedProcessingStatusList($statusList->withStatus('_DONE_'));
-
-        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
         
-        $request->setFeedProcessingStatusList($statusList->withStatus('_SUBMITTED_'));
-
-        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
+        $available_statuses = array('_DONE_', '_SUBMITTED_', '_CANCELLED_', '_IN_PROGRESS_', '_IN_SAFETY_NET_', '_UNCONFIRMED_');
         
-        $request->setFeedProcessingStatusList($statusList->withStatus('_CANCELLED_'));
-
-        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
-        
-        $request->setFeedProcessingStatusList($statusList->withStatus('_IN_PROGRESS_'));
-
-        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
-        
-        $request->setFeedProcessingStatusList($statusList->withStatus('_IN_SAFETY_NET_'));
-
-        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
-        
-        $request->setFeedProcessingStatusList($statusList->withStatus('_UNCONFIRMED_'));
-
-        $this->invokeGetFeedSubmissionList($this->instance_of_client('gb'), $request);
+        foreach ($available_statuses as $status)
+        {
+            $request->setFeedProcessingStatusList($statusList->withStatus($status));
+            $this->invokeGetFeedSubmissionList($this->instance_of_client($country_code), $request, $merchant_id);
+        }
  }
  
   /**
@@ -307,7 +295,7 @@ EOD;
   * @param MarketplaceWebService_Interface $service instance of MarketplaceWebService_Interface
   * @param mixed $request MarketplaceWebService_Model_GetFeedSubmissionList or array of parameters
   */
-  public function invokeGetFeedSubmissionList(MarketplaceWebService_Interface $service, $request) 
+  public function invokeGetFeedSubmissionList(MarketplaceWebService_Interface $service, $request, $merchant_id) 
   {
       try {
               $response = $service->getFeedSubmissionList($request);
@@ -379,7 +367,7 @@ EOD;
                                 $responseMetadata->getRequestId(),
                                 @$feedSubmissionInfo->getStartedProcessingDate()->format(DATE_FORMAT),
                                 @$feedSubmissionInfo->getCompletedProcessingDate()->format(DATE_FORMAT),
-                                $this->get_request_result($feedSubmissionInfo->getFeedSubmissionId())
+                                $this->get_request_result($feedSubmissionInfo->getFeedSubmissionId(),$service,$merchant_id)
                         );
                     }
                 } 
@@ -406,26 +394,20 @@ EOD;
          log_message('error', $msg);
      }
  }
- 
- 
- 
- public function get_request_result($FeedSubmissionId)
+  
+ public function get_request_result($FeedSubmissionId, $service, $merchant_id)
  {
      require_once 'MarketplaceWebService/Model/GetFeedSubmissionResultRequest.php';
      
      $this->_CI->load->helper('file');
      
      $request = new MarketplaceWebService_Model_GetFeedSubmissionResultRequest();
-     $request->setMerchant(MERCHANT_ID);
+     $request->setMerchant($merchant_id);
      $request->setFeedSubmissionId($FeedSubmissionId);    
      $request->setFeedSubmissionResult(@fopen(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.date('Y-m-d',time()).'.xml', 'w+'));
-     
-     $service = $this->instance_of_client('gb');
-          
-     $response = $service->getFeedSubmissionResult($request);
+     $service->getFeedSubmissionResult($request);
           
      return read_file(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.date('Y-m-d',time()). '.xml');
-     
  }
  
  /**

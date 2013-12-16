@@ -880,3 +880,12 @@ div.shipping_prices
     float: left;
     width: 90%;
 }
+/********************* Amazon *******************************/
+
+a.xml_icon
+{
+    display: block;
+    background: url(../imgs/info-icon.png);
+    width: 32px;
+    height: 32px;
+}

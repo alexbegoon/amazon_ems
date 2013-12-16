@@ -34,6 +34,12 @@
     ***********************************************************************/
     define ('MERCHANT_ID', 'AYQ0NSWRNOTO4');
 
+    // USA AMAZON
+    
+    define ('USA_MERCHANT_ID', 'A1FAC5WPLXUGT9');
+    // Marketplace_id: ATVPDKIKX0DER
+    define('USA_AWS_ACCESS_KEY_ID', 'AKIAIRNV34WN3HEKJXWA');
+    define('USA_AWS_SECRET_ACCESS_KEY', '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');
     
     set_include_path( APPPATH . 'libraries' );    
     

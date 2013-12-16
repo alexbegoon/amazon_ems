@@ -17,3 +17,6 @@ ADD UNIQUE INDEX `unique` (`Feed_Submission_Id` ASC, `Feed_Processing_Status` AS
 ALTER TABLE `amazoni`.`amazoni4_amazon_requests_log` 
 ADD COLUMN `Request_Result` TEXT NULL DEFAULT NULL AFTER `Completed_Processing_Date`;
 
+ALTER TABLE `amazoni`.`amazoni4_amazon_requests_log` 
+CHANGE COLUMN `Request_Result` `Request_Result` LONGTEXT NULL
+

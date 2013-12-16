@@ -381,16 +381,35 @@ class Stokoni_model extends CI_Model
     public function upload_stock_to_amazon()
     {
         $this->load->library('amazon_mws');
-        
-        $product = new stdClass();
-        
-        $product->sku   = '#3607341605412';
-        $product->stock = 4;
-        
-        $data = array($product);
-        
-        $this->amazon_mws->update_stock($data);
-        
-        $this->amazon_mws->get_request_result('7154153988');
+        $data = array();
+        $proveedors = array('ENGELSA', 'EUCERIN', 'CAUDALIE'); // Providers that should be on Amazon
+        $this->db->set_dbprefix('');
+        $this->db->where_in('proveedor', $proveedors);
+        $query = $this->db->get('stokoni');
+        $this->db->set_dbprefix('amazoni4_');
+        $products = $query->result();
+       
+        if($products)
+        {
+            foreach ($products as $product)
+            {
+                $data[] = $product;
+                
+                if($product->proveedor == 'ENGELSA')
+                {
+                    $additional_row = new stdClass();
+                    $additional_row->ean = '#'.$product->ean;
+                    $additional_row->stock = $product->stock;
+                    $data[] = $additional_row;
+                    $additional_row = new stdClass();
+                    $additional_row->ean = 'DE-'.$product->ean;
+                    $additional_row->stock = $product->stock;
+                    $data[] = $additional_row;
+                }
+            }
+        }
+                        
+        $this->amazon_mws->update_stock($data,'gb',MERCHANT_ID);
+        $this->amazon_mws->update_stock($data,'us',USA_MERCHANT_ID);
     }
 }

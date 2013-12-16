@@ -7,6 +7,8 @@
  */
 class Amazon_model extends CI_Model 
 {
+    private $_total_count;
+    
     public function __construct()
     {
         parent::__construct();
@@ -50,9 +52,23 @@ class Amazon_model extends CI_Model
     public function update_log()
     {
         $this->load->library('amazon_mws');
+                
+        $this->amazon_mws->check_feed_submission_result('gb',MERCHANT_ID);
+        $this->amazon_mws->check_feed_submission_result('us',USA_MERCHANT_ID);
+    }
+    
+    public function get_all_info($page=0)
+    {
         
-        $FeedSubmissionId = '7152876700';
         
-        $this->amazon_mws->check_feed_submission_result($FeedSubmissionId);
+        $this->db->order_by('id','desc');
+        $query = $this->db->get('amazon_requests_log', 50, $page);
+        
+        return $query->result();
+    }
+    
+    public function get_total_count()
+    {
+        return $this->db->count_all('amazon_requests_log');
     }
 }

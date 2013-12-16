@@ -666,6 +666,10 @@ function AJAX_edit(url,id){
 }
 
 function open_modal_with_content(content){
+    if ($( "#modal_window" ).length === 0)
+        {
+            $('body').append('<div id="modal_window"></div>');
+        }
     $( "#modal_window" ).empty();
     $( "#modal_window" ).dialog({
         minHeight: 300,    
