@@ -123,4 +123,16 @@ class Sync_process extends CI_Controller
 //        $this->top_sales_model->fix_top_sales_table();
     }
     
+    /**
+     * Upload stock level to Amazon
+     */
+    public function sync_data_with_amazon()
+    {
+        $this->load->model('stokoni/stokoni_model');
+        $this->load->model('amazon/amazon_model');
+        
+        $this->stokoni_model->upload_stock_to_amazon();
+        $this->amazon_model->update_log();
+    }
+    
 }

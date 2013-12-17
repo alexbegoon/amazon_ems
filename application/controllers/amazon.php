@@ -25,4 +25,28 @@ class Amazon extends CI_Controller {
         $data['title'] = ucfirst($this->router->class);
         $this->load->template('amazon/'.$this->router->method, $data);
     }
+    
+    /**
+     * Show MWS transactions LOG
+     */
+    public function log($page=0)
+    {
+        $data['title'] = humanize($this->router->method);
+        
+        // Load models
+        $this->load->model('amazon/amazon_model');
+        
+        $data['logs'] = $this->amazon_model->get_all_info($page);
+        
+        $config['base_url'] = base_url().'index.php/amazon/log/';
+        $config['total_rows'] = $this->amazon_model->get_total_count();
+        $config['per_page'] = 50; 
+
+        $this->pagination->initialize($config); 
+        $data['pagination'] = $this->pagination->create_links();
+        
+        $this->load->template('amazon/'.$this->router->method, $data);
+    }
+    
+    
 }
