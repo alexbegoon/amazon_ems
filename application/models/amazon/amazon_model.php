@@ -54,6 +54,7 @@ class Amazon_model extends CI_Model
         $this->load->library('amazon_mws');
                 
         $this->amazon_mws->check_feed_submission_result('gb',MERCHANT_ID);
+        sleep(10);
         $this->amazon_mws->check_feed_submission_result('us',USA_MERCHANT_ID);
     }
     
