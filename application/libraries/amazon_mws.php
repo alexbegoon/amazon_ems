@@ -359,16 +359,20 @@ EOD;
                             echo("                        " . $feedSubmissionInfo->getCompletedProcessingDate()->format(DATE_FORMAT) . "\n");
                         }
                         
-                        $this->_CI->amazon_model->log_response(
-                                $feedSubmissionInfo->getFeedSubmissionId(),
-                                $feedSubmissionInfo->getFeedType(),
-                                $feedSubmissionInfo->getSubmittedDate()->format(DATE_FORMAT),
-                                $feedSubmissionInfo->getFeedProcessingStatus(),
-                                $responseMetadata->getRequestId(),
-                                @$feedSubmissionInfo->getStartedProcessingDate()->format(DATE_FORMAT),
-                                @$feedSubmissionInfo->getCompletedProcessingDate()->format(DATE_FORMAT),
-                                $this->get_request_result($feedSubmissionInfo->getFeedSubmissionId(),$service,$merchant_id)
-                        );
+                        if (!$this->_CI->amazon_model->is_request_completed($feedSubmissionInfo->getFeedSubmissionId()))
+                        {
+                            $this->_CI->amazon_model->log_response(
+                                        $feedSubmissionInfo->getFeedSubmissionId(),
+                                        $feedSubmissionInfo->getFeedType(),
+                                        $feedSubmissionInfo->getSubmittedDate()->format(DATE_FORMAT),
+                                        $feedSubmissionInfo->getFeedProcessingStatus(),
+                                        $responseMetadata->getRequestId(),
+                                        @$feedSubmissionInfo->getStartedProcessingDate()->format(DATE_FORMAT),
+                                        @$feedSubmissionInfo->getCompletedProcessingDate()->format(DATE_FORMAT),
+                                        $this->get_request_result($feedSubmissionInfo->getFeedSubmissionId(),$service,$merchant_id)
+                                );
+                        }
+                        
                     }
                 } 
                 

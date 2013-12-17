@@ -54,7 +54,6 @@ class Amazon_model extends CI_Model
         $this->load->library('amazon_mws');
                 
         $this->amazon_mws->check_feed_submission_result('gb',MERCHANT_ID);
-        sleep(10);
         $this->amazon_mws->check_feed_submission_result('us',USA_MERCHANT_ID);
     }
     
@@ -71,5 +70,19 @@ class Amazon_model extends CI_Model
     public function get_total_count()
     {
         return $this->db->count_all('amazon_requests_log');
+    }
+    
+    public function is_request_completed($FeedSubmissionId)
+    {
+        $this->db->where('Feed_Submission_Id',$FeedSubmissionId);
+        $this->db->where('Feed_Processing_Status','_DONE_');
+        $query = $this->db->get('amazon_requests_log');
+        
+        if($query->row()->Completed_Processing_Date)
+        {
+            return TRUE;
+        }
+        
+        return FALSE;
     }
 }
