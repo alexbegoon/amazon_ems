@@ -168,7 +168,7 @@ class Products_model extends CI_Model
         return $products;
     }
     
-    private function update_products_table($products)
+    public function update_products_table($products)
     {
         //Load model
         $this->load->model('incomes/providers_model');

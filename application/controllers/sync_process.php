@@ -135,4 +135,10 @@ class Sync_process extends CI_Controller
         $this->amazon_model->update_log();
     }
     
+    public function sync_providers_products()
+    {
+        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_pinternacional.php';
+        
+        new Sync_products_pinternacional();
+    }
 }
