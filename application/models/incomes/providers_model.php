@@ -274,6 +274,12 @@ class Providers_model extends CI_Model
                 {
                     $regexp = stripslashes($row->sku_regexp);
                     
+                    if(empty($regexp))
+                    {
+                        $msg = $web.' have more than one product provider. Please setup regexp for provider ID: '.$row->provider_id;
+                        log_message('INFO', $msg);
+                    }
+                    
                     if(preg_match($regexp, $sku) === 1)
                     {
                         $provider = $this->getProvider($row->provider_id);

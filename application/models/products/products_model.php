@@ -303,7 +303,7 @@ class Products_model extends CI_Model
                     
                     $query = ' SELECT `product_name`, `sku`, `provider_name`, `id`, `price`, `provider_id`, `stock` 
                                FROM `'.$this->db->dbprefix('providers_products').'` 
-                               WHERE `sku` = \''.$sku.'\' AND `provider_name` = \''.$provider_name.'\' 
+                               WHERE `sku` = \''.$sku.'\' 
                                ORDER BY `price` 
                     ';
                     
