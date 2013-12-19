@@ -35,3 +35,5 @@ CHANGE COLUMN `provider_product_id` `provider_product_id` INT(11) NULL DEFAULT N
 ALTER TABLE `amazoni`.`amazoni4_products_sales_history` 
 ADD COLUMN `order_name` VARCHAR(45) NULL DEFAULT NULL COMMENT 'pedido field of pedidos table' AFTER `order_id`;
 
+ALTER TABLE `amazoni`.`amazoni4_products_sales_history` 
+ADD COLUMN `out_of_stock` TINYINT(1) NULL DEFAULT 0 AFTER `canceled`;

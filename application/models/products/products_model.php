@@ -179,18 +179,7 @@ class Products_model extends CI_Model
         
         $summary = new stdClass();
         $summary->affected_rows = 0;
-        
-        $this->db->trans_begin();
-        
-        $query = ' INSERT INTO 
-                   `'.$this->db->dbprefix('providers_products').'` 
-                   (`sku`, `product_name`, `provider_name`, `provider_id` ,`price`, `stock`)
-                   VALUES
-                   (?,?,?,?,?,?)
-                   ON DUPLICATE KEY UPDATE 
-                   `product_name` = ?,  `price` = ?, `stock` = ?
-        ';
-        
+                
         if(!empty($products))
         {
             foreach ($products as $product)
@@ -199,29 +188,49 @@ class Products_model extends CI_Model
                 
                 if($provider_id != 0 && is_integer($provider_id) )
                 {
-                    $this->db->query($query, array(
-                                                    $product['sku'],
-                                                    $product['product_name'],
-                                                    $product['provider_name'],
-                                                    $provider_id,
-                                                    $product['price'],
-                                                    $product['stock'],
-                                                    $product['product_name'],
-                                                    $product['price'],
-                                                    $product['stock']
-                    ));
+                    $product['provider_id'] = $provider_id;
+                    
+                    if(!$this->is_product_exists($product['sku'], $product['provider_name']))
+                    {
+                        $this->db->insert('providers_products', $product);
+                    }
+                    else
+                    {
+                        $this->db->where('sku', $product['sku']);
+                        $this->db->where('provider_name', $product['provider_name']);
+                        $this->db->update('providers_products', $product); 
+                    }
                     
                     $summary->affected_rows += $this->db->affected_rows();
                 }
             }
         }
         
-        $this->db->trans_commit();
-        
         return $summary;
     }
     
-    public function get_help_info()
+    /**
+     * Check product existance
+     * @param type $sku
+     * @param type $provider_name
+     * @return boolean True if exists.
+     */
+    private function is_product_exists($sku,$provider_name)
+    {
+        $this->db->select('id');
+        $this->db->where('sku =',$sku);
+        $this->db->where('provider_name =',$provider_name);
+        $query = $this->db->get('providers_products');
+        
+        if($query->num_rows == 1)
+        {
+            return TRUE;
+        }
+        
+        return FALSE;
+    }
+
+        public function get_help_info()
     {
         $html = '';
         
@@ -581,9 +590,33 @@ class Products_model extends CI_Model
                     // Check product existance at providers_product table
                     if(!$this->get_product($row['sku'], $web))
                     {
-                        $message = 'We cant calculate Gasto. Product not found at providers_products table, but this product exist at our Warehouse. SKU: '.$row['sku'].'; Order ID: '.$order_id.'; Web: '.$web;
+                        $message = 'We cant calculate Gasto. Product not found at providers_products table, but this product exist at our Warehouse. Our Warehouse have no enough quantity for this order. Out of stock. SKU: '.$row['sku'].'; Order ID: '.$order_id.'; Web: '.$web;
                         log_message('INFO', $message);
                         $valid = FALSE;
+                        $products_sales_history_data['out_of_stock'] = TRUE; // Mark order as out of stock product exist
+                        if(!$safe_mode)
+                        {
+                        $warehouse_product = $this->stokoni_model->find_product_by_ean($row['sku'])[0];
+                        // Save data
+                        $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                            'sku' => $warehouse_product->ean,
+                                                                            'product_name' => $warehouse_product->nombre,
+                                                                            'provider_name' => '_WAREHOUSE',
+                                                                            'provider_id' => 0,
+                                                                            'provider_price' => null,
+                                                                            'order_price' => $row['price'],
+                                                                            'warehouse_price' => null,
+                                                                            'warehouse_product_id' => $warehouse_product->id,
+                                                                            'quantity' => $quantity_temp,
+                                                                            'sold_from_warehouse' => 1,
+                                                                            'web' => $web,
+                                                                            'order_id' => $order_id,
+                                                                            'order_status' => null,
+                                                                            'order_date' => null,
+                                                                            'out_of_stock' => 1,
+                                                                            'canceled' => 0 );
+
+                        }
                         continue;
                     }
                     
@@ -607,6 +640,7 @@ class Products_model extends CI_Model
                                                                                 'order_price' => $row['price'],
                                                                                 'warehouse_price' => null,
                                                                                 'warehouse_product_id' => null,
+                                                                                'provider_product_id' => $v->id,
                                                                                 'quantity' => $quantity_temp,
                                                                                 'sold_from_warehouse' => 0,
                                                                                 'web' => $web,
@@ -692,7 +726,32 @@ class Products_model extends CI_Model
                         {
                             $message = 'We cant calculate Gasto. Product out of stock. SKU: '.$row['sku'].'; Order ID: '.$order_id.'; Web: '.$web;
                             log_message('INFO', $message);
+                            $products_sales_history_data['out_of_stock'] = TRUE; // Mark order as out of stock product exist
                             $valid = FALSE;
+                            if(!$safe_mode)
+                            {
+                            // Save data
+                            $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                                'sku' => $provider_product[0]->sku,
+                                                                                'product_name' => $provider_product[0]->product_name,
+                                                                                'provider_name' => $provider_product[0]->provider_name,
+                                                                                'provider_id' => $provider_product[0]->provider_id,
+                                                                                'provider_price' => null,
+                                                                                'order_price' => $row['price'],
+                                                                                'warehouse_price' => null,
+                                                                                'warehouse_product_id' => null,
+                                                                                'provider_product_id' => $provider_product[0]->id,
+                                                                                'quantity' => $quantity_temp,
+                                                                                'provider_reserve_quantity' => $quantity_temp,
+                                                                                'sold_from_warehouse' => 0,
+                                                                                'web' => $web,
+                                                                                'order_id' => $order_id,
+                                                                                'order_status' => null,
+                                                                                'order_date' => null,
+                                                                                'out_of_stock' => 1,
+                                                                                'canceled' => 0 );
+
+                            }
                             continue;
                         }
                     }
@@ -816,7 +875,33 @@ class Products_model extends CI_Model
                 {
                     $message = 'We cant calculate Gasto. Product out of stock. SKU: '.$row['sku'].'; Order ID: '.$order_id.'; Web: '.$web;
                     log_message('INFO', $message);
+                    $products_sales_history_data['out_of_stock'] = TRUE; // Mark order as out of stock product exist
                     $valid = FALSE;
+                    if(!$safe_mode)
+                    {
+                    // Save data
+                    $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                        'sku' => $provider_product[0]->sku,
+                                                                        'product_name' => $provider_product[0]->product_name,
+                                                                        'provider_name' => $provider_product[0]->provider_name,
+                                                                        'provider_id' => $provider_product[0]->provider_id,
+                                                                        'provider_price' => null,
+                                                                        'order_price' => $row['price'],
+                                                                        'warehouse_price' => null,
+                                                                        'warehouse_product_id' => null,
+                                                                        'provider_product_id' => $provider_product[0]->id,
+                                                                        'quantity' => $quantity_temp,
+                                                                        'provider_reserve_quantity' => 0,
+                                                                        'sold_from_warehouse' => 0,
+                                                                        'web' => $web,
+                                                                        'order_id' => $order_id,
+                                                                        'order_status' => null,
+                                                                        'order_date' => null,
+                                                                        'out_of_stock' => 1,
+                                                                        'canceled' => 0 );
+
+                    }
+                    
                     continue;
                 }
                 
@@ -853,6 +938,12 @@ class Products_model extends CI_Model
         if(isset($this->products_sales_history_data[$web][$order_id]))
         {
             $info = $this->products_sales_history_data[$web][$order_id];
+            
+            // Unset out of stock marker
+            if(isset($this->products_sales_history_data[$web][$order_id]['out_of_stock']))
+            {
+                unset($this->products_sales_history_data[$web][$order_id]['out_of_stock']);
+            }
         }
         else
         {
@@ -863,14 +954,17 @@ class Products_model extends CI_Model
         {
             foreach ($info as $row)
             {
-                foreach ($row as $data)
+                if(is_array($row))
                 {
-                    $data['order_status'] = $order_status;
-                    $data['order_date']   = date('Y-m-d H:i:s',strtotime($order_date));
-                    $data['order_id']     = (int)$order_unique_id; 
-                    $data['order_name']   = $order_id;
-                    
-                    $this->db->insert('products_sales_history', $data); 
+                    foreach ($row as $data)
+                    {
+                        $data['order_status'] = $order_status;
+                        $data['order_date']   = date('Y-m-d H:i:s',strtotime($order_date));
+                        $data['order_id']     = (int)$order_unique_id; 
+                        $data['order_name']   = $order_id;
+
+                        $this->db->insert('products_sales_history', $data); 
+                    }
                 }
             }
             

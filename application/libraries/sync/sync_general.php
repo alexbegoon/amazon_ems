@@ -110,8 +110,8 @@ class Sync_general
                     
                     $order = $this->convert_currency($order);
                     
-                    $order[9]   = $this->getProcesado($order);
                     $order[45]  = $this->getGasto($order, false); //calculate Gasto
+                    $order[9]   = $this->getProcesado($order);
                     unset($order[48]); // Unset order status. We need no this in pedido table
                     unset($order[49]); // Unset order shipping phrase. We need no this in pedido table
                     // Unset order currencies
@@ -266,7 +266,16 @@ class Sync_general
      * 
      */
     private function getProcesado($order)
-    {     
+    {   
+        
+        if(isset($this->_CI->products_model->products_sales_history_data[$order[41]][$order[0]]['out_of_stock']))
+        {
+            if($this->_CI->products_model->products_sales_history_data[$order[41]][$order[0]]['out_of_stock'] == true)
+            {
+                return 'ROTURASTOCK';
+            }
+        }
+        
         //Check order status
         if($order[48] == 'C')
         {

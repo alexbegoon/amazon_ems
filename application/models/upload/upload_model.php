@@ -33,6 +33,7 @@ class Upload_model extends CI_Model {
                 $this->storeData($this->_orders);
                 $this->groupDuplicates();
                 $this->set_gasto_to_temp();
+                $this->set_procesado_to_temp();
 
                 $query = ' SELECT * 
                            FROM `'.$this->db->dbprefix('pedidos_temp').'`   
@@ -569,8 +570,50 @@ class Upload_model extends CI_Model {
              return false;
          }  
     }
+    
+    /**
+     * Set procesado to temp table
+     */
+    private function set_procesado_to_temp()
+    {
+        $query = ' SELECT * 
+                    FROM `'.$this->db->dbprefix('pedidos_temp').'`  
+         ';
 
-        public function overwriteGasto()
+         $result = $this->db->query($query);
+
+         if ($result)
+         {
+             $orders = $result->result('array');
+             
+             $query = ' UPDATE `'.$this->db->dbprefix('pedidos_temp').'` 
+                        SET `procesado` = ?  
+                        WHERE `id` = ?  
+            ';
+             
+             foreach ($orders as $order)
+             {
+                 if(isset($this->products_model->products_sales_history_data[$order['web']][$order['pedido']]['out_of_stock']))
+                 {
+                     if($this->products_model->products_sales_history_data[$order['web']][$order['pedido']]['out_of_stock'] == true)
+                     {
+                         $procesado = 'ROTURASTOCK';
+                     }
+                 }
+                 else
+                 {
+                     $procesado = 'NO';
+                 }   
+                 $this->db->query($query, array($procesado, $order['id']));
+             }
+         }
+         else
+         {
+             return false;
+         }  
+    }
+
+    public function overwriteGasto()
         {
         $web = array('AMAZON', 'AMAZON-USA');
         
