@@ -9,6 +9,8 @@ class Products_model extends CI_Model
 {
     private $_products          = array();
     private $_products_quantity = 0;
+    
+    public $products_sales_history_data = array();
 
     public function __construct()
     {
@@ -18,6 +20,8 @@ class Products_model extends CI_Model
         // Load models
         $this->load->model('incomes/providers_model');
         $this->load->model('incomes/web_field_model');
+        $this->load->model('incomes/taxes_model');
+        $this->load->model('stokoni/stokoni_model');
     }
     
     public function get_products($page)
@@ -259,10 +263,10 @@ class Products_model extends CI_Model
     }
     
     /**
-     * Return product using SKU and WEB as index
+     * Return product using SKU and WEB as index; First appears most cheaper!
      * @param string $sku
      * @param string $web
-     * @return mixed Object of product or boolean false on unsuccess
+     * @return mixed Object of product/products(if product have more than one provider) or boolean false on unsuccess
      */
     public function get_product($sku,$web)
     {
@@ -288,16 +292,17 @@ class Products_model extends CI_Model
                         $sku = preg_replace($regexps->sku_regexp_2, '', $sku);
                     }
                     
-                    $query = ' SELECT `product_name`, `sku`, `provider_name` 
+                    $query = ' SELECT `product_name`, `sku`, `provider_name`, `id`, `price`, `provider_id`, `stock` 
                                FROM `'.$this->db->dbprefix('providers_products').'` 
                                WHERE `sku` = \''.$sku.'\' AND `provider_name` = \''.$provider_name.'\' 
+                               ORDER BY `price` 
                     ';
                     
                     $result = $this->db->query($query);
 
-                    if($result->num_rows() == 1)
+                    if($result->num_rows() >= 1)
                     {
-                        $this->_products['products_by_web_and_sku'][$sku][$web] = $result->row();
+                        $this->_products['products_by_web_and_sku'][$sku][$web] = $result->result();
                         return $this->_products['products_by_web_and_sku'][$sku][$web];
                     }
                 }
@@ -371,12 +376,509 @@ class Products_model extends CI_Model
         {
             if(!empty($order->{'sku'.$i}))
             {
-                $products[$i] = $this->get_product($order->{'sku'.$i}, $order->web);
-                $products[$order->{'sku'.$i}] = $this->get_product($order->{'sku'.$i}, $order->web);
-                $products['product_'.$i] = $this->get_product($order->{'sku'.$i}, $order->web);
+                $products[$i] = $this->get_product($order->{'sku'.$i}, $order->web)[0];
+                $products[$order->{'sku'.$i}] = $this->get_product($order->{'sku'.$i}, $order->web)[0];
+                $products['product_'.$i] = $this->get_product($order->{'sku'.$i}, $order->web)[0];
             }
         }
         
         return $products;
+    }
+    
+    /**
+     * Global method for calculate gasto.
+     * order_products is array parameter, should have next format:
+     * order_products[$i]['sku'] - required
+     * order_products[$i]['quantity'] - required
+     * order_products[$i]['price'] - required
+     * order_products[$i]['order_id'] - required
+     * @param array $order_products
+     * @param float $shipping_cost
+     * @param string $web
+     * @param boolean $safe_mode
+     * @return float
+     * 
+     * 
+     */
+    public function calculate_gasto($order_products, $shipping_cost, $web, $safe_mode = true, $order_id = null)
+    {
+        // Init gasto total variable
+        $gasto = 0;
+        
+        $IVA_tax = $this->taxes_model->getIVAtax();
+        $valid = TRUE;
+                
+        // Check product array
+        if(!is_array($order_products) || count($order_products) == 0)
+        {
+            $message = 'We cant calculate Gasto without order products data; Web: '.$web;
+            log_message('INFO', $message);
+            return 0;
+        }
+        
+        // Setup Order ID for LOG messages
+        if(isset($order_products[0]['order_id']) && empty($order_id) && !empty($order_products[0]['order_id']))
+        {
+            $order_id = trim($order_products[0]['order_id']);
+        }
+        
+        // Check shipping cost
+        if(!is_numeric($shipping_cost) || $shipping_cost <= 0)
+        {
+            $message = 'We cant calculate Gasto without shipping price; Order ID: '.$order_id.'; Web: '.$web;
+            log_message('INFO', $message);
+            return 0; // We cant calculate Gasto without shipping price
+        }
+        
+        $products_sales_history_data = array();
+        
+        foreach ($order_products as $row) 
+        {
+            // Check SKU
+            if(!isset($row['sku']) || empty($row['sku']))
+            {
+                $message = 'We cant calculate Gasto without SKU; Order ID: '.$order_id.'; Web: '.$web;
+                log_message('INFO', $message);
+                $valid = FALSE;
+                continue;
+            }
+            
+            // Check quantity
+            if(!isset($row['quantity']) || $row['quantity'] <= 0)
+            {
+                $message = 'We cant calculate Gasto without quantity info; Order ID: '.$order_id.'; Web: '.$web;
+                log_message('INFO', $message);
+                $valid = FALSE;
+                continue;
+            }
+            
+            // Firstly we need to check product existance at our Warehouse
+            if($this->stokoni_model->find_product_by_ean($row['sku']))
+            {
+                
+                // Now we need to check stock at Warehouse
+                $warehouse_stock = 0;
+                
+                foreach ($this->stokoni_model->find_product_by_ean($row['sku']) as $v)
+                {
+                    $warehouse_stock += $v->stock;
+                }
+                
+                // Warehouse have enough product stock
+                if($warehouse_stock >= $row['quantity'])
+                {
+                    $quantity_temp = $row['quantity'];
+                    foreach ($this->stokoni_model->find_product_by_ean($row['sku']) as $v)
+                    {
+                        if($v->stock >= $quantity_temp)
+                        {
+                            $gasto += $v->coste * $quantity_temp;
+                            
+                            if(!$safe_mode)
+                            {
+                                
+                            // Save data
+                            $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                                'sku' => $v->ean,
+                                                                                'product_name' => $v->nombre,
+                                                                                'provider_name' => '_WAREHOUSE',
+                                                                                'provider_id' => 0,
+                                                                                'provider_price' => null,
+                                                                                'order_price' => $row['price'],
+                                                                                'warehouse_price' => $v->coste,
+                                                                                'warehouse_product_id' => $v->id,
+                                                                                'quantity' => $quantity_temp,
+                                                                                'sold_from_warehouse' => 1,
+                                                                                'web' => $web,
+                                                                                'order_id' => $order_id,
+                                                                                'order_status' => null,
+                                                                                'order_date' => null,
+                                                                                'canceled' => 0
+                                                                    
+                                                                                                        );
+                            
+                            $this->stokoni_model->sell_product((int)$v->id, (int)$quantity_temp);
+                            
+                            }
+                            
+                            $quantity_temp = 0;
+                            
+                            // We can break loop, because have enough products
+                            break;
+                        }
+                        else
+                        {
+                            $gasto += $v->coste * $v->stock;
+                            $quantity_temp -= $v->stock;
+
+                            if(!$safe_mode)
+                            {
+                            // Save data
+                            $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                                'sku' => $v->ean,
+                                                                                'product_name' => $v->nombre,
+                                                                                'provider_name' => '_WAREHOUSE',
+                                                                                'provider_id' => 0,
+                                                                                'provider_price' => null,
+                                                                                'order_price' => $row['price'],
+                                                                                'warehouse_price' => $v->coste,
+                                                                                'warehouse_product_id' => $v->id,
+                                                                                'quantity' => $v->stock,
+                                                                                'sold_from_warehouse' => 1,
+                                                                                'web' => $web,
+                                                                                'order_id' => $order_id,
+                                                                                'order_status' => null,
+                                                                                'order_date' => null,
+                                                                                'canceled' => 0 );
+
+                            $this->stokoni_model->sell_product((int)$v->id, (int)$v->stock);
+
+                            }
+                        }
+                    }
+                    
+                    continue;
+                }
+                else
+                {
+                    // Warehouse have product stock less than need 
+                    $quantity_temp = $row['quantity'];
+                    
+                    foreach ($this->stokoni_model->find_product_by_ean($row['sku']) as $v)
+                    {
+                        if($v->stock > 0)
+                        {
+                            $gasto += $v->coste * $v->stock;
+                            $quantity_temp -= $v->stock;
+
+                            if(!$safe_mode)
+                            {
+                            // Save data
+                            $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                                'sku' => $v->ean,
+                                                                                'product_name' => $v->nombre,
+                                                                                'provider_name' => '_WAREHOUSE',
+                                                                                'provider_id' => 0,
+                                                                                'provider_price' => null,
+                                                                                'order_price' => $row['price'],
+                                                                                'warehouse_price' => $v->coste,
+                                                                                'warehouse_product_id' => $v->id,
+                                                                                'quantity' => $v->stock,
+                                                                                'sold_from_warehouse' => 1,
+                                                                                'web' => $web,
+                                                                                'order_id' => $order_id,
+                                                                                'order_status' => null,
+                                                                                'order_date' => null,
+                                                                                'canceled' => 0 );
+
+                            $this->stokoni_model->sell_product((int)$v->id, (int)$v->stock);
+
+                            }
+                        }
+                    }
+                    
+                    // Try to get products from Providers
+                    // Check product existance at providers_product table
+                    if(!$this->get_product($row['sku'], $web))
+                    {
+                        $message = 'We cant calculate Gasto. Product not found at providers_products table, but this product exist at our Warehouse. SKU: '.$row['sku'].'; Order ID: '.$order_id.'; Web: '.$web;
+                        log_message('INFO', $message);
+                        $valid = FALSE;
+                        continue;
+                    }
+                    
+                    $provider_product = $this->get_product($row['sku'], $web);
+                    
+                    foreach ($provider_product as $v)
+                    {
+                        if($v->stock >= $quantity_temp)
+                        {
+                            $gasto += $v->price * $quantity_temp;
+                            
+                            if(!$safe_mode)
+                            {
+                            // Save data
+                            $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                                'sku' => $v->sku,
+                                                                                'product_name' => $v->product_name,
+                                                                                'provider_name' => $v->provider_name,
+                                                                                'provider_id' => $v->provider_id,
+                                                                                'provider_price' => $v->price,
+                                                                                'order_price' => $row['price'],
+                                                                                'warehouse_price' => null,
+                                                                                'warehouse_product_id' => null,
+                                                                                'quantity' => $quantity_temp,
+                                                                                'sold_from_warehouse' => 0,
+                                                                                'web' => $web,
+                                                                                'order_id' => $order_id,
+                                                                                'order_status' => null,
+                                                                                'order_date' => null,
+                                                                                'canceled' => 0 );
+
+                            }
+                            
+                            $quantity_temp = 0;
+                            
+                            // We can break loop, because have enough products
+                            break;
+                        }
+                        else
+                        {
+                            if($v->stock > 0)
+                            {
+                                $gasto += $v->price * $v->stock;
+                                
+                                $quantity_temp -= $v->stock;
+                                
+                                if(!$safe_mode)
+                                {
+                                // Save data
+                                $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                                    'sku' => $v->sku,
+                                                                                    'product_name' => $v->product_name,
+                                                                                    'provider_name' => $v->provider_name,
+                                                                                    'provider_id' => $v->provider_id,
+                                                                                    'provider_price' => $v->price,
+                                                                                    'order_price' => $row['price'],
+                                                                                    'warehouse_price' => null,
+                                                                                    'warehouse_product_id' => null,
+                                                                                    'provider_product_id' => $v->id,
+                                                                                    'quantity' => $v->stock,
+                                                                                    'sold_from_warehouse' => 0,
+                                                                                    'web' => $web,
+                                                                                    'order_id' => $order_id,
+                                                                                    'order_status' => null,
+                                                                                    'order_date' => null,
+                                                                                    'canceled' => 0 );
+
+                                }
+                            }
+                        }
+                    }
+                    
+                    // Check quantity of product, that we need to get as Credit
+                    if($quantity_temp != $row['quantity'] && $quantity_temp > 0)
+                    {
+                        // Get most cheap product
+                        $gasto += $provider_product[0]->price * $quantity_temp;
+                        
+                        if(!$safe_mode)
+                        {
+                        // Save data
+                        $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                            'sku' => $provider_product[0]->sku,
+                                                                            'product_name' => $provider_product[0]->product_name,
+                                                                            'provider_name' => $provider_product[0]->provider_name,
+                                                                            'provider_id' => $provider_product[0]->provider_id,
+                                                                            'provider_price' => $provider_product[0]->price,
+                                                                            'order_price' => $row['price'],
+                                                                            'warehouse_price' => null,
+                                                                            'warehouse_product_id' => null,
+                                                                            'provider_product_id' => $provider_product[0]->id,
+                                                                            'quantity' => $quantity_temp,
+                                                                            'provider_reserve_quantity' => $quantity_temp,
+                                                                            'sold_from_warehouse' => 0,
+                                                                            'web' => $web,
+                                                                            'order_id' => $order_id,
+                                                                            'order_status' => null,
+                                                                            'order_date' => null,
+                                                                            'canceled' => 0 );
+
+                        }
+                    }
+                    else
+                    {
+                        if($quantity_temp > 0)
+                        {
+                            $message = 'We cant calculate Gasto. Product out of stock. SKU: '.$row['sku'].'; Order ID: '.$order_id.'; Web: '.$web;
+                            log_message('INFO', $message);
+                            $valid = FALSE;
+                            continue;
+                        }
+                    }
+                    
+                    continue;
+                }
+            }
+            
+            // We have no such products at Warehouse. Try to get products from Providers
+            
+            // Check product existance at providers_product table
+            if(!$this->get_product($row['sku'], $web))
+            {
+                $message = 'We cant calculate Gasto. Product not found. SKU: '.$row['sku'].'; Order ID: '.$order_id.'; Web: '.$web;
+                log_message('INFO', $message);
+                $valid = FALSE;
+                continue;
+            }
+            
+            $provider_product = $this->get_product($row['sku'], $web);
+            $quantity_temp = $row['quantity'];
+            
+            foreach ($provider_product as $v)
+            {
+                if($v->stock >= $quantity_temp)
+                {
+                    $gasto += $v->price * $quantity_temp;
+                    
+                    if(!$safe_mode)
+                    {
+                    // Save data
+                    $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                        'sku' => $v->sku,
+                                                                        'product_name' => $v->product_name,
+                                                                        'provider_name' => $v->provider_name,
+                                                                        'provider_id' => $v->provider_id,
+                                                                        'provider_price' => $v->price,
+                                                                        'order_price' => $row['price'],
+                                                                        'warehouse_price' => null,
+                                                                        'warehouse_product_id' => null,
+                                                                        'provider_product_id' => $v->id,
+                                                                        'quantity' => $quantity_temp,
+                                                                        'sold_from_warehouse' => 0,
+                                                                        'web' => $web,
+                                                                        'order_id' => $order_id,
+                                                                        'order_status' => null,
+                                                                        'order_date' => null,
+                                                                        'canceled' => 0 );
+
+                    }
+                    $quantity_temp = 0;    
+                    // We can break loop, because have enough products
+                    break;
+                }
+                else
+                {
+                    if($v->stock > 0)
+                    {
+                        $gasto += $v->price * $v->stock;
+                        $quantity_temp -= $v->stock;
+                        
+                        if(!$safe_mode)
+                        {
+                        // Save data
+                        $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                            'sku' => $v->sku,
+                                                                            'product_name' => $v->product_name,
+                                                                            'provider_name' => $v->provider_name,
+                                                                            'provider_id' => $v->provider_id,
+                                                                            'provider_price' => $v->price,
+                                                                            'order_price' => $row['price'],
+                                                                            'warehouse_price' => null,
+                                                                            'warehouse_product_id' => null,
+                                                                            'provider_product_id' => $v->id,
+                                                                            'quantity' => $v->stock,
+                                                                            'sold_from_warehouse' => 0,
+                                                                            'web' => $web,
+                                                                            'order_id' => $order_id,
+                                                                            'order_status' => null,
+                                                                            'order_date' => null,
+                                                                            'canceled' => 0 );
+
+                        }
+                    }
+                }
+            }
+            
+            // Check quantity of product, that we need to get as Credit
+            if($quantity_temp != $row['quantity'] && $quantity_temp > 0)
+            {
+                // Get most cheap product
+                $gasto += $provider_product[0]->price * $quantity_temp;
+
+                if(!$safe_mode)
+                {
+                // Save data
+                $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                                                                    'sku' => $provider_product[0]->sku,
+                                                                    'product_name' => $provider_product[0]->product_name,
+                                                                    'provider_name' => $provider_product[0]->provider_name,
+                                                                    'provider_id' => $provider_product[0]->provider_id,
+                                                                    'provider_price' => $provider_product[0]->price,
+                                                                    'order_price' => $row['price'],
+                                                                    'warehouse_price' => null,
+                                                                    'warehouse_product_id' => null,
+                                                                    'provider_product_id' => $provider_product[0]->id,
+                                                                    'quantity' => $quantity_temp,
+                                                                    'provider_reserve_quantity' => $quantity_temp,
+                                                                    'sold_from_warehouse' => 0,
+                                                                    'web' => $web,
+                                                                    'order_id' => $order_id,
+                                                                    'order_status' => null,
+                                                                    'order_date' => null,
+                                                                    'canceled' => 0 );
+
+                }
+            }
+            else
+            {
+                if($quantity_temp > 0)
+                {
+                    $message = 'We cant calculate Gasto. Product out of stock. SKU: '.$row['sku'].'; Order ID: '.$order_id.'; Web: '.$web;
+                    log_message('INFO', $message);
+                    $valid = FALSE;
+                    continue;
+                }
+                
+            }
+        }
+        
+        $this->products_sales_history_data[$web][$order_id] = $products_sales_history_data;
+        
+        if(!$valid)
+        {
+            return 0;
+        }
+        
+        $gasto *= ( 1 + (1/100*$IVA_tax));
+
+        $gasto += ( $shipping_cost * ( 1 + (1/100*$IVA_tax)) );
+        
+        return $gasto;
+    }
+    
+    /**
+     * Save order products sales history.
+     * Put all order products to history.
+     * @param string $web
+     * @param string $order_id ID that system receive from e-Shop. (pedido field in pedidos table)
+     * @param int $order_unique_id Our ID in pedidos table
+     * @param string $order_status Procesado of order
+     * @param string $order_date Date of order
+     * @return boolean true on success
+     * 
+     */
+    public function store_history($web, $order_id, $order_unique_id, $order_status, $order_date)
+    {
+        if(isset($this->products_sales_history_data[$web][$order_id]))
+        {
+            $info = $this->products_sales_history_data[$web][$order_id];
+        }
+        else
+        {
+            $info = null;
+        }
+        
+        if(is_array($info) && count($info) > 0)
+        {
+            foreach ($info as $row)
+            {
+                foreach ($row as $data)
+                {
+                    $data['order_status'] = $order_status;
+                    $data['order_date']   = date('Y-m-d H:i:s',strtotime($order_date));
+                    $data['order_id']     = (int)$order_unique_id; 
+                    $data['order_name']   = $order_id;
+                    
+                    $this->db->insert('products_sales_history', $data); 
+                }
+            }
+            
+            return true;
+        }
+        
+        $msg = 'Cant save order history info. Have no any data. Web: '.$web.'; Order ID: '.$order_id;
+        log_message('INFO', $msg);
+        return false;
     }
 }

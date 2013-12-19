@@ -78,7 +78,7 @@
                         <!-- Vendidas -->
                         <td class="vendidas"><?php echo $product->vendidas;?></td>
                     </tr>
-                    <? } ?>
+                    <?php } ?>
                 </table>
                 <div class="pagination">
                 <?php echo $pagination;?>

@@ -40,6 +40,7 @@ class Sync_general
         $this->_CI->load->model('incomes/shipping_costs_model');
         $this->_CI->load->model('incomes/taxes_model');
         $this->_CI->load->model('incomes/web_field_model');
+        $this->_CI->load->model('products/products_model');
         $this->_CI->load->library('currency');
         
         $web = $this->_CI->web_field_model->get_web_field($this->_config->web);
@@ -141,6 +142,8 @@ class Sync_general
                     
                         $stmt->execute($order);
                         
+                        $this->_CI->products_model->store_history($order[41],$order[0],$this->input_dbo->lastInsertId(),$order[9],$order[2]);
+                        
                     } catch(PDOException $ex) {
                         echo $ex->getMessage();
                     }
@@ -194,187 +197,50 @@ class Sync_general
      * Return Gasto
      * @param array $order Order array
      * @param boolean $safe_mode Safe mode. If safe mode , then gasto calculates without stock changes in the Engelsa and Stokoni tables.By Default safe mode on!
-     * @return mixed 0 or gsato float
+     * @return mixed 0 or gasto float
      */
     private function getGasto($order, $safe_mode = true) {
         
         if (is_array($order) && !empty($order)) {
-            
-            $gasto = 0;
-            
+                        
             if (empty($order['id'])) {
-                
+                $order_product = array();
+                $j = 0;
                 for ($i = 10; $i <= 37; $i += 3){
-                    if (strlen($order[$i]) == 14){
-                        $sku                = str_replace('#', '', $order[$i]);
-                        $quantity           = (int)$order[$i+2];
-                        $price              = $this->getPriceFromEngelsa($sku);
-                        $product_in_stokoni = $this->_CI->stokoni_model->find_product_by_ean($sku);
-                        $product_in_engelsa = $this->_CI->engelsa_model->get_product($sku);
-                            
-                        if($product_in_stokoni && $product_in_stokoni->stock > 0)
+                        if(empty($order[$i]))
                         {
-                            if($product_in_stokoni->stock >= $quantity)
-                            {
-                                $gasto += ( $product_in_stokoni->coste * $quantity );
-                                if(!$safe_mode)
-                                {
-                                    $this->_CI->stokoni_model->sell_product((int)$product_in_stokoni->id, (int)$quantity);
-                                }
-                            }
-                            else
-                            {
-                                if ($price > 0)
-                                {
-                                    $gasto += ( ( $product_in_stokoni->coste * $product_in_stokoni->stock ) + ( $price * ( $quantity - $product_in_stokoni->stock ) ) );
-                                    if(!$safe_mode)
-                                    {
-                                        $this->_CI->stokoni_model->sell_product((int)$product_in_stokoni->id, (int)$product_in_stokoni->stock);
-                                    }
-                                    if($product_in_engelsa->stock >= $quantity - $product_in_stokoni->stock)
-                                    {   
-                                        if(!$safe_mode)
-                                        {
-                                            $this->_CI->engelsa_model->sell_product($sku, $quantity - $product_in_stokoni->stock);
-                                        }    
-                                    }
-                                } 
-                                else
-                                {
-                                    return 0; // We cant calculate gasto if dont know price
-                                }
-                            }
+                            continue;
                         }
-                        else 
-                        {
-                            if ($price > 0)
-                            {
-                                $gasto += ( $price * $quantity );
-                                
-                                if($product_in_engelsa->stock >= $quantity)
-                                {
-                                    if(!$safe_mode)
-                                    {
-                                        $this->_CI->engelsa_model->sell_product($sku, $quantity);
-                                    }
-                                }
-                            } 
-                            else
-                            {
-                                return 0; // We cant calculate gasto if dont know price
-                            }
-                        }
-                            
-                    } else {
-                        continue;
-                    }
+                        $order_product[$j]['sku']       = $order[$i];
+                        $order_product[$j]['quantity']  = (int)$order[$i+2];
+                        $order_product[$j]['price']     = (float)$order[$i+1];
+                        $order_product[$j]['order_id']  = trim($order[0]);
+                        $j++;   
                 }
-
+                
                 $shipping_cost  = $this->getShippingCost($order[7],$order[41],$order[49]);
-                $IVA_tax        = $this->getIVAtax();
-
-                if ($shipping_cost > 0 && $IVA_tax > 0 && $gasto > 0) {
-
-                    $gasto *= ( 1 + (1/100*$IVA_tax));
-
-                    $gasto += ( $shipping_cost * ( 1 + (1/100*$IVA_tax)) );
-
-                    return $gasto;
-
-                } else {
-                    return 0; // We cant calculate gasto with Zero shipping cost and Zero Taxes.
-                }
+                
+                return $this->_CI->products_model->calculate_gasto($order_product,$shipping_cost,$order[41],$safe_mode);
                 
             } else {
-                
+                $order_product = array();
+                $j = 0;
                 for ($i = 1; $i <= 10; $i++){
-                    if (strlen($order['sku'.$i]) == 14){
-                        $sku                = str_replace('#', '', $order['sku'.$i]);
-                        $quantity           = (int)$order['cantidad'.$i];
-                        $price              = $this->getPriceFromEngelsa($sku);
-                        $product_in_stokoni = $this->_CI->stokoni_model->find_product_by_ean($sku);
-                        $product_in_engelsa = $this->_CI->engelsa_model->get_product($sku);
-                                                
-                        if($product_in_stokoni && $product_in_stokoni->stock > 0)
+                        if(empty($order['sku'.$i]))
                         {
-                            if($product_in_stokoni->stock >= $quantity)
-                            {
-                                $gasto += ( $product_in_stokoni->coste * $quantity );
-                                if(!$safe_mode)
-                                {
-                                    $this->_CI->stokoni_model->sell_product((int)$product_in_stokoni->id, (int)$quantity);
-                                }
-                            }
-                            else
-                            {
-                                if ($price > 0)
-                                {
-                                    $gasto += ( ( $product_in_stokoni->coste * $product_in_stokoni->stock ) + ( $price * ( $quantity - $product_in_stokoni->stock ) ) );
-                                    if(!$safe_mode)
-                                    {
-                                        $this->_CI->stokoni_model->sell_product((int)$product_in_stokoni->id, (int)$product_in_stokoni->stock);
-                                    }
-                                    if($product_in_engelsa->stock >= $quantity - $product_in_stokoni->stock)
-                                    {
-                                        if(!$safe_mode)
-                                        {       
-                                            $this->_CI->engelsa_model->sell_product($sku, $quantity - $product_in_stokoni->stock);
-                                        }
-                                    }
-                                } 
-                                else
-                                {
-                                    return 0; // We cant calculate gasto if dont know price
-                                }
-                            }
+                            continue;
                         }
-                        else 
-                        {
-                            if ($price > 0)
-                            {
-                                $gasto += ( $price * $quantity );
-                                
-                                if($product_in_engelsa->stock >= $quantity)
-                                {
-                                    if(!$safe_mode)
-                                    {
-                                        $this->_CI->engelsa_model->sell_product($sku, $quantity);
-                                    }
-                                }
-                            } 
-                            else
-                            {
-                                return 0; // We cant calculate gasto if dont know price
-                            }
-                        }
-
-                    } else {
-                        continue;
-                    }
+                        $order_product[$j]['sku']       = $order['sku'.$i];
+                        $order_product[$j]['quantity']  = (int)$order['cantidad'.$i];
+                        $order_product[$j]['price']     = (float)$this->getPriceFromEngelsa($sku);
+                        $order_product[$j]['order_id']  = trim($order['pedido']);      
+                        $j++;
                 }
-
                 $shipping_cost  = $this->getShippingCost($order['pais'],$order['web'],$order['shipping_phrase']);
-                $IVA_tax        = $this->getIVAtax();
-
-                if ($shipping_cost > 0 && $IVA_tax > 0 && $gasto > 0) {
-
-                    $gasto *= ( 1 + (1/100*$IVA_tax));
-
-                    $gasto += ( $shipping_cost * ( 1 + (1/100*$IVA_tax)) );
-
-                    return $gasto;
-
-                } else {
-                    return 0; // We cant calculate gasto with Zero shipping cost and Zero Taxes.
-                }
                 
+                return $this->_CI->products_model->calculate_gasto($order_product,$shipping_cost,$order['web'],$safe_mode);
             }
-            
-        } else {
-            
-            return 0;
-            
-        }
+        } 
     }
     
     private function getPriceFromEngelsa($sku)
@@ -400,65 +266,7 @@ class Sync_general
      * 
      */
     private function getProcesado($order)
-    {
-        $stokoni_flags = array(); //Store flag 1 if product stock in stockoni not less than quantity
-        
-        for ($i = 10; $i <= 37; $i += 3)
-        {
-            if (!empty($order[$i]))
-            {
-                $sku            = $order[$i];
-                $quantity       = (int)$order[$i+2];
-                
-                $product_in_stokoni = $this->_CI->stokoni_model->find_product_by_ean($sku);
-                $product_in_engelsa = $this->_CI->engelsa_model->get_product($sku);
-                
-                if($product_in_stokoni)
-                {
-                    if($product_in_stokoni->stock >= $quantity)
-                    {
-                        $stokoni_flags[] = 1;
-                        continue;
-                    }
-                    else 
-                    {
-                        $stokoni_flags[] = 0;
-                    }
-                }
-                
-                if($product_in_engelsa && $product_in_stokoni)
-                {
-                    if($product_in_engelsa->stock >= $quantity - $product_in_stokoni->stock)
-                    {
-                        $stokoni_flags[] = 0;
-                        continue;
-                    }
-                    else
-                    {
-                        return 'ROTURASTOCK';
-                    }
-                } 
-                elseif($product_in_engelsa)
-                {
-                    if($product_in_engelsa->stock >= $quantity)
-                    {
-                        $stokoni_flags[] = 0;
-                        continue;
-                    }
-                    else
-                    {
-                        return 'ROTURASTOCK';
-                    }
-                }
-            }   
-        }
-        
-        //Set in_stockoni flag
-        if(count($stokoni_flags) > 0 && array_search(0, $stokoni_flags) === false)
-        {
-            $this->_data['order_stokoni_status'][$order[0].$order[41]] = 1;
-        }
-        
+    {     
         //Check order status
         if($order[48] == 'C')
         {

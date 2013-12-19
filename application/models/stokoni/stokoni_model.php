@@ -213,10 +213,10 @@ class Stokoni_model extends CI_Model
     }
     
     /**
-     * Looking for product by EAN in Stockoni
+     * Looking for product by EAN in Stockoni. First appears most cheaper!
      * 
      * @param string $ean
-     * @return mixed Product object or boolean false
+     * @return mixed Product/products object or boolean false
      */
     public function find_product_by_ean($ean)
     {
@@ -230,13 +230,14 @@ class Stokoni_model extends CI_Model
         $query = ' SELECT * 
                    FROM `stokoni` 
                    WHERE `ean` = \''.$ean.'\' 
+                   ORDER BY `coste` 
         ';
         
         $result = $this->db->query($query);
         
-        if($result->num_rows() == 1)
+        if($result->num_rows() >= 1)
         {
-            return $result->row();
+            return $result->result();
         }
         
         return false;

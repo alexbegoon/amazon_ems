@@ -17,6 +17,7 @@ class Upload_model extends CI_Model {
         $this->load->model('engelsa/engelsa_model');
         $this->load->model('incomes/shipping_costs_model');
         $this->load->model('incomes/taxes_model');
+        $this->load->model('products/products_model');
     }
     
     public function getOrders($file_path, $service) {
@@ -344,200 +345,33 @@ class Upload_model extends CI_Model {
             
     private function getProcesado($sku, $qty, $pedido = null)
     {
-        if(isset($this->_stock_in_warehouse[$sku]))
-        {
-            if($this->_stock_in_warehouse[$sku] >= $qty)
-            {
-                $this->_stock_in_warehouse[$sku] -= $qty;
-                $this->_data['in_stokoni_field'][$pedido] = 1;
-                return 'NO';
-            }
-        }
-        $product_in_stokoni = $this->stokoni_model->find_product_by_ean($sku);
         
-        if($product_in_stokoni && $product_in_stokoni->stock >= $qty)
-        {
-            $this->_stock_in_warehouse[$sku] = $product_in_stokoni->stock;
-            $this->_stock_in_warehouse[$sku] -= $qty;
-            $this->_data['in_stokoni_field'][$pedido] = 1;
-            return 'NO';
-        }
-        elseif($product_in_stokoni && $product_in_stokoni->stock < $qty && $product_in_stokoni->stock > 0)
-        {
-            $this->_stock_in_warehouse[$sku] = 0;
-            $this->_data['in_stokoni_field'][$pedido] = 0;
-            if(isset($this->_stock_in_engelsa[$sku]))
-            {
-                if($this->_stock_in_engelsa[$sku] >= $qty - $product_in_stokoni->stock)
-                {
-                    $this->_stock_in_engelsa[$sku] -= $qty - $product_in_stokoni->stock;
-
-                    return 'NO';
-                }
-                else
-                {
-                    return 'ROTURASTOCK';
-                }
-            }
-            
-            if(!empty($sku))
-            {
-                $sku = str_replace('#', '', $sku); 
-
-                $product_in_engelsa = $this->engelsa_model->get_product($sku);
-
-                if ($product_in_engelsa)
-                {
-                    $this->_stock_in_engelsa[$sku] = $product_in_engelsa->stock;
-                    if ($this->_stock_in_engelsa[$sku] >= $qty - $product_in_stokoni->stock)
-                    {
-                        $this->_stock_in_engelsa[$sku] -= $qty - $product_in_stokoni->stock;
-                        $this->_data['in_stokoni_field'][$pedido] = 0;
-                        return 'NO';
-                    }
-                    else 
-                    {
-                        return 'ROTURASTOCK';
-                    }
-                }
-                else
-                {
-                    return 'ROTURASTOCK';
-                }
-            }
-            else
-            {
-                return 'NO';
-            }
-        }
-        else
-        {
-            if(isset($this->_stock_in_engelsa[$sku]))
-            {
-                if($this->_stock_in_engelsa[$sku] >= $qty)
-                {
-                    $this->_stock_in_engelsa[$sku] -= $qty;
-                    $this->_data['in_stokoni_field'][$pedido] = 0;
-                    return 'NO';
-                }
-                else
-                {
-                    return 'ROTURASTOCK';
-                }
-            }
-
-            if(!empty($sku))
-            {
-                $sku = str_replace('#', '', $sku); 
-
-                $product_in_engelsa = $this->engelsa_model->get_product($sku);
-
-                if ($product_in_engelsa)
-                {
-                    $this->_stock_in_engelsa[$sku] = $product_in_engelsa->stock;
-                    if ($this->_stock_in_engelsa[$sku] >= $qty)
-                    {
-                        $this->_stock_in_engelsa[$sku] -= $qty;
-                        $this->_data['in_stokoni_field'][$pedido] = 0;
-                        return 'NO';
-                    }
-                    else 
-                    {
-                        return 'ROTURASTOCK';
-                    }
-                }
-                else
-                {
-                    return 'ROTURASTOCK';
-                }
-            }
-            else
-            {
-                return 'NO';
-            }
-        } 
+        return 'NO';
+           
     }
     
     private function getGasto($order, $safe_mode = true)
     {
         if(!empty($order))
         {
-            $gasto              = 0;
+            $order_products = array();
             $shipping_price     = $this->getShippingPrice($order['pais'],$order['web']);
-            $IVA_tax            = $this->getIVAtax();
-                        
+            $j = 0;    
             for($i=1; $i<=10; $i++)
             {
                 if(empty($order['sku'.$i]))
                 {
                     continue;
                 }
-                $sku                = str_replace('#', '', $order['sku'.$i]);
-                $price              = $this->getPriceFromEngelsa($order['sku'.$i]);
-                $product_in_stokoni = $this->stokoni_model->find_product_by_ean($order['sku'.$i]);
-                $product_in_engelsa = $this->engelsa_model->get_product($sku);
-                $quantity           = (int)$order['cantidad'.$i];
-                
-                if($product_in_stokoni && $product_in_stokoni->stock > 0)
-                {
-                    if($product_in_stokoni->stock >= $quantity)
-                    {
-                        $gasto += ( $product_in_stokoni->coste * $quantity );
-                        if(!$safe_mode)
-                        {
-                            $this->stokoni_model->sell_product((int)$product_in_stokoni->id, (int)$quantity);
-                        }
-                    }
-                    else
-                    {
-                        if ($price > 0 && $shipping_price > 0 && $IVA_tax > 0 && $quantity > 0)
-                        {
-                            $gasto += ( ( $product_in_stokoni->coste * $product_in_stokoni->stock ) + ( $price * ( $quantity - $product_in_stokoni->stock ) ) );                            
-                            if(!$safe_mode)
-                            {
-                                $this->stokoni_model->sell_product((int)$product_in_stokoni->id, (int)$product_in_stokoni->stock);
-                            }
-                            if($product_in_engelsa->stock >= $quantity - $product_in_stokoni->stock)
-                            {
-                                if(!$safe_mode)
-                                {
-                                    $this->engelsa_model->sell_product($sku, $quantity - $product_in_stokoni->stock);
-                                }
-                            }
-                        } 
-                        else
-                        {
-                            return false; // We cant calculate gasto if dont know price
-                        }
-                    }
-                }
-                else
-                {
-                    if($price > 0 && $quantity > 0)
-                    {
-                        $gasto += $price * $quantity;
-                        if($product_in_engelsa->stock >= $quantity)
-                        {
-                            if(!$safe_mode)
-                            {
-                                $this->engelsa_model->sell_product($sku, $quantity);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        return false; // We cant calculate gasto if dont know price
-                    }
-                }
+                $order_products[$j]['sku']        = $order['sku'.$i];
+                $order_products[$j]['price']      = (float)$order['precio'.$i];
+                $order_products[$j]['quantity']   = (int)$order['cantidad'.$i];
+                $order_products[$j]['order_id']   = $order['pedido'];
+                $j++;
             }
             
-            if($gasto > 0 && $shipping_price > 0 && $IVA_tax > 0)
-            {
-                $gasto *= ( 1 + (1/100*$IVA_tax));
-                $gasto += ( $shipping_price * ( 1 + (1/100*$IVA_tax)) );
-                
-                return $gasto;
-            }
+            return $this->products_model->calculate_gasto($order_products,$shipping_price,$order['web'],$safe_mode);
+            
         }
         else
         {
@@ -650,6 +484,12 @@ class Upload_model extends CI_Model {
                                      $order['localidad'],
                                      $order['formadepago'],
                                      $order['in_stokoni']) );
+                    
+                    $this->products_model->store_history($order['web'],
+                                                         $order['pedido'],
+                                                         $this->db->insert_id(),
+                                                         $order['procesado'],
+                                                         $order['fechaentrada']);
                 }
             }
             

@@ -512,9 +512,9 @@ class Export_csv_model extends CI_Model
                     
                     if(!empty($order->$sku))
                     {
-                        if($this->products_model->get_product($order->$sku,$order->web))
+                        if($this->products_model->get_product($order->$sku,$order->web)[0])
                         {
-                            $order_for_printer->$product_name = $this->products_model->get_product($order->$sku,$order->web)->product_name;
+                            $order_for_printer->$product_name = $this->products_model->get_product($order->$sku,$order->web)[0]->product_name;
                         }
                         else
                         {

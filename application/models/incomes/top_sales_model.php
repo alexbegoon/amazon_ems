@@ -389,9 +389,9 @@ class Top_sales_model extends CI_Model
     {
         $product = $this->products_model->get_product($sku,$web);
         
-        if($product)
+        if($product[0])
         {
-            return $product->product_name;
+            return $product[0]->product_name;
         }
         
         return FALSE;
@@ -407,9 +407,9 @@ class Top_sales_model extends CI_Model
     {
         $product = $this->products_model->get_product($sku,$web);
         
-        if($product)
+        if($product[0])
         {
-            return $product->sku;
+            return $product[0]->sku;
         }
         
         return $sku;

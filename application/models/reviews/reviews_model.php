@@ -54,7 +54,7 @@ class Reviews_model extends CI_Model
                                                             $web_field->web, $review->virtuemart_product_id
                                                           )->product_sku,
                                                           $web_field->web
-                                                          )->product_name;
+                                                          )[0]->product_name;
                      $data['product_sku']               = $this->virtuemart_model->get_product(
                                                             $web_field->web, $review->virtuemart_product_id
                                                           )->product_sku;
@@ -63,17 +63,16 @@ class Reviews_model extends CI_Model
                                                             $web_field->web, $review->virtuemart_product_id
                                                           )->product_sku,
                                                           $web_field->web
-                                                          )->sku;
+                                                          )[0]->sku;
                      $data['virtuemart_rating_review_id']  = $review->virtuemart_rating_review_id;
                      $data['amazoni_product_id']        = $this->products_model->get_product(
                                                           $this->virtuemart_model->get_product(
                                                             $web_field->web, $review->virtuemart_product_id
                                                           )->product_sku,
                                                           $web_field->web
-                                                          )->id;
+                                                          )[0]->id;
                      $data['timestamp']                 = null;
                         
-//                     var_dump($data);
                      
                      $this->db->insert($this->db->dbprefix('customer_reviews'), $data); 
                  }
