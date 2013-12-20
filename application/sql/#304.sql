@@ -37,3 +37,9 @@ ADD COLUMN `order_name` VARCHAR(45) NULL DEFAULT NULL COMMENT 'pedido field of p
 
 ALTER TABLE `amazoni`.`amazoni4_products_sales_history` 
 ADD COLUMN `out_of_stock` TINYINT(1) NULL DEFAULT 0 AFTER `canceled`;
+
+ALTER TABLE `amazoni`.`amazoni4_products_sales_history` 
+ADD COLUMN `csv_exported` TINYINT(1) NULL DEFAULT 0 AFTER `out_of_stock`;
+
+ALTER TABLE `amazoni`.`amazoni4_products_sales_history` 
+ADD COLUMN `csv_export_date` DATETIME NULL AFTER `csv_exported`;
