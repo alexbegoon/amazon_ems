@@ -60,7 +60,7 @@
                 
                 if($order->have_errors == true)
                 {
-                    $info = '<b class="error_icon" title="Order have an error. Please as Support.">&nbsp;</b>';
+                    $info = '<b class="error_icon" title="Order have an error. Please ask Support.">&nbsp;</b>';
                 }
             
                 $procesado_class = strtolower($order->procesado);
