@@ -58,6 +58,11 @@
                     $info = '<b class="stokoni">&nbsp;Stokoni&nbsp;</b>';
                 }
                 
+                if($order->gasto <= 0 || empty($order->gasto))
+                {
+                    $info = '<b class="warning_icon" title="Gasto is zero. Check order and Action history. Please ask Support.">&nbsp;</b>';
+                }
+                
                 if($order->have_errors == true)
                 {
                     $info = '<b class="error_icon" title="Order have an error. Please ask Support.">&nbsp;</b>';

@@ -71,7 +71,8 @@ class Dashboard_model extends CI_Model {
         $query = ' SELECT `a`.`id`, `a`.`pedido`, `a`.`nombre`, `a`.`fechaentrada`, 
                           `a`.`direccion`, `a`.`pais`, `a`.`procesado`, 
                           `a`.`ingresos`, `a`.`web`, `a`.`comentarios`, 
-                          `a`.`tracking`, `a`.`correo`, `a`.`in_stokoni`, \'\' as `total_number` 
+                          `a`.`tracking`, `a`.`correo`, `a`.`in_stokoni`, \'\' as `total_number`,
+                          `a`.`gasto` 
                    FROM `pedidos` AS `a` 
                    '.$where.' 
                    ORDER BY '.$order_by.'  

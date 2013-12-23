@@ -648,6 +648,12 @@ b.error_icon{
     width: 32px;
     height: 32px;
 }
+b.warning_icon{
+    background: url(../imgs/Warning-icon.png);
+    display: block;
+    width: 32px;
+    height: 32px;
+}
 
 
 
