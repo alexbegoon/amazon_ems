@@ -642,6 +642,12 @@ div.pagination strong {
     font-family: 'Lucida Grande', Tahoma, Verdana, sans-serif;
     border-radius: 3px;
 }
+b.error_icon{
+    background: url(../imgs/Button-warning-icon.png);
+    display: block;
+    width: 32px;
+    height: 32px;
+}
 
 
 

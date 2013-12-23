@@ -36,7 +36,7 @@
                 <th>Action</th>
                 <th>Id</th>
                 <th>Pedido</th>
-                <th>Stokoni</th>
+                <th>Info</th>
                 <th>Nombre</th>
                 <th>Fechaentrada</th>
                 <th>Direccion</th>
@@ -50,14 +50,17 @@
             </tr>
             <?php foreach ($orders as $order) { ?>
             <?php 
+            
+                $info = '';
                         
-                if($order->in_stokoni == 1)
+                if($order->warehouse_sales == true)
                 {
-                    $in_stokoni = '&nbsp;Stokoni&nbsp;';
+                    $info = '<b class="stokoni">&nbsp;Stokoni&nbsp;</b>';
                 }
-                else 
+                
+                if($order->have_errors == true)
                 {
-                    $in_stokoni = '';
+                    $info = '<b class="error_icon" title="Order have an error. Please as Support.">&nbsp;</b>';
                 }
             
                 $procesado_class = strtolower($order->procesado);
@@ -81,8 +84,8 @@
                 <td><?php echo $order->id ;?></td>
                 <!-- Pedido -->
                 <td class="bold"><?php echo $order->pedido ;?></td>
-                <!-- Stokoni -->
-                <td class="bold"><b class="stokoni"><?php echo $in_stokoni;?></b></td>
+                <!-- Info -->
+                <td class="bold"><?php echo $info;?></td>
                 <!-- Nombre -->
                 <td class="nombre"><?php echo  htmlentities($order->nombre) ;?></td>
                 <!-- Fechaentrada -->

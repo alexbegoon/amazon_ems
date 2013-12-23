@@ -83,6 +83,7 @@ class Dashboard_model extends CI_Model {
         $this->_orders = $result->result();
         
         $this->find_recurrent_buyers($this->_orders);
+        $this->check_orders($this->_orders);
         
         $query = ' SELECT COUNT(*) as `total_rows` FROM `pedidos` AS `a` '.$where.' ';
         $result = $this->db->query($query);
@@ -409,5 +410,44 @@ class Dashboard_model extends CI_Model {
         $query = $this->db->get('products_sales_history');
                 
         return $query->result();
+    }
+    
+    private function check_orders($orders)
+    {
+        if(empty($orders) && !is_array($orders))
+        {
+            return false;
+        }
+        
+        $this->db->cache_on();
+        
+        foreach ($orders as $order)
+        {
+            $order->have_errors = false;
+            $order->warehouse_sales = false;
+            
+            $this->db->where('order_id =', $order->id);
+            $query = $this->db->get('products_sales_history');
+            
+            if($query->num_rows() > 0)
+            {
+                $items = $query->result();
+                
+                foreach ($items as $item)
+                {
+                    if($item->sold_from_warehouse == 1)
+                    {
+                        $order->warehouse_sales = true;
+                    }
+                }
+            }
+            else 
+            {
+                $order->have_errors = true;
+                $order->warehouse_sales = false;
+            }
+        }
+        
+        $this->db->cache_off();
     }
 }
