@@ -143,6 +143,63 @@
                 <?php } ?>
             </table>
         </div>
+        <div>
+            <p>Actions history:</p>
+            <?php if (empty($info)) : ?>
+            <p class="highlight">This order have error. Please ask Support.</p>
+            <?php endif;?>
+            <table>
+                <?php if (!empty($info)) : ?>
+                <tr>
+                    <th>SKU</th>
+                    <th>Quantity</th>
+                    <th>Provider</th>
+                    <th>Message</th>
+                    <th>Time</th>
+                </tr>
+                
+                
+                <?php foreach($info as $row) : ?>
+                
+                <?php
+                
+                    $msg = 'OK';
+                    $attr = '';
+                    
+                    if($row->out_of_stock == 1)
+                    {
+                        $msg = 'Out of stock';
+                        $attr = 'class="highlight"';
+                    }
+                    
+                    if($row->provider_reserve_quantity > 0)
+                    {
+                        $msg = 'Sold from provider reserve';
+                        $attr = 'class="highlight"';
+                    }
+                    
+                    if($row->canceled == 1)
+                    {
+                        $msg = 'Canceled';
+                        $attr = 'class="highlight"';
+                    }
+                ?>
+                
+                
+                <tr <?php echo $attr;?>>
+                    <td><?php echo $row->sku_in_order;?></td>
+                    <td><?php echo $row->quantity;?></td>
+                    <td><?php echo $row->provider_name;?></td>
+                    <td><?php echo $msg;?></td>
+                    <td><?php echo $row->timestamp;?></td>
+                </tr>
+                
+                
+                <?php endforeach;?>
+                
+                <?php endif;?>
+            </table>
+        </div>
     </div>
     <div class="bottom">
         <div class="edit-buttons">

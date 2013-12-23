@@ -397,4 +397,17 @@ class Dashboard_model extends CI_Model {
         
         return 'NO';
     }
+    
+    public function get_order_detail_info($id)
+    {
+        if(!is_integer($id) || empty($id))
+        {
+            return FALSE;
+        }
+        
+        $this->db->where('order_id =',$id);
+        $query = $this->db->get('products_sales_history');
+                
+        return $query->result();
+    }
 }

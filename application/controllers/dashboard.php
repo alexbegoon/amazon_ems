@@ -58,7 +58,8 @@ class Dashboard extends CI_Controller {
     {
         $data = array();
         
-        $data['order'] = $this->dashboard_model->getOrder($id);
+        $data['order']  = $this->dashboard_model->getOrder($id);
+        $data['info']   = $this->dashboard_model->get_order_detail_info((int)$id);
         
         $this->load->view('dashboard/edit', $data);
     }

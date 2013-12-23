@@ -110,7 +110,7 @@ function edit (id) {
     
     $( "#dialog-modal" ).dialog({
     minHeight: 400,    
-    minWidth: 960,
+    minWidth: 1100,
     modal: true,
     title: 'Edit order id '+ id,
     close: function( event, ui ) {

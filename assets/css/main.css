@@ -729,6 +729,7 @@ div.bottom {
 div.bottom div {
     float:left;
     padding-top: 20px;
+    margin-right: 10px;
 }
 div.bottom table td {
     padding: 5px;
@@ -740,6 +741,10 @@ div.bottom table td b {
 div.edit-buttons {
     width: 100%!important;
     text-align: right;
+}
+
+tr.highlight td,p.highlight{
+    color: red;
 }
 /***************** Order delete window *********************/
 
