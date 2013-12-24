@@ -742,7 +742,7 @@ class Products_model extends CI_Model
                                                                                 'warehouse_product_id' => null,
                                                                                 'provider_product_id' => $provider_product[0]->id,
                                                                                 'quantity' => $quantity_temp,
-                                                                                'provider_reserve_quantity' => $quantity_temp,
+                                                                                'provider_reserve_quantity' => 0,
                                                                                 'sold_from_warehouse' => 0,
                                                                                 'web' => $web,
                                                                                 'order_id' => $order_id,
