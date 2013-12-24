@@ -736,7 +736,7 @@ class Products_model extends CI_Model
                                                                                 'product_name' => $provider_product[0]->product_name,
                                                                                 'provider_name' => $provider_product[0]->provider_name,
                                                                                 'provider_id' => $provider_product[0]->provider_id,
-                                                                                'provider_price' => null,
+                                                                                'provider_price' => $provider_product[0]->price,
                                                                                 'order_price' => $row['price'],
                                                                                 'warehouse_price' => null,
                                                                                 'warehouse_product_id' => null,
@@ -962,7 +962,8 @@ class Products_model extends CI_Model
                         $data['order_date']   = date('Y-m-d H:i:s',strtotime($order_date));
                         $data['order_id']     = (int)$order_unique_id; 
                         $data['order_name']   = $order_id;
-
+                        $data['created_at']   = date('Y-m-d H:i:s',time());
+                        
                         $this->db->insert('products_sales_history', $data); 
                     }
                 }
