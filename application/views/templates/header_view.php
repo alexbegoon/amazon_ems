@@ -78,6 +78,9 @@
                             <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_tourline_summary';?>" onclick="confirm(this);return false;">Generar TOURLINE</a>
                             </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_stokoni_summary';?>" onclick="confirm(this);return false;">Generar Stokoni Summary</a>
+                            </li>
                         </ul>
                     </li>
                     <li>
@@ -147,6 +150,9 @@
                             </li>
                             <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_tourline_summary';?>" onclick="confirm(this);return false;">Generar TOURLINE</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_stokoni_summary';?>" onclick="confirm(this);return false;">Generar Stokoni Summary</a>
                             </li>
                         </ul>
                     </li>

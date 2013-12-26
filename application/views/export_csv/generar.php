@@ -23,17 +23,26 @@
         <table class="thin_table">
             <tr>
                 <th>Pedido</th>
+                <?php if(strpos(current_url(),'generar_stokoni_summary') !== FALSE):?>
+                <th>Stokoni</th>
+                <?php endif;?>
                 <th>Ingreso</th>
                 <th>Coste</th>
             </tr>
             <?php foreach($summary as $item) { ?>
                 <tr>
                     <td class="bold"><?php echo $item->pedido;  ?></td>
+                    <?php if(strpos(current_url(),'generar_stokoni_summary') !== FALSE):?>
+                    <td>STOKONI</td>
+                    <?php endif;?>
                     <td class="ingreso"><?php echo number_format($item->ingresos,2);?>&euro;</td>
                     <td class="gasto"><?php echo number_format($item->gasto,2);   ?>&euro;</td>
                 </tr>    
             <?php } ?>
                 <tr class="total">
+                    <?php if(strpos(current_url(),'generar_stokoni_summary') !== FALSE):?>
+                    <td></td>
+                    <?php endif;?>
                     <td>Total:</td>
                     <td class="ingreso"><?php echo number_format($item->total_ingresos,2);?>&euro;</td>
                     <td class="gasto"><?php echo number_format($item->total_gasto,2);?>&euro;</td>

@@ -537,6 +537,28 @@ class Export_csv_model extends CI_Model
         }
     }
     
+    private function get_file_data_generar_stokoni()
+    {
+        $query = ' SELECT * 
+                       FROM `pedidos` 
+                       WHERE `procesado` = \'PEDIDO_ENGELSA_GLS_AQUI\' 
+                       OR `procesado` = \'PEDIDO_FEDEX_TOURLINE_AQUI\' 
+                       OR `procesado` = \'PEDIDO_ENGELSA_FEDEX_AQUI\' 
+            ';
+        
+        $result = $this->db->query($query);
+        
+        if($result)
+        {
+            $orders = $result->result();
+                        
+//            foreach ($orders as $order)
+//            {
+//                $this->dashboard_model->set_status((int)$order->id, 'PTE_ENVIO_TOURLINE');
+//            }
+        }
+    }
+    
     public function get_summary($service)
     {
         if($service == 'generar_gls_summary')
@@ -613,6 +635,28 @@ class Export_csv_model extends CI_Model
                         ) AS `total_gasto` 
                        FROM `pedidos` 
                        WHERE `procesado` = \'PEDIDO_ENGELSA_TOURLINE_AQUI\' 
+            ';
+        }
+        
+        if($service == 'generar_stokoni_summary')
+        {
+            $query = ' SELECT *,
+                       (SELECT SUM(`ingresos`) 
+                        FROM `pedidos` 
+                        WHERE  `procesado` = \'PEDIDO_ENGELSA_GLS_AQUI\' 
+                       OR `procesado` = \'PEDIDO_FEDEX_TOURLINE_AQUI\' 
+                       OR `procesado` = \'PEDIDO_ENGELSA_FEDEX_AQUI\' 
+                        ) AS `total_ingresos`, 
+                       (SELECT SUM(`gasto`) 
+                        FROM `pedidos` 
+                        WHERE  `procesado` = \'PEDIDO_ENGELSA_GLS_AQUI\' 
+                       OR `procesado` = \'PEDIDO_FEDEX_TOURLINE_AQUI\' 
+                       OR `procesado` = \'PEDIDO_ENGELSA_FEDEX_AQUI\' 
+                        ) AS `total_gasto` 
+                       FROM `pedidos` 
+                       WHERE `procesado` = \'PEDIDO_ENGELSA_GLS_AQUI\' 
+                       OR `procesado` = \'PEDIDO_FEDEX_TOURLINE_AQUI\' 
+                       OR `procesado` = \'PEDIDO_ENGELSA_FEDEX_AQUI\' 
             ';
         }
         
