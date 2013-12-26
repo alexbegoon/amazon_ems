@@ -92,6 +92,7 @@ class Export_csv_model extends CI_Model
                   WHERE `procesado` = \'PREPARACION_ENGELSA_FEDEX\' 
                      OR `procesado` = \'PREPARACION_ENGELSA_GLS\' 
                      OR `procesado` = \'PREPARACION_ENGELSA_PACK\' 
+                     OR `procesado` = \'PREPARACION_ENGELSA_TOURLINE\' 
         ';
         
         $result = $this->db->query($query);
@@ -185,6 +186,10 @@ class Export_csv_model extends CI_Model
                 elseif($order['procesado'] == 'PREPARACION_ENGELSA_PACK')
                 {
                     $this->dashboard_model->set_status((int)$order['id'], 'PEDIDO_ENGELSA_PACK');
+                }
+                elseif($order['procesado'] == 'PREPARACION_ENGELSA_TOURLINE')
+                {
+                    $this->dashboard_model->set_status((int)$order['id'], 'PEDIDO_ENGELSA_TOURLINE');
                 }
             }
             
@@ -575,6 +580,7 @@ class Export_csv_model extends CI_Model
                        WHERE `procesado` = \'PREPARACION_ENGELSA_FEDEX\' 
                        OR `procesado` = \'PREPARACION_ENGELSA_GLS\' 
                        OR `procesado` = \'PREPARACION_ENGELSA_PACK\' 
+                       OR `procesado` = \'PREPARACION_ENGELSA_TOURLINE\' 
             ';
         }
         
