@@ -182,6 +182,14 @@ class Products_model extends CI_Model
                 
         if(!empty($products))
         {
+            // Reset stock before update
+            if($this->providers_model->get_provider_id_by_name($products[0]['provider_name']))
+            {
+                $this->db->where('provider_name', $products[0]['provider_name']);
+                $data = array('stock' => 0);
+                $this->db->update('providers_products', $data); 
+            }
+            
             foreach ($products as $product)
             {
                 $provider_id = $this->providers_model->get_provider_id_by_name($product['provider_name']);
