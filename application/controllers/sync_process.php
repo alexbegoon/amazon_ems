@@ -92,6 +92,8 @@ class Sync_process extends CI_Controller
     
     public function sync_product_list_with_engelsa_and_grutinet()
     {
+        $this->sync_engelsa();
+        $this->sync_grutinet();
         
         // Load model
         $this->load->model('products/products_model');
