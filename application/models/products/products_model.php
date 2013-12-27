@@ -182,6 +182,7 @@ class Products_model extends CI_Model
                 
         if(!empty($products))
         {
+            $this->db->trans_begin();
             // Reset stock before update
             if($this->providers_model->get_provider_id_by_name($products[0]['provider_name']))
             {
@@ -212,6 +213,7 @@ class Products_model extends CI_Model
                     $summary->affected_rows += $this->db->affected_rows();
                 }
             }
+            $this->db->trans_commit();
         }
         
         return $summary;
