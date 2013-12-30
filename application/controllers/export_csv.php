@@ -91,7 +91,7 @@ class Export_csv extends CI_Controller {
         // Export file
         if(!empty($file))
         {
-            write_file(APPPATH . 'logs/'.$file->name, $file->data);
+            write_file(APPPATH . 'logs/CSV_export_'. date('d-m-Y_H-i-s', time()).'.csv', $file->data);
             force_download($file->name, $file->data);
         }
         
