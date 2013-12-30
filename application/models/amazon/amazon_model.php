@@ -50,11 +50,11 @@ class Amazon_model extends CI_Model
     }
     
     public function update_log()
-    {
+    {      
         $this->load->library('amazon_mws');
-                
-        $this->amazon_mws->check_feed_submission_result('gb',MERCHANT_ID);
+        $this->output->enable_profiler(TRUE);
         $this->amazon_mws->check_feed_submission_result('us',USA_MERCHANT_ID);
+        $this->amazon_mws->check_feed_submission_result('gb',MERCHANT_ID);
     }
     
     public function get_all_info($page=0)
@@ -78,9 +78,12 @@ class Amazon_model extends CI_Model
         $this->db->where('Feed_Processing_Status','_DONE_');
         $query = $this->db->get('amazon_requests_log');
         
-        if($query->row()->Completed_Processing_Date)
+        if($query->num_rows() > 0)
         {
-            return TRUE;
+            if($query->row()->Completed_Processing_Date)
+            {
+                return TRUE;
+            }
         }
         
         return FALSE;
