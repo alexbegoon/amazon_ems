@@ -26,6 +26,7 @@ class Export_csv extends CI_Controller {
          
          // Load helpers
          $this->load->helper('download');
+         $this->load->helper('file');
          
          // Load model
          $this->load->model('export_csv/export_csv_model');
@@ -90,6 +91,7 @@ class Export_csv extends CI_Controller {
         // Export file
         if(!empty($file))
         {
+            write_file(APPPATH . 'logs/'.$file->name, $file->data);
             force_download($file->name, $file->data);
         }
         
