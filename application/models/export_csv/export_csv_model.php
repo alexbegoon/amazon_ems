@@ -237,7 +237,7 @@ class Export_csv_model extends CI_Model
                     }
                     $data_rows[] = array(
                             utf8_decode($product[0]->product_name),
-                            $product[0]->sku_in_order,
+                            '"'.$product[0]->sku_in_order.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
                             '',
@@ -300,7 +300,7 @@ class Export_csv_model extends CI_Model
                     }
                     $data_rows[] = array(
                             utf8_decode($product[0]->product_name),
-                            $product[0]->sku_in_order,
+                            '"'.$product[0]->sku_in_order.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
                             '',
@@ -363,7 +363,7 @@ class Export_csv_model extends CI_Model
                     }
                     $data_rows[] = array(
                             utf8_decode($product[0]->product_name),
-                            $product[0]->sku_in_order,
+                            '"'.$product[0]->sku_in_order.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
                             '',
