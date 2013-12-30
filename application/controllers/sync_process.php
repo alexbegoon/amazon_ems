@@ -145,6 +145,8 @@ class Sync_process extends CI_Controller
     
     public function sync_providers_products()
     {
+        $this->sync_product_list_with_engelsa_and_grutinet();
+        
         require_once FCPATH . $this->_path_to_sync_library . 'sync_products_pinternacional.php';
         
         new Sync_products_pinternacional();
