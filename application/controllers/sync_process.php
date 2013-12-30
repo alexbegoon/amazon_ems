@@ -112,6 +112,13 @@ class Sync_process extends CI_Controller
         $this->load->model('reviews/reviews_model');
         
         $this->reviews_model->sync_reviews();
+        
+        
+        // Update logs of Amazon 
+        $this->load->model('stokoni/stokoni_model');
+        $this->load->model('amazon/amazon_model');
+        
+        $this->amazon_model->update_log();
     }
     
     /**
@@ -132,7 +139,6 @@ class Sync_process extends CI_Controller
         $this->load->model('amazon/amazon_model');
         
         $this->stokoni_model->upload_stock_to_amazon();
-        $this->amazon_model->update_log();
     }
     
     public function sync_providers_products()
