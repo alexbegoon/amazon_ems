@@ -236,7 +236,7 @@ class Export_csv_model extends CI_Model
                         $subtotal_price += $v->order_price * $v->quantity;
                     }
                     $data_rows[] = array(
-                            utf8_decode($product[0]->product_name),
+                            preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
                             '"'.$product[0]->sku_in_order.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
@@ -299,7 +299,7 @@ class Export_csv_model extends CI_Model
                         $subtotal_price += $v->order_price * $v->quantity;
                     }
                     $data_rows[] = array(
-                            utf8_decode($product[0]->product_name),
+                            preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
                             '"'.$product[0]->sku_in_order.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
@@ -362,7 +362,7 @@ class Export_csv_model extends CI_Model
                         $subtotal_price += $v->order_price * $v->quantity;
                     }
                     $data_rows[] = array(
-                            utf8_decode($product[0]->product_name),
+                            preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
                             '"'.$product[0]->sku_in_order.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
