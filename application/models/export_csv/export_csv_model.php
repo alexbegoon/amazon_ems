@@ -150,7 +150,6 @@ class Export_csv_model extends CI_Model
             foreach ($orders as $order)
             {
                 $this->db->where('order_id =',$order['id']);
-                $this->db->where('csv_exported =',0);
                 $query = $this->db->get('products_sales_history');
                 
                 if($query->num_rows() > 0)
