@@ -465,7 +465,7 @@ class Dashboard_model extends CI_Model {
      * @param int $order_id
      * @return boolean
      */
-    private function cancel_order($order_id)
+    public function cancel_order($order_id)
     {
         if(empty($order_id))
         {

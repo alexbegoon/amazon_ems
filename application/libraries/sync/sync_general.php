@@ -41,6 +41,7 @@ class Sync_general
         $this->_CI->load->model('incomes/taxes_model');
         $this->_CI->load->model('incomes/web_field_model');
         $this->_CI->load->model('products/products_model');
+        $this->_CI->load->model('dashboard/dashboard_model');
         $this->_CI->load->library('currency');
         
         $web = $this->_CI->web_field_model->get_web_field($this->_config->web);
@@ -143,6 +144,11 @@ class Sync_general
                         $stmt->execute($order);
                         
                         $this->_CI->products_model->store_history($order[41],$order[0],$this->input_dbo->lastInsertId(),$order[9],$order[2]);
+                        
+                        if($order[9] == 'CANCELADO')
+                        {
+                            $this->_CI->dashboard_model->cancel_order((int)$this->input_dbo->lastInsertId());
+                        }
                         
                     } catch(PDOException $ex) {
                         echo $ex->getMessage();
