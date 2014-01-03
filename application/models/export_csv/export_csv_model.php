@@ -10,6 +10,7 @@ class Export_csv_model extends CI_Model
     
     private $_filename_template = 'CSV_export_?';
     private $_file_extension    = '.csv';
+    private $_IVA_tax = 0;
 
 
     public function __construct()
@@ -19,6 +20,11 @@ class Export_csv_model extends CI_Model
         $this->load->model('dashboard/dashboard_model');
         $this->load->model('engelsa/engelsa_model');
         $this->load->model('incomes/providers_model');
+        $this->load->model('incomes/taxes_model');
+        $this->load->model('products/products_model');
+        $this->load->model('stokoni/stokoni_model');
+        
+        $this->_IVA_tax = $this->taxes_model->getIVAtax();
         
         $this->load->helper('my_string_helper');
     }
@@ -232,7 +238,10 @@ class Export_csv_model extends CI_Model
                     foreach ($product as $v)
                     {
                         $total_count += $v->quantity;
-                        $subtotal_price += $v->order_price * $v->quantity;
+                        
+                        $current_provider_price = $this->products_model->get_product_by_id((int)$v->provider_product_id)->price;
+                        
+                        $subtotal_price += $current_provider_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
                     }
                     $data_rows[] = array(
                             preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
@@ -295,7 +304,10 @@ class Export_csv_model extends CI_Model
                     foreach ($product as $v)
                     {
                         $total_count += $v->quantity;
-                        $subtotal_price += $v->order_price * $v->quantity;
+                            
+                        $current_provider_price = $this->products_model->get_product_by_id((int)$v->provider_product_id)->price;
+                        
+                        $subtotal_price += $current_provider_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
                     }
                     $data_rows[] = array(
                             preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
@@ -358,7 +370,10 @@ class Export_csv_model extends CI_Model
                     foreach ($product as $v)
                     {
                         $total_count += $v->quantity;
-                        $subtotal_price += $v->order_price * $v->quantity;
+                        
+                        $current_warehouse_price = $this->stokoni_model->getProduct((int)$v->warehouse_product_id)->price;
+                        
+                        $subtotal_price += $current_warehouse_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
                     }
                     $data_rows[] = array(
                             preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),

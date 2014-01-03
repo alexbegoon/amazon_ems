@@ -132,7 +132,7 @@ class Stokoni_model extends CI_Model
     {
         if(!empty($id))
         {
-            $query = ' SELECT * FROM `stokoni` 
+            $query = ' SELECT *, `coste` as `price` FROM `stokoni` 
                        WHERE `id` = '.(int)$id.' 
             ';
             

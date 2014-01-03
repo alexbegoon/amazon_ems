@@ -282,6 +282,31 @@ class Products_model extends CI_Model
     }
     
     /**
+     * Return product by ID
+     * @param int $id
+     * @return boolean
+     */
+    public function get_product_by_id($id)
+    {
+        if($id <= 0)
+        {
+            return false;
+        }
+        
+        $this->db->where('id =', (int)$id);
+        
+        $query = $this->db->get('providers_products');
+        
+        if($query->num_rows() == 1)
+        {
+            return $query->row();
+        }
+        
+        return false;
+        
+    }
+
+        /**
      * Return product using SKU and WEB as index; First appears most cheaper!
      * @param string $sku
      * @param string $web
