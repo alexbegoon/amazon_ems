@@ -213,6 +213,59 @@ class Stokoni_model extends CI_Model
     }
     
     /**
+     * Return product back to Warehouse after order cancelation
+     * @param int $id
+     * @param int $quantity
+     * @return boolean
+     */
+    public function return_product($id, $quantity)
+    {
+        if(is_integer($id) && is_integer($quantity) && $id > 0 && $quantity > 0)
+        {
+            $this->db->trans_begin();
+            
+            $product = $this->getProduct($id);
+            
+            if(!empty($product))
+            {
+                try
+                    {
+                        $stock      = (int)$product->stock      + (int)$quantity;
+                        $vendidas   = (int)$product->vendidas   - (int)$quantity;
+                        
+                        if($vendidas < 0)
+                        {
+                            $vendidas = 0;
+                        }
+
+                        $query = ' UPDATE `stokoni` 
+                                   SET `stock` = '.$stock.',  
+                                       `vendidas` = '.$vendidas.' 
+                                   WHERE `id` = '.$product->id.' 
+                        ';
+                        
+                        $this->db->query($query);
+                                               
+                        $this->db->trans_commit();
+                        
+                        return true;
+                    }
+                    catch (PDOException $e)
+                    {
+                        $this->db->trans_rollback();
+                        return false;
+                    }
+            }
+            
+            $this->db->trans_rollback();
+            
+            return false;
+        }
+        
+        return false;
+    }
+
+        /**
      * Looking for product by EAN in Stockoni. First appears most cheaper!
      * 
      * @param string $ean

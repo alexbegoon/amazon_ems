@@ -213,7 +213,19 @@
     </form>
     <script>
         $(function(){
+            
             $('#order_status').combobox();
+            
+            // We cant choice status after cancelation
+            if($('#order_status').val() == 'CANCELADO')
+            {
+                $('#order_status').find('option')
+                                    .remove()
+                                    .end()
+                                    .append('<option value="CANCELADO">CANCELADO</option>')
+                                    .val('CANCELADO');
+            }
+            
         });
     </script>
 </div>

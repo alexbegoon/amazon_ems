@@ -149,6 +149,14 @@ class Dashboard_model extends CI_Model {
         {            
             $data['procesado'] = $this->get_procesado($data);
             $query = 'UPDATE `pedidos` SET ';
+            
+            if(!$this->is_order_canceled((int)$data['id']))
+            {
+                if($data['procesado'] == 'CANCELADO')
+                {
+                    $this->cancel_order((int)$data['id']);
+                }
+            }
         }
         
         $fields = array();
@@ -450,5 +458,77 @@ class Dashboard_model extends CI_Model {
         }
         
         $this->db->cache_off();
+    }
+    
+    /**
+     * Cancel order
+     * @param int $order_id
+     * @return boolean
+     */
+    private function cancel_order($order_id)
+    {
+        if(empty($order_id))
+        {
+            return false;
+        }
+        
+        // Load models
+        $this->load->model('stokoni/stokoni_model');
+        
+        // Get items that sold from warehouse
+        $this->db->where('order_id =', $order_id);
+        $this->db->where('sold_from_warehouse =', 1);
+        $this->db->where('canceled =', 0);
+        
+        $query = $this->db->get('products_sales_history');
+        
+        if($query->num_rows() > 0)
+        {
+            $products = $query->result();
+            
+            foreach ($products as $product)
+            {
+                $this->stokoni_model->return_product(   (int)$product->warehouse_product_id,
+                                                        (int)$product->quantity
+                                                    );
+            }
+        }
+        
+        // Mark order as canceled
+        $this->db->where('order_id =', $order_id);
+        $this->db->where('canceled =', 0);
+        
+        $data = array(
+               'canceled' => 1
+            );
+        
+        $this->db->update('products_sales_history', $data); 
+
+        return true;
+    }
+    
+    /**
+     * Check. Is order canceled?
+     * @param int $id
+     * @return boolean
+     */
+    private function is_order_canceled($id)
+    {
+        
+        $query = ' SELECT count(*) as total
+                   FROM pedidos
+                   WHERE id = '.(int)$id.' 
+                   AND procesado = \'CANCELADO\'
+        
+        ';
+        
+        $result = $this->db->query($query);
+        
+        if($result->row()->total > 0)
+        {
+            return true;
+        }
+        
+        return false;
     }
 }
