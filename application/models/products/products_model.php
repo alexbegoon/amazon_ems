@@ -537,7 +537,8 @@ class Products_model extends CI_Model
                                                                                 'order_id' => $order_id,
                                                                                 'order_status' => null,
                                                                                 'order_date' => null,
-                                                                                'canceled' => 0
+                                                                                'canceled' => 0,
+                                                                                'shipping_price' => $shipping_cost
                                                                     
                                                                                                         );
                             
@@ -573,7 +574,9 @@ class Products_model extends CI_Model
                                                                                 'order_id' => $order_id,
                                                                                 'order_status' => null,
                                                                                 'order_date' => null,
-                                                                                'canceled' => 0 );
+                                                                                'canceled' => 0,
+                                                                                'shipping_price' => $shipping_cost
+                                    );
 
                             $this->stokoni_model->sell_product((int)$v->id, (int)$v->stock);
 
@@ -613,7 +616,9 @@ class Products_model extends CI_Model
                                                                                 'order_id' => $order_id,
                                                                                 'order_status' => null,
                                                                                 'order_date' => null,
-                                                                                'canceled' => 0 );
+                                                                                'canceled' => 0,
+                                                                                'shipping_price' => $shipping_cost
+                                );
 
                             $this->stokoni_model->sell_product((int)$v->id, (int)$v->stock);
 
@@ -649,7 +654,9 @@ class Products_model extends CI_Model
                                                                             'order_status' => null,
                                                                             'order_date' => null,
                                                                             'out_of_stock' => 1,
-                                                                            'canceled' => 0 );
+                                                                            'canceled' => 0,
+                                                                            'shipping_price' => $shipping_cost
+                            );
 
                         }
                         continue;
@@ -682,7 +689,10 @@ class Products_model extends CI_Model
                                                                                 'order_id' => $order_id,
                                                                                 'order_status' => null,
                                                                                 'order_date' => null,
-                                                                                'canceled' => 0 );
+                                                                                'canceled' => 0,
+                                                                                'shipping_price' => $shipping_cost  
+                                                                                
+                                );
 
                             }
                             
@@ -718,7 +728,9 @@ class Products_model extends CI_Model
                                                                                     'order_id' => $order_id,
                                                                                     'order_status' => null,
                                                                                     'order_date' => null,
-                                                                                    'canceled' => 0 );
+                                                                                    'canceled' => 0,
+                                                                                    'shipping_price' => $shipping_cost
+                                    );
 
                                 }
                             }
@@ -751,7 +763,9 @@ class Products_model extends CI_Model
                                                                             'order_id' => $order_id,
                                                                             'order_status' => null,
                                                                             'order_date' => null,
-                                                                            'canceled' => 0 );
+                                                                            'canceled' => 0,
+                                                                            'shipping_price' => $shipping_cost
+                            );
 
                         }
                     }
@@ -784,7 +798,9 @@ class Products_model extends CI_Model
                                                                                 'order_status' => null,
                                                                                 'order_date' => null,
                                                                                 'out_of_stock' => 1,
-                                                                                'canceled' => 0 );
+                                                                                'canceled' => 0,
+                                                                                'shipping_price' => $shipping_cost
+                                );
 
                             }
                             continue;
@@ -834,7 +850,9 @@ class Products_model extends CI_Model
                                                                         'order_id' => $order_id,
                                                                         'order_status' => null,
                                                                         'order_date' => null,
-                                                                        'canceled' => 0 );
+                                                                        'canceled' => 0,
+                                                                        'shipping_price' => $shipping_cost
+                        );
 
                     }
                     $quantity_temp = 0;    
@@ -867,7 +885,9 @@ class Products_model extends CI_Model
                                                                             'order_id' => $order_id,
                                                                             'order_status' => null,
                                                                             'order_date' => null,
-                                                                            'canceled' => 0 );
+                                                                            'canceled' => 0,
+                                                                            'shipping_price' => $shipping_cost
+                            );
 
                         }
                     }
@@ -900,7 +920,9 @@ class Products_model extends CI_Model
                                                                     'order_id' => $order_id,
                                                                     'order_status' => null,
                                                                     'order_date' => null,
-                                                                    'canceled' => 0 );
+                                                                    'canceled' => 0,
+                                                                    'shipping_price' => $shipping_cost
+                    );
 
                 }
             }
@@ -933,7 +955,9 @@ class Products_model extends CI_Model
                                                                         'order_status' => null,
                                                                         'order_date' => null,
                                                                         'out_of_stock' => 1,
-                                                                        'canceled' => 0 );
+                                                                        'canceled' => 0,
+                                                                        'shipping_price' => $shipping_cost
+                        );
 
                     }
                     
