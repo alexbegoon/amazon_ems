@@ -167,5 +167,28 @@ class Dashboard extends CI_Controller {
         
         $this->load->view('dashboard/create_order', $data);
     }
+    
+    public function update_country_list($web)
+    {
+        $data = array();
+        
+        $data['country_list'] = $this->dashboard_model->get_available_coutries_to_ship($web);
+        
+        $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($data));
+    }
+    
+    public function get_available_shipping()
+    {
+        
+        $post_data = $this->input->post();
+        
+        $data['shipping'] = $this->dashboard_model->get_available_shipping($post_data['country_code'], $post_data['web']);
+        
+        $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($data));
+    }
 }
 

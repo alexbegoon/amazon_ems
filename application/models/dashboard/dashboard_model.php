@@ -14,6 +14,9 @@ class Dashboard_model extends CI_Model {
     public function __construct() {
         parent::__construct();
         $this->load->database();
+        
+        $this->load->model('incomes/shipping_costs_model');
+        $this->load->model('products/products_model');
     }
     
     public function getOrders($page) {
@@ -144,6 +147,25 @@ class Dashboard_model extends CI_Model {
         if(empty($data['id']))
         {
             $query = 'INSERT INTO `pedidos` SET ';
+            
+            $shipping_price = $this->shipping_costs_model->getPrice((int)$data['shipping_cost_id'])->price;
+            
+            $order_products = array();
+            
+            for($i=1; $i<=10; $i++)
+            {
+                if(!empty($data['sku'.$i]))
+                {
+                    $order_products[] = array(
+                            'sku'       => $data['sku'.$i],
+                            'quantity'  => $data['cantidad'.$i],
+                            'price'     => $data['precio'.$i],
+                            'order_id'  => $data['pedido']
+                    );
+                }
+            }
+            
+            $data['gasto'] = $this->products_model->calculate_gasto($order_products, $shipping_price, $data['web'], false, $data['pedido']);
         } 
         else 
         {            
@@ -159,18 +181,71 @@ class Dashboard_model extends CI_Model {
             }
         }
         
-        $fields = array();
         
-        foreach ($data as $field => $value) {
-            
-            if ($field == 'id') { //we need no to update ID
-            continue;
-            }   
-
-            $fields[] = ' `'.$field.'` = \''.trim(addslashes($value)).'\' ';
+        
+        // Available fields in the pedidos table
+        $fields = array(
+            'pedido',
+            'nombre',
+            'fechaentrada',
+            'fechadepago',
+            'direccion',
+            'telefono',
+            'codigopostal',
+            'pais',
+            'estado',
+            'procesado',
+            'sku1',
+            'precio1',
+            'sku2',
+            'precio2',
+            'sku3',
+            'precio3',
+            'sku4',
+            'precio4',
+            'sku5',
+            'precio5',
+            'sku6',
+            'precio6',
+            'sku7',
+            'precio7',
+            'sku8',
+            'precio8',
+            'sku9',
+            'precio9',
+            'sku10',
+            'precio10',
+            'cantidad1',
+            'cantidad2',
+            'cantidad3',
+            'cantidad4',
+            'cantidad5',
+            'cantidad6',
+            'cantidad7',
+            'cantidad8',
+            'cantidad9',
+            'cantidad10',
+            'ingresos',
+            'web',
+            'comentarios',
+            'tracking',
+            'correo',
+            'gasto',
+            'localidad',
+            'formadepago',
+            'in_stokoni',
+            'magnet_msg_received'
+        );
+        
+        foreach ($data as $field => $value) 
+        {
+            if (in_array($field, $fields)) 
+            {
+                $sql_array[] = ' `'.$field.'` = \''.trim(addslashes($value)).'\' ';
+            } 
         }
         
-        $query .= implode(', ', $fields);
+        $query .= implode(', ', $sql_array);
         
         if(!empty($data['id']))
         {
@@ -178,6 +253,11 @@ class Dashboard_model extends CI_Model {
         }
         
         $result = $this->db->simple_query($query);
+        
+        if(empty($data['id']))
+        {
+            $this->products_model->store_history($data['web'],$data['pedido'],$this->db->insert_id(),$data['procesado'],$data['fechaentrada']);
+        }
         
         if ($result)
         {
@@ -309,6 +389,74 @@ class Dashboard_model extends CI_Model {
         return $html;
     }
     
+    public function get_available_coutries_to_ship($web)
+    {
+        if(empty($web))
+        {
+            return FALSE;
+        }
+        
+        $html = array();
+        
+        $query = '
+                    SELECT DISTINCT `countries`.`code`, `countries`.`full_name`, 
+                        `countries`.`name`
+                    FROM `'.$this->db->dbprefix('shipping_costs').'` as `available_countries` 
+                    LEFT JOIN `'.$this->db->dbprefix('countries').'` as `countries` 
+                    ON  `available_countries`.`country_code` = `countries`.`code` 
+                    WHERE `available_countries`.`web` = \''.$web.'\'
+        ';
+        
+        $result = $this->db->query($query);
+        
+        if($result)
+        {
+            $country_list = $result->result();
+                        
+            $final_array = array();
+            
+            foreach($country_list as $country)
+            {
+                $html[$country->code] = '<option value="'.$country->code.'">'.$country->name . ' ('.$country->code.')'.'</option>'; 
+            }            
+        }
+        
+        return $html;
+        
+    }
+    
+    public function get_available_shipping($country_code, $web)
+    {
+        if(empty($country_code) || empty($web))
+        {
+            return FALSE;
+        }
+        
+        $html = array();
+                
+        $this->db->select('*, shipping_costs.id as shipping_costs_id');
+        $this->db->from('shipping_costs');
+        $this->db->join('shipping_companies', 'shipping_companies.id = shipping_costs.id_shipping_company', 'left');
+        $this->db->join('shipping_types', 'shipping_types.shipping_type_id = shipping_costs.shipping_type_id', 'left');
+        $this->db->where('country_code =', $country_code);
+        $this->db->where('web =', $web);
+        
+        $query = $this->db->get();
+        
+        if($query->num_rows() > 0)
+        {
+            $shipping_arr = $query->result();
+            
+            foreach ($shipping_arr as $shipping)
+            {
+                $html[$shipping->shipping_costs_id] = '<option value="'.$shipping->shipping_costs_id.'">'.$shipping->company_name . ' ('.$shipping->shipping_type_name.') - '.  number_format($shipping->price, 2).' &euro;</option>';
+            }
+        }
+                
+        return $html;
+        
+    }
+
     private function find_recurrent_buyers($orders)
     {
         if(empty($orders) && !is_array($orders))

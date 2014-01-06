@@ -31,8 +31,26 @@
                 <td><input required="required" type="text" name="codigopostal" value="<?php echo $order['codigopostal'];?>" /></td>
             </tr>
             <tr>
+                <td>
+                    <label for="select_web">Web</label>
+                </td>
+                <td>
+                    <?php echo $web_fields_list;?> 
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="shipping_cost_id">Shipping</label>
+                </td>
+                <td>
+                    <select required="required" name="shipping_cost_id" id="shipping_cost_id"></select> 
+                </td>
+            </tr>
+            <tr>
                 <td>Pais</td>
-                <td><?php echo $pais_list; ?></td>
+                <td>
+                    <select name="pais" id="select_pais" required="required"></select>
+                </td>
             </tr>
             <tr>
                 <td>Estado</td>
@@ -48,7 +66,7 @@
             </tr>
             <tr>
                 <td>Gasto</td>
-                <td><input type="text" name="gasto" value="<?php echo $order['gasto'];?>" /></td>
+                <td><input readonly title="Will be calculated automatically" type="text" name="gasto" value="<?php echo $order['gasto'];?>" /></td>
             </tr>
         </table>
     </div>   
@@ -78,12 +96,6 @@
                 <td>
                     <label for="correo">Correo</label><br>
                     <input required="required" id="correo" type="email" name="correo" value="<?php echo htmlentities($order['correo']);?>" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="select_web">Web</label>
-                    <?php echo $web_fields_list;?> 
                 </td>
             </tr>
         </table>        
@@ -140,8 +152,26 @@
                 <td><input required="required" type="text" name="codigopostal" value="" /></td>
             </tr>
             <tr>
+                <td>
+                    <label for="select_web">Web</label>
+                </td>
+                <td>
+                    <?php echo $web_fields_list;?> 
+                </td>
+            </tr>
+            <tr>
                 <td>Pais</td>
-                <td><?php echo $pais_list; ?></td>
+                <td>
+                    <select name="pais" id="select_pais" required="required"></select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="shipping_cost_id">Shipping</label>
+                </td>
+                <td>
+                    <select required="required" name="shipping_cost_id" id="shipping_cost_id"></select> 
+                </td>
             </tr>
             <tr>
                 <td>Estado</td>
@@ -157,7 +187,7 @@
             </tr>
             <tr>
                 <td>Gasto</td>
-                <td><input type="text" name="gasto" value="" /></td>
+                <td><input type="text" name="gasto" value="" readonly title="Will be calculated automatically"/></td>
             </tr>
         </table>
     </div>   
@@ -187,12 +217,6 @@
                 <td>
                     <label for="correo">Correo</label><br>
                     <input required="required" id="correo" type="email" name="correo" value="" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="select_web">Web</label>
-                    <?php echo $web_fields_list;?>
                 </td>
             </tr>
         </table>
@@ -236,12 +260,49 @@
             $('#order_status').combobox();
             $('#select_pais').combobox();
             $('#select_web').combobox();
+            $('#shipping_cost_id').combobox();
+            
             
             $('#fechaentrada').datepicker({ 
                 gotoCurrent: true,
                 dateFormat: 'yy-mm-dd',
                 showAnim: "puff"
             });
+            
+            
+            $('#select_web').combobox({
+                select: function( event, ui ) {
+                    
+                    $('#select_pais').find('option')
+                                    .remove()
+                                    .end();
+                            
+                    $.getJSON( url_before_index + "index.php/dashboard/update_country_list/" + $('#select_web').val(), function( data ) {
+                            
+                            $.each(data.country_list, function( index, value ) {
+                                $('#select_pais').append(value);
+                            });
+                            
+                    });    
+                }
+            });
+            
+            $('#select_pais').combobox({
+                select: function( event, ui ) {
+                    
+                    $('#shipping_cost_id').find('option')
+                                    .remove()
+                                    .end();
+                    $.post( url_before_index + "index.php/dashboard/get_available_shipping/",{country_code:$('#select_pais').val(),web:$('#select_web').val()}, function( data ) {
+                         console.log(data);
+                         $.each(data.shipping, function( index, value ) {
+                                $('#shipping_cost_id').append(value);
+                            });
+
+                      });        
+                }
+            });
+            
             
             <?php if(validation_errors()){?>
             $("#ajax-msg").fadeIn();
