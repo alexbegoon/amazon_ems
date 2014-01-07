@@ -287,7 +287,7 @@ class Sync_general
         {
             return 'PAGADO';
         }
-        if($order[48] == 'X' && preg_match('/Carte|MasterCard|VISA|Carte Bleue/',$order[47]) == 1)
+        if($order[48] == 'X' && preg_match('/Carte|MasterCard|VISA|Maestro|Tarjeta|Carte Bleue/i',$order[47]) == 1)
         {
             return 'PTE_PAGO';
         }
