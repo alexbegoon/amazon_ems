@@ -466,4 +466,26 @@ class Stokoni_model extends CI_Model
         $this->amazon_mws->update_stock($data,'gb',MERCHANT_ID);
         $this->amazon_mws->update_stock($data,'us',USA_MERCHANT_ID);
     }
+    
+    public function remove($id)
+    {
+        if(empty($id))
+        {
+            return FALSE;
+        }
+        
+        $query = 'DELETE FROM stokoni 
+                  WHERE id = '.$id.' 
+        ';
+
+        $result = $this->db->query($query);
+        
+        if($result)
+        {
+            return 1;
+        }
+        
+        return false;
+        
+    }
 }

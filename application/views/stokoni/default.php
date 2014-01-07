@@ -53,7 +53,7 @@
                 </div>
                 <table class="thin_table">
                     <tr>
-                        <th>Action</th>
+                        <th colspan="2">Action</th>
                         <th>EAN</th>
                         <th>Nombre</th>
                         <th>Coste</th>
@@ -65,6 +65,7 @@
                     <tr id="<?php echo $product->id ;?>">
                         <!-- Action -->
                         <td><a href="#" class="edit" onclick="AJAX_edit('<?php echo base_url().'index.php/stokoni/edit'?>',<?php echo $product->id;?>);return false;"></a></td>
+                        <td><a href="#" class="remove" onclick="AJAX_delete('<?php echo base_url().'index.php/stokoni/delete'?>',<?php echo $product->id;?>);return false;"></a></td>
                         <!-- EAN -->
                         <td class="ean"><?php echo $product->ean ;?></td>
                         <!-- Nombre -->

@@ -241,7 +241,15 @@ class Stokoni extends CI_Controller {
                 $this->load->view('stokoni/ajax_response', $data);
             }
     }
-           
+    
+    public function delete()
+    {
+        $post_data = $this->input->post();
+                
+        $data['response'] = $this->stokoni_model->remove((int)$post_data['id']);
+        $this->load->view('incomes/ajax_response', $data);
+    }
+
     public function get_product($id)
     {
         $data = array();
