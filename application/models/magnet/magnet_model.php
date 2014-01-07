@@ -103,8 +103,8 @@ class Magnet_model extends CI_Model
     private function get_orders()
     {
         
-        $date_from = date('Y-m-d', time() - (9 * 24 * 60 * 60) ); 
-        $date_to   = date('Y-m-d', time() - (7 * 24 * 60 * 60) );
+        $date_from = date('Y-m-d', time() - (11 * 24 * 60 * 60) ); 
+        $date_to   = date('Y-m-d', time() - (9 * 24 * 60 * 60) );
         
         $query = ' SELECT `pedido`, `nombre`, `nombre` as `name`, 
                           `fechaentrada` as `date`, `pedido` as `order_number`, 
