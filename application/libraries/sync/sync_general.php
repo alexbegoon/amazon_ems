@@ -287,6 +287,10 @@ class Sync_general
         {
             return 'PAGADO';
         }
+        if($order[48] == 'X' && preg_match('/Carte|MasterCard|VISA|Carte Bleue/',$order[47]) == 1)
+        {
+            return 'PTE_PAGO';
+        }
         if($order[48] == 'X')
         {
             return 'CANCELADO';
