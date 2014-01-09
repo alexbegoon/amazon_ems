@@ -95,6 +95,9 @@
                     <li>
                         <a href="<?php echo base_url().'index.php/amazon/log/';?>">Amazon Log</a>
                     </li>
+                    <li>
+                        <a href="<?php echo base_url().'index.php/amazon/price_rules/';?>">Price Rules</a>
+                    </li>
                 </ul>
                 <div class="welcome-user">
                     <span>
@@ -173,6 +176,9 @@
                     </li>
                     <li>
                         <a href="<?php echo base_url().'index.php/amazon/log/';?>">Amazon Log</a>
+                    </li>
+                    <li>
+                        <a href="<?php echo base_url().'index.php/amazon/price_rules/';?>">Price Rules</a>
                     </li>
                 </ul>
                 <div class="welcome-user">

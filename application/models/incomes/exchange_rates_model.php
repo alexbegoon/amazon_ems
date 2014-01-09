@@ -97,7 +97,7 @@ class Exchange_rates_model extends CI_Model {
                 } else {
                     $attr = '';
                 }    
-                $html .= sprintf('<option value="%u" %s>%s</option>', $currency->currency_id, $attr, htmlentities($currency->currency_name . ' (' . $currency->currency_code_3 . ')') );                
+                $html .= sprintf('<option value="%u" %s>%s</option>', $currency->currency_id, $attr, htmlentities($currency->currency_symbol . ' - ' . $currency->currency_name . ' (' . $currency->currency_code_3 . ')') );                
             }
                 return $html;
         }

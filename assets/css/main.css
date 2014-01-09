@@ -161,7 +161,7 @@ input {
   font-size: 14px;
 }
 
-input[type=text], input[type=password],
+input[type=text], input[type=password],input[type=number],
 input[type=email] {
   margin: 5px;
   padding: 0 10px;
@@ -178,7 +178,7 @@ input[type=email] {
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-input[type=text]:focus, input[type=password]:focus,
+input[type=text]:focus, input[type=password]:focus, input[type=text]:focus,
 input[type=email]:focus{
   border-color: #7dc9e2;
   outline-color: #dceefc;
@@ -723,7 +723,8 @@ div.edit-ajax-container div.right-top {
 }
 div.edit-ajax-container table td input[type=text],
 div.edit-ajax-container table td input[type=email],
-div.edit-ajax-container table td input[type=password]{
+div.edit-ajax-container table td input[type=password],
+div.edit-ajax-container table td input[type=number]{
     -moz-outline-radius: 3px;
   -webkit-box-shadow: none;
   box-shadow: none;
@@ -731,6 +732,7 @@ div.edit-ajax-container table td input[type=password]{
   outline: none;
 }
 div.edit-ajax-container table td input[type=text]:focus,
+div.edit-ajax-container table td input[type=number]:focus,
 div.edit-ajax-container table td input[type=email]:focus {
     border-color: #c4c4c4 #d1d1d1 #d4d4d4;
 }
