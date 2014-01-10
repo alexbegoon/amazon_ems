@@ -268,7 +268,46 @@ EOD;
      $this->submit_feed_request($xml, '_POST_INVENTORY_AVAILABILITY_DATA_',$country_code,$merchant_id);
  }
  
-  
+ public function update_prices($data,$country_code,$merchant_id)
+ {
+     if(empty($data))
+     {
+         return FALSE; 
+     }
+     
+     //prepare xml feed
+     $xml = <<<EOD
+<?xml version="1.0" encoding="UTF-8"?>
+<AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
+<Header>
+<DocumentVersion>1.01</DocumentVersion>
+<MerchantIdentifier>$merchant_id</MerchantIdentifier>
+</Header>
+<MessageType>Price</MessageType>
+EOD;
+     
+     $i = 1;
+     foreach ($data as $product)
+     {
+           $xml .= <<<EOD
+<Message>
+<MessageID>$i</MessageID>
+<Price>
+<SKU>$product->sku</SKU>
+<StandardPrice currency="$product->currency">$product->price</StandardPrice>
+</Price>
+</Message>
+EOD;
+           $i++;
+     }
+     
+     $xml .= <<<EOD
+</AmazonEnvelope>
+EOD;
+     
+     $this->submit_feed_request($xml, '_POST_PRODUCT_PRICING_DATA_',$country_code,$merchant_id);
+ }
+
  public function check_feed_submission_result($country_code,$merchant_id)
  {
         require_once 'MarketplaceWebService/Model/GetFeedSubmissionListRequest.php';

@@ -177,4 +177,6 @@ class Amazon_model extends CI_Model
         
         return '1';
     }
+    
+    
 }
