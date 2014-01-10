@@ -29,6 +29,8 @@ class Sync_products_pinternacional extends Sync_products
     
     protected function extract_products() 
     {
+        $eans_to_exclude = $this->check_products_exceptions();
+        
         $data_file = file_get_contents($this->_url_service);
         
         $data_array = explode("\n",$data_file);
@@ -54,7 +56,14 @@ class Sync_products_pinternacional extends Sync_products
                 $this->_products[$i]['product_name'] = trim($product[0]);
                 $this->_products[$i]['provider_name'] = $this->_provider_name;
                 $this->_products[$i]['price']   = (float)$product[2];
-                $this->_products[$i]['stock']   = (int)$product[3];
+                if(in_array($this->_products[$i]['sku'], $eans_to_exclude))
+                {
+                    $this->_products[$i]['stock'] = 0;
+                }
+                else
+                {
+                    $this->_products[$i]['stock']   = (int)$product[3];
+                }
                 $this->_products[$i]['brand']   = trim($product[5]);
                 $this->_products[$i]['sex']     = trim($product[7]);
             }
@@ -71,5 +80,28 @@ class Sync_products_pinternacional extends Sync_products
             
             $i++;
         }
+    }
+    
+    private function check_products_exceptions()
+    {
+        $this->_CI->load->library('excel');
+        
+        $xls_path = FCPATH . '/bloqueados.xls';
+        
+        $objReader = PHPExcel_IOFactory::createReader('Excel5');
+        
+        $objPHPExcel = $objReader->load($xls_path);
+        
+        $sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
+        
+        $eans_to_exclude = array();
+        
+        foreach($sheetData as $row)
+        {
+            $eans_to_exclude[] = preg_replace('/^#/', '', $row['B']);
+        }
+        
+        return $eans_to_exclude;
+
     }
 }
