@@ -56,7 +56,7 @@ class Sync_products_pinternacional extends Sync_products
                 $this->_products[$i]['product_name'] = trim($product[0]);
                 $this->_products[$i]['provider_name'] = $this->_provider_name;
                 $this->_products[$i]['price']   = (float)$product[2];
-                if(in_array($this->_products[$i]['sku'], $eans_to_exclude))
+                if(in_array((string)$this->_products[$i]['sku'], $eans_to_exclude))
                 {
                     $this->_products[$i]['stock'] = 0;
                 }
@@ -98,7 +98,7 @@ class Sync_products_pinternacional extends Sync_products
         
         foreach($sheetData as $row)
         {
-            $eans_to_exclude[] = preg_replace('/^#/', '', $row['B']);
+            $eans_to_exclude[] = (string)preg_replace('/^#/', '', $row['B']);
         }
         
         return $eans_to_exclude;
