@@ -19,7 +19,7 @@
     <div>
         <div class="filters">
             <input type="button" value="Add..." onclick="AJAX_add('<?php echo base_url().'index.php/amazon/add_price_rule';?>')">
-            <?php echo anchor_popup(base_url().'index.php/amazon/sync_process/sync_data_with_amazon', 'Update Prices');?>
+            <?php echo anchor_popup(base_url().'index.php/sync_process/sync_data_with_amazon', 'Update Prices');?>
         </div>
         <div>
             <div>
