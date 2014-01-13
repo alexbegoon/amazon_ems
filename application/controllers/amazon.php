@@ -129,12 +129,27 @@ class Amazon extends CI_Controller {
                   ),   
                array(
                      'field'   => 'multiply', 
-                     'label'   => 'Multiply factor', 
+                     'label'   => 'Profit Margin', 
                      'rules'   => 'required|numeric'
                   ),   
                array(
                      'field'   => 'sum', 
-                     'label'   => 'Sum factor', 
+                     'label'   => 'Extra Margin', 
+                     'rules'   => 'required|numeric'
+                  ),   
+               array(
+                     'field'   => 'transport', 
+                     'label'   => 'Transport Margin', 
+                     'rules'   => 'required|numeric'
+                  ),   
+               array(
+                     'field'   => 'marketplace', 
+                     'label'   => 'Marketplace Margin', 
+                     'rules'   => 'required|numeric'
+                  ),   
+               array(
+                     'field'   => 'tax', 
+                     'label'   => 'Taxes', 
                      'rules'   => 'required|numeric'
                   )
             );

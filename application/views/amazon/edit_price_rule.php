@@ -36,15 +36,33 @@
                 </td>
             </tr>
             <tr>
-                <td>Multiplication factor*: </td>
+                <td>Profit Margin*: </td>
                 <td>
                     <input type="number" step="any" name="multiply" value="<?php echo $post_data['multiply']; ?>" required="required"/>
                 </td>
             </tr>
             <tr>
-                <td>Sum factor*: </td>
+                <td>Extra Margin*: </td>
                 <td>
                     <input type="number" step="any" name="sum" value="<?php echo $post_data['sum']; ?>" required="required"/>
+                </td>
+            </tr>
+            <tr>
+                <td>Transport Margin*: </td>
+                <td>
+                    <input type="number" step="any" name="transport" value="<?php echo $post_data['transport']; ?>" required="required"/>
+                </td>
+            </tr>
+            <tr>
+                <td>Marketplace Margin*: </td>
+                <td>
+                    <input type="number" step="any" name="marketplace" value="<?php echo $post_data['marketplace']; ?>" required="required"/>
+                </td>
+            </tr>
+            <tr>
+                <td>Taxes*: </td>
+                <td>
+                    <input type="number" step="any" name="tax" value="<?php echo $post_data['tax']; ?>" required="required"/>
                 </td>
             </tr>
         </table>

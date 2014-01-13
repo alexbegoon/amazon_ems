@@ -36,15 +36,33 @@
                 </td>
             </tr>
             <tr>
-                <td>Multiplication factor*: </td>
+                <td>Profit Margin*: </td>
                 <td>
                     <input type="number" step="any" name="multiply" value="1" required="required"/>
                 </td>
             </tr>
             <tr>
-                <td>Sum factor*: </td>
+                <td>Extra Margin*: </td>
                 <td>
                     <input type="number" step="any" name="sum" value="0" required="required"/>
+                </td>
+            </tr>
+            <tr>
+                <td>Transport Margin*: </td>
+                <td>
+                    <input type="number" step="any" name="transport" value="0" required="required"/>
+                </td>
+            </tr>
+            <tr>
+                <td>Marketplace Margin*: </td>
+                <td>
+                    <input type="number" step="any" name="marketplace" value="1" required="required"/>
+                </td>
+            </tr>
+            <tr>
+                <td>Taxes*: </td>
+                <td>
+                    <input type="number" step="any" name="tax" value="1" required="required"/>
                 </td>
             </tr>
         </table>

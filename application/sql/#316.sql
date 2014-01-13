@@ -17,3 +17,8 @@ ADD UNIQUE INDEX `unique_index` (`provider_id` ASC, `web` ASC, `currency_id` ASC
 ALTER TABLE `amazoni`.`amazoni4_amazon_price_rules` 
 DROP INDEX `unique_index` ,
 ADD UNIQUE INDEX `unique_index` (`provider_id` ASC, `web` ASC);
+
+ALTER TABLE `amazoni`.`amazoni4_amazon_price_rules` 
+ADD COLUMN `transport` DECIMAL(15,5) NOT NULL DEFAULT 0 AFTER `sum`,
+ADD COLUMN `marketplace` DECIMAL(15,5) NOT NULL DEFAULT 1 AFTER `transport`,
+ADD COLUMN `tax` DECIMAL(15,5) NOT NULL DEFAULT 1 AFTER `marketplace`;
