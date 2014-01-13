@@ -9,7 +9,7 @@
 class Stokoni_model extends CI_Model
 {
         
-    private $_products;
+    private $_products, $_buffer_data;
     
     private $_total_count_of_products = null;
     
@@ -17,6 +17,9 @@ class Stokoni_model extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        
+        // Load model
+        $this->load->model('incomes/exchange_rates_model');
     }
     
     /**
@@ -412,5 +415,178 @@ class Stokoni_model extends CI_Model
                         
         $this->amazon_mws->update_stock($data,'gb',MERCHANT_ID);
         $this->amazon_mws->update_stock($data,'us',USA_MERCHANT_ID);
+    }
+    
+    public function upload_prices_to_amazon()
+    {
+        $this->load->library('amazon_mws');
+        $data = array();
+        $proveedors = array('ENGELSA', 'EUCERIN', 'CAUDALIE'); // Providers that should be on Amazon
+        $this->db->set_dbprefix('');
+        $this->db->where_in('proveedor', $proveedors);
+        $query = $this->db->get('stokoni');
+        $this->db->set_dbprefix('amazoni4_');
+        $products = $query->result();
+        
+        $amazon_de_data = array();
+        $amazon_co_uk_data = array();
+        $amazon_com_data = array();
+        
+        foreach ($products as $product)
+        {
+            // Amazon DE
+            $price_rule = $this->get_price_rule($product->proveedor, 'AMAZON-DE');
+            
+            if($price_rule)
+            {
+                $price = $this->prepare_product_price_for_amazon($price_rule, 
+                         $this->convert_currency($product->coste, $price_rule->currency_id));
+                
+                $currency_code = $this->exchange_rates_model->get_currency_code($price_rule->currency_id);
+                                
+                if($product->proveedor == 'ENGELSA')
+                {
+                    $sku = 'DE-'.$product->ean;
+                }
+                else 
+                {
+                    $sku = $product->ean;
+                }
+                
+                $row = new stdClass();
+                
+                $row->sku       = $sku;
+                $row->currency  = $currency_code;
+                $row->price     = round($price, 2);
+                                
+                $amazon_de_data[] = $row;
+            }
+            // End Amazon DE
+            
+            // Amazon CO UK
+            $price_rule = $this->get_price_rule($product->proveedor, 'AMAZON-CO-UK');
+            
+            if($price_rule)
+            {
+                $price = $this->prepare_product_price_for_amazon($price_rule, 
+                         $this->convert_currency($product->coste, $price_rule->currency_id));
+                
+                $currency_code = $this->exchange_rates_model->get_currency_code($price_rule->currency_id);
+                
+                if($product->proveedor == 'ENGELSA')
+                {
+                    $sku = '#'.$product->ean;
+                }
+                else 
+                {
+                    $sku = $product->ean;
+                }
+                
+                $row = new stdClass();
+                
+                $row->sku       = $sku;
+                $row->currency  = $currency_code;
+                $row->price     = round($price, 2);
+                
+                $amazon_co_uk_data[] = $row;
+            }
+            // End Amazon CO UK
+            
+            // Amazon USA
+            $price_rule = $this->get_price_rule($product->proveedor, 'AMAZON-USA');
+            
+            if($price_rule)
+            {
+                $price = $this->prepare_product_price_for_amazon($price_rule, 
+                         $this->convert_currency($product->coste, $price_rule->currency_id));
+                
+                $currency_code = $this->exchange_rates_model->get_currency_code($price_rule->currency_id);
+                
+                $sku = $product->ean;
+                
+                $row = new stdClass();
+                
+                $row->sku       = $sku;
+                $row->currency  = $currency_code;
+                $row->price     = round($price, 2);
+                
+                $amazon_com_data[] = $row;
+            }
+            // End Amazon USA
+            
+        }
+        
+        if(!empty($amazon_de_data))
+        {
+            $this->amazon_mws->update_prices($amazon_de_data,'de',MERCHANT_ID);
+        }
+        
+        if(!empty($amazon_co_uk_data))
+        {
+            $this->amazon_mws->update_prices($amazon_co_uk_data,'gb',MERCHANT_ID);
+        }
+        
+        if(!empty($amazon_com_data))
+        {
+            $this->amazon_mws->update_prices($amazon_com_data,'us',USA_MERCHANT_ID);
+        }
+        
+    }
+    
+    private function get_price_rule($provider_name,$web)
+    {
+        if(isset($this->_buffer_data['price_rule'][$provider_name][$web]))
+        {
+            return $this->_buffer_data['price_rule'][$provider_name][$web];
+        }
+            
+        $this->db->where('provider_name', $provider_name);
+        $this->db->where('web', $web);
+        
+        $query = $this->db->get('amazon_price_rules');
+        
+        if($query->num_rows() == 1)
+        {
+            $this->_buffer_data['price_rule'][$provider_name][$web] = $query->row();
+            
+            return $this->_buffer_data['price_rule'][$provider_name][$web];
+        }
+        
+        return FALSE;
+    }
+    
+    /**
+     * Convert currency from euro to currency need
+     * @param float $price
+     * @param int $currency_id
+     */
+    private function convert_currency($price, $currency_id)
+    {
+        if(isset($this->_buffer_data['currency_rates'][$currency_id]))
+        {
+            $currency_rate = $this->_buffer_data['currency_rates'][$currency_id];
+        }
+        else 
+        {
+            $this->db->where('currency_id', $currency_id);
+            $query = $this->db->get('exchange_rates');
+            if($query->num_rows() == 1)
+            {
+                $currency_rate = $query->row()->rate;
+                $this->_buffer_data['currency_rates'][$currency_id] = $currency_rate;
+            }
+        }
+        
+        return $price * $currency_rate;
+    }
+    
+    /**
+     * Apply price rule to product
+     * @param type $price_rule
+     * @param type $price
+     */
+    private function prepare_product_price_for_amazon($price_rule, $price)
+    {
+        return ($price * $price_rule->multiply) + $price_rule->sum;
     }
 }

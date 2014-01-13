@@ -98,8 +98,9 @@ class Amazon_MWS
     public function submit_feed_request($feed,$feed_type,$country_code,$merchant_id)
     {
         require_once 'MarketplaceWebService/Model/SubmitFeedRequest.php';
-                       
-        $feedHandle = @fopen(APPPATH . 'logs/amazon_stock_upload_'.date('Y-m-d_h_m_s',time()).'.xml', 'w+');
+        
+        sleep(2);
+        $feedHandle = @fopen(APPPATH . 'logs/'.$feed_type.date('Y-m-d_h_m_s',time()).'.xml', 'w+');
         fwrite($feedHandle, $feed);
         rewind($feedHandle);
 
@@ -444,13 +445,17 @@ EOD;
      
      $this->_CI->load->helper('file');
      
+     sleep(2);
+     
+     $current_time  = date('Y-m-d_H-i-s',time());
+     
      $request = new MarketplaceWebService_Model_GetFeedSubmissionResultRequest();
      $request->setMerchant($merchant_id);
      $request->setFeedSubmissionId($FeedSubmissionId);    
-     $request->setFeedSubmissionResult(@fopen(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.date('Y-m-d',time()).'.xml', 'w+'));
+     $request->setFeedSubmissionResult(@fopen(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.$current_time.'.xml', 'w+'));
      $service->getFeedSubmissionResult($request);
           
-     return read_file(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.date('Y-m-d',time()). '.xml');
+     return read_file(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.$current_time. '.xml');
  }
  
  /**

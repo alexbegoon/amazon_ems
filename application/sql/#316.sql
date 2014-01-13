@@ -13,3 +13,7 @@ CREATE TABLE `amazoni`.`amazoni4_amazon_price_rules` (
 
 ALTER TABLE `amazoni`.`amazoni4_amazon_price_rules` 
 ADD UNIQUE INDEX `unique_index` (`provider_id` ASC, `web` ASC, `currency_id` ASC);
+
+ALTER TABLE `amazoni`.`amazoni4_amazon_price_rules` 
+DROP INDEX `unique_index` ,
+ADD UNIQUE INDEX `unique_index` (`provider_id` ASC, `web` ASC);

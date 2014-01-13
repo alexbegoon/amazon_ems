@@ -139,6 +139,7 @@ class Sync_process extends CI_Controller
         $this->load->model('amazon/amazon_model');
         
         $this->stokoni_model->upload_stock_to_amazon();
+        $this->stokoni_model->upload_prices_to_amazon();
     }
     
     public function sync_providers_products()

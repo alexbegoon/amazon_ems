@@ -8,6 +8,9 @@
 
 class Exchange_rates_model extends CI_Model {
     
+    private $_buffer_data;
+
+
     public function __construct()
     {
         parent::__construct();
@@ -155,5 +158,30 @@ class Exchange_rates_model extends CI_Model {
         }
         
         return false;
+    }
+    
+    /**
+     * Return 3 char currency code
+     * @param int $currency_id
+     */
+    public function get_currency_code($currency_id)
+    {
+        if(isset($this->_buffer_data['currency_codes'][$currency_id]))
+        {
+            return $this->_buffer_data['currency_codes'][$currency_id];
+        }
+        
+        $this->db->where('currency_id',$currency_id);
+        $query = $this->db->get('currencies');
+        
+        if($query->num_rows() == 1)
+        {
+            $this->_buffer_data['currency_codes'][$currency_id] = $query->row()->currency_code_3;
+            
+            return $this->_buffer_data['currency_codes'][$currency_id];
+        }
+        
+        return FALSE;
+        
     }
 }
