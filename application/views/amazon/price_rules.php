@@ -19,7 +19,7 @@
     <div>
         <div class="filters">
             <input type="button" value="Add..." onclick="AJAX_add('<?php echo base_url().'index.php/amazon/add_price_rule';?>')">
-            <?php echo anchor_popup(base_url().'index.php/sync_process/sync_data_with_amazon', 'Update Prices');?>
+            <?php echo anchor_popup(base_url().'index.php/sync_process/sync_data_with_amazon', 'Update Prices', array('class' => 'link_as_button'));?>
         </div>
         <div>
             <div>
@@ -49,8 +49,8 @@
                     <td><a href="#" title="Edit" class="edit" onclick="AJAX_edit('<?php echo base_url().'index.php/amazon/edit_price_rule';?>', <?php echo $rule->id;?>);return false;"></a></td>
                     <td class="web"><?php echo $rule->web; ?></td>
                     <td class="provider_name"><?php echo $rule->provider_name; ?></td>
-                    <td class="sum"><?php echo $rule->sum; ?></td>
                     <td class="multiply"><?php echo $rule->multiply; ?></td>
+                    <td class="sum"><?php echo $rule->sum; ?></td>                    
                     <td class="transport"><?php echo $rule->transport; ?></td>
                     <td class="marketplace"><?php echo $rule->marketplace; ?></td>
                     <td class="tax"><?php echo $rule->tax; ?></td>
