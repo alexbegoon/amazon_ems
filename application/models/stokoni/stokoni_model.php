@@ -662,6 +662,6 @@ class Stokoni_model extends CI_Model
      */
     private function prepare_product_price_for_amazon($price_rule, $price)
     {
-        return ($price + $price_rule->sum) * $price_rule->multiply ;
+        return (((($price *  $price_rule->multiply) + ($price_rule->transport + $price_rule->sum))) * $price_rule->marketplace)* $price_rule->tax;
     }
 }
