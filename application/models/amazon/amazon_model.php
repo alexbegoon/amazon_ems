@@ -115,7 +115,10 @@ class Amazon_model extends CI_Model
             'web',
             'currency_id',
             'multiply',
-            'sum'
+            'sum',
+            'transport',
+            'marketplace',
+            'tax'
             
         );
         
