@@ -98,8 +98,9 @@ class Amazon_MWS
     public function submit_feed_request($feed,$feed_type,$country_code,$merchant_id)
     {
         require_once 'MarketplaceWebService/Model/SubmitFeedRequest.php';
-                       
-        $feedHandle = @fopen(APPPATH . 'logs/amazon_stock_upload_'.date('Y-m-d_h_m_s',time()).'.xml', 'w+');
+        
+        sleep(2);
+        $feedHandle = @fopen(APPPATH . 'logs/'.$feed_type.date('Y-m-d_h_m_s',time()).'.xml', 'w+');
         fwrite($feedHandle, $feed);
         rewind($feedHandle);
 
@@ -268,7 +269,46 @@ EOD;
      $this->submit_feed_request($xml, '_POST_INVENTORY_AVAILABILITY_DATA_',$country_code,$merchant_id);
  }
  
-  
+ public function update_prices($data,$country_code,$merchant_id)
+ {
+     if(empty($data))
+     {
+         return FALSE; 
+     }
+     
+     //prepare xml feed
+     $xml = <<<EOD
+<?xml version="1.0" encoding="UTF-8"?>
+<AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amzn-envelope.xsd">
+<Header>
+<DocumentVersion>1.01</DocumentVersion>
+<MerchantIdentifier>$merchant_id</MerchantIdentifier>
+</Header>
+<MessageType>Price</MessageType>
+EOD;
+     
+     $i = 1;
+     foreach ($data as $product)
+     {
+           $xml .= <<<EOD
+<Message>
+<MessageID>$i</MessageID>
+<Price>
+<SKU>$product->sku</SKU>
+<StandardPrice currency="$product->currency">$product->price</StandardPrice>
+</Price>
+</Message>
+EOD;
+           $i++;
+     }
+     
+     $xml .= <<<EOD
+</AmazonEnvelope>
+EOD;
+     
+     $this->submit_feed_request($xml, '_POST_PRODUCT_PRICING_DATA_',$country_code,$merchant_id);
+ }
+
  public function check_feed_submission_result($country_code,$merchant_id)
  {
         require_once 'MarketplaceWebService/Model/GetFeedSubmissionListRequest.php';
@@ -405,13 +445,17 @@ EOD;
      
      $this->_CI->load->helper('file');
      
+     sleep(2);
+     
+     $current_time  = date('Y-m-d_H-i-s',time());
+     
      $request = new MarketplaceWebService_Model_GetFeedSubmissionResultRequest();
      $request->setMerchant($merchant_id);
      $request->setFeedSubmissionId($FeedSubmissionId);    
-     $request->setFeedSubmissionResult(@fopen(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.date('Y-m-d',time()).'.xml', 'w+'));
+     $request->setFeedSubmissionResult(@fopen(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.$current_time.'.xml', 'w+'));
      $service->getFeedSubmissionResult($request);
           
-     return read_file(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.date('Y-m-d',time()). '.xml');
+     return read_file(APPPATH . 'logs/request_result_for_'.$FeedSubmissionId.'_'.$current_time. '.xml');
  }
  
  /**

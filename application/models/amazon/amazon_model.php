@@ -7,12 +7,16 @@
  */
 class Amazon_model extends CI_Model 
 {
-    private $_total_count;
+    private $_total_count, $_total_count_price_rules;
+    
     
     public function __construct()
     {
         parent::__construct();
         $this->load->database();
+        
+        // Load models
+        $this->load->model('incomes/providers_model');
     }
     
     /**
@@ -88,4 +92,91 @@ class Amazon_model extends CI_Model
         
         return FALSE;
     }
+    
+    public function save_rule($data)
+    {
+        if(empty($data))
+        {
+            return false;
+        }
+        
+        $data['provider_id'] = $data['provider'];
+        
+        if(!empty($data['provider_id']))
+        {
+            $data['provider_name'] = $this->providers_model->getProvider((int)$data['provider_id'])->name;
+        }
+        
+        $values = array();
+        $fields = array(
+            
+            'provider_id',
+            'provider_name',
+            'web',
+            'currency_id',
+            'multiply',
+            'sum'
+            
+        );
+        
+        foreach ($data as $k => $v) 
+        {
+            if (in_array($k, $fields)) 
+            {
+                $values[$k] = $v;
+            }         
+        }
+        
+        if(!empty($data['id']))
+        {
+            $this->db->where('id', $data['id']);
+            $this->db->update('amazon_price_rules', $values); 
+        }
+        else 
+        {
+            $this->db->insert('amazon_price_rules', $values); 
+        }
+        
+        return '1';
+    }
+    
+    public function get_all_price_rules($page)
+    {
+        $this->db->select('*');
+        $this->db->from('amazon_price_rules');
+        $this->db->join('currencies', 'currencies.currency_id = amazon_price_rules.currency_id', 'left');
+        $this->db->limit(50,$page);
+        
+        $result = $this->db->get();
+        
+        $this->_total_count_price_rules = $this->db->count_all('my_table');
+        
+        return $result->result();
+    }
+    
+    public function get_total_count_of_rules()
+    {
+        return $this->_total_count_price_rules;
+    }
+    
+    public function get_price_rule($id)
+    {
+        $this->db->select('*');
+        $this->db->from('amazon_price_rules');
+        $this->db->join('currencies', 'currencies.currency_id = amazon_price_rules.currency_id', 'left');
+        $this->db->where('id =',$id);
+        $query = $this->db->get();
+        
+        return $query->row();
+    }
+    
+    public function delete_rule($id)
+    {
+        $this->db->where('id', $id);
+        $this->db->delete('amazon_price_rules');
+        
+        return '1';
+    }
+    
+    
 }

@@ -945,6 +945,50 @@ $(function() {
     });
 });
 
+$(function() {
+        $('body').on('submit', "#add_rule_form", function (event) {
+
+            // setup some local variables
+            var $form = $('#add_rule_form');
+            // let's select and cache all the fields
+            var $inputs = $form.find("input, select, button, textarea");
+            // serialize the data in the form
+            var serializedData = $form.serialize();
+
+            $( "#modal_window" ).empty();
+            $( "#modal_window" ).append('<div id="ajax-loader" style="display: none;"></div>');
+            $( "#modal_window" ).append('<div id="success-icon" style="display: none;"></div>');
+            $("#ajax-loader").css('display', 'block');
+
+            $.ajax({
+                        type: "POST",
+                        url: $form.attr('action'), 
+                        data: serializedData
+                   }).success(function( msg ) {
+                        if(msg == '1')
+                        {
+                            update_row(url_before_index + "index.php/amazon/get_price_rule/", $form.find('input[name="id"]').val());
+                            $("#ajax-loader").css('display', 'none');
+                            $("#success-icon").fadeIn();
+                        }
+                        else
+                        {
+                            $("#ajax-loader").css('display', 'none');
+                            $( "#modal_window" ).append(msg);
+                        }
+                   }).error(function( jqXHR, textStatus, errorThrown ) {
+                        $( "#modal_window" ).append(textStatus + ':  ' + errorThrown);
+                        $("#ajax-loader").css('display', 'none');
+                   });
+
+        event.preventDefault();
+
+        // it will stop the event from bubbling through the DOM of your page
+        // many thanks to http://stackoverflow.com/questions/12052132/jquery-mobile-click-event-binding-twice
+        event.stopImmediatePropagation();
+    });
+});
+
 
 //Main menu effects
 
