@@ -26,6 +26,8 @@ class Incomes extends CI_Controller {
          
         // Load model
         $this->load->model('incomes/incomes_model');
+        $this->load->model('incomes/web_field_model');
+        
     }
     
     public function index($page = null)
@@ -431,6 +433,7 @@ class Incomes extends CI_Controller {
         //Prepare data
         $data['period_radios']      = $this->top_sales_model->get_radio_inputs_periods();
         $data['provider_radios']    = $this->top_sales_model->get_radio_inputs_providers();
+        $data['web_list']           = $this->web_field_model->get_radio_inputs_web('web');
         $data['products_list']      = $this->top_sales_model->get_products_list($post_data, $page);
         $data['total_rows']         = $this->top_sales_model->total_rows();
         

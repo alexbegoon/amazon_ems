@@ -64,6 +64,23 @@ Amazoni.get_order_for_print = function(id){
     
 };
 
+Amazoni.order_link = function(a){
+    
+    var link = $(a);
+    var order_by = link.attr('id').replace('order_by_','');
+    var order_option = 'DESC';
+    
+    if(Amazoni.order_option == "DESC")
+    {
+        order_option = "ASC";
+    }
+    
+    $('form').append('<input type="hidden" name="order_by" value="'+order_by+'" />'); 
+    $('form').append('<input type="hidden" name="order_option" value="'+order_option+'" />'); 
+    $('form').submit();
+    
+};
+
 $(function() {
     /* For zebra striping */
     $("table tr:nth-child(odd)").addClass("odd-row");
@@ -72,7 +89,17 @@ $(function() {
     /* For removing the last border */
     $("table td:last-child, table th:last-child").addClass("last");
     
-    
+    if(Amazoni.order_by)
+    {
+        if(Amazoni.order_option == "DESC")
+        {
+            $('#order_by_'+Amazoni.order_by).append(' &#8679;');
+        }
+        else
+        {
+            $('#order_by_'+Amazoni.order_by).append(' &#8681;');
+        }
+    }
 });
 
 //Set all date pickers to have Spanish text.

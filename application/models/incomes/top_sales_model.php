@@ -135,6 +135,19 @@ class Top_sales_model extends CI_Model
             ) ';
         }
         
+        if(!empty($post_data['web']))
+        {
+            $where .= ' AND ( `web` = \''.trim($post_data['web']).'\' 
+            ) ';
+        }
+        
+        $order_by = ' `total_sold` DESC ';
+        
+        if(!empty($post_data['order_by']) && !empty($post_data['order_option']))
+        {
+            $order_by = $post_data['order_by'] . ' ' . $post_data['order_option'];
+        }
+        
         if ($page)
         {
             $limit = (int)$page.', 50';
@@ -149,7 +162,7 @@ class Top_sales_model extends CI_Model
                    FROM `'.$this->db->dbprefix('top_sales').'` 
                    '.$where.' 
                    GROUP BY `sku` 
-                   ORDER BY `total_sold` DESC 
+                   ORDER BY '.$order_by.'
                    LIMIT '.$limit.'
         ';
         

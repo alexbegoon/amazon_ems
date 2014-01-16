@@ -16,6 +16,10 @@
             <div id="radios2">
                 <?php echo $provider_radios; ?>
             </div>
+            <br>
+            <div id="web_list">
+                <?php echo $web_list;?>
+            </div>
         </div>
         <br>
         <br>
@@ -29,8 +33,8 @@
                 <tr>
                     <th>SKU</th>
                     <th>Product name</th>
-                    <th>Total sold</th>
-                    <th>Total quantity</th>
+                    <th><a href="javascript:void(0);" id="order_by_total_sold" onclick="Amazoni.order_link(this);">Total sold</a></th>
+                    <th><a href="javascript:void(0);" id="order_by_total_quantity" onclick="Amazoni.order_link(this);">Total quantity</a></th>
                     <th>Provider name</th>
                     <th>Date of last purchase</th>
                 </tr>
@@ -78,10 +82,14 @@
             })( jQuery );
             $( "#radios" ).buttonset();
             $( "#radios2" ).buttonsetv();
+            $( "#web_list" ).buttonsetv();
             $("#radios input").click(function(){
                 $("form").submit();
             });
             $("#radios2 input").click(function(){
+                $("form").submit();
+            });
+            $( "#web_list input" ).click(function(){
                 $("form").submit();
             });
         });

@@ -5,14 +5,25 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"> 
   <link href="<?php echo base_url().'assets/css/main.css'; ?>" rel="stylesheet" type="text/css" media="screen" />
+  <?php if ($this->ion_auth->logged_in()): ?>
   <link href="<?php echo base_url().'assets/css/print.css';?>" rel="stylesheet" type="text/css" media="print">
   <link href="<?php echo base_url().'assets/css/custom-theme/jquery-ui-1.10.3.custom.css'; ?>" rel="stylesheet" type="text/css" />
+  <?php endif;?>
   <link rel="shortcut icon" href="<?php echo base_url().'assets/imgs/favicon.ico'; ?>" type="image/x-icon">
   <link rel="icon" href="<?php echo base_url().'assets/imgs/favicon.ico'; ?>" type="image/x-icon">
-  <script>var url_before_index = '<?php echo base_url();?>'</script>
+  <?php if ($this->ion_auth->logged_in()): ?>
+  <script>
+    var url_before_index = '<?php echo base_url();?>';
+  </script>
   <script type="text/javascript" src="<?php echo base_url().'assets/js/jquery-1.9.1.js'; ?>"></script>
   <script type="text/javascript" src="<?php echo base_url().'assets/js/jquery-ui-1.10.3.custom.js'; ?>"></script>
   <script type="text/javascript" src="<?php echo base_url().'assets/js/global.js'; ?>"></script>
+  <script>
+  Amazoni.order_by        =  '<?php echo isset($_POST['order_by']) ? $_POST['order_by'] : '';?>';
+  Amazoni.order_option    =  '<?php echo isset($_POST['order_option']) ? $_POST['order_option'] : '';?>';
+  </script>
+  <?php endif;?>
+  
   <title><?php echo $title;?></title>
 </head>
 <body>
