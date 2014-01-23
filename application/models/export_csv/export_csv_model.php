@@ -119,6 +119,10 @@ class Export_csv_model extends CI_Model
             $data['ENGELSA']['products']        = array();
             $data['PINTERNACIONAL']['products'] = array();
             $data['WAREHOUSE']['products']      = array();
+            $engelsa_products                   = null;
+            $pinternacional_products            = null;
+            $warehouse_products                 = null;
+            
             
             $data['ENGELSA']['meta'] = array(
                 
@@ -167,9 +171,15 @@ class Export_csv_model extends CI_Model
                     {   
                         if(!empty($order_product->provider_name))
                         {
-                            $data[$order_product->provider_name]['products'][$order_product->sku][] = $order_product;
+                            if($order_product->provider_name == 'ENGELSA' && !preg_match('/^#/', $order_product->sku))
+                            {
+                                $data[$order_product->provider_name]['products']['#'.$order_product->sku][] = $order_product;
+                            }
+                            else 
+                            {
+                                $data[$order_product->provider_name]['products'][$order_product->sku][] = $order_product;
+                            }
                         }
-                        
                     }
                 }
                                 
@@ -232,7 +242,7 @@ class Export_csv_model extends CI_Model
             $total_engelsa = 0;
             if(isset($data['ENGELSA']['products']))
             {
-                foreach ($data['ENGELSA']['products'] as $product)
+                foreach ($data['ENGELSA']['products'] as $product_sku => $product)
                 {
                     $total_count = 0;
                     $subtotal_price = 0;
@@ -244,9 +254,9 @@ class Export_csv_model extends CI_Model
                         
                         $subtotal_price += $current_provider_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
                     }
-                    $data_rows[] = array(
+                    $engelsa_products[] = array(
                             preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
-                            '"'.$product[0]->sku_in_order.'"',
+                            '"'.$product_sku.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
                             '',
@@ -255,6 +265,17 @@ class Export_csv_model extends CI_Model
                             ''                
                                     );
                     $total_engelsa += $subtotal_price; 
+                }
+                
+                // Sort products
+                if(is_array($engelsa_products))
+                {
+                    usort($engelsa_products, array("Export_csv_model", "cmp"));
+                
+                    foreach($engelsa_products as $row)
+                    {
+                        $data_rows[] = $row;
+                    }
                 }
             }
             
@@ -310,7 +331,7 @@ class Export_csv_model extends CI_Model
                         
                         $subtotal_price += $current_provider_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
                     }
-                    $data_rows[] = array(
+                    $pinternacional_products[] = array(
                             preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
                             '"'.$product[0]->sku_in_order.'"',
                             $total_count,
@@ -321,6 +342,17 @@ class Export_csv_model extends CI_Model
                             ''                
                                     );
                     $total_pinternacional += $subtotal_price; 
+                }
+                
+                // Sort products
+                if(is_array($pinternacional_products))
+                {
+                    usort($pinternacional_products, array("Export_csv_model", "cmp"));
+                
+                    foreach($pinternacional_products as $row)
+                    {
+                        $data_rows[] = $row;
+                    }
                 }
             }
             
@@ -376,7 +408,7 @@ class Export_csv_model extends CI_Model
                         
                         $subtotal_price += $current_warehouse_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
                     }
-                    $data_rows[] = array(
+                    $warehouse_products[] = array(
                             preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
                             '"'.$product[0]->sku_in_order.'"',
                             $total_count,
@@ -387,6 +419,17 @@ class Export_csv_model extends CI_Model
                             ''                
                                     );
                     $total_warehouse += $subtotal_price; 
+                }
+                
+                // Sort products
+                if(is_array($warehouse_products))
+                {
+                    usort($warehouse_products, array("Export_csv_model", "cmp"));
+                
+                    foreach($warehouse_products as $row)
+                    {
+                        $data_rows[] = $row;
+                    }
                 }
             }
             
@@ -741,6 +784,9 @@ class Export_csv_model extends CI_Model
         
         return $orders_for_printer;
     }
-            
+     
+    private static function cmp($a, $b) 
+    {
+        return $b[2] - $a[2];
+    }
 }
-    
