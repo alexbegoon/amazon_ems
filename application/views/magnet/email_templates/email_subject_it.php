@@ -1,0 +1,1 @@
+{name} dai una opinione sul prodotto comprato sul sito {website}
