@@ -164,7 +164,7 @@ class Web_field_model extends CI_Model
                   (`web`,`title`,`url`,`email`,`template_language`,`hostname`,`username`,
                   `password`,`database`,`dbprefix`,`char_set`,`dbcollat`,
                   `sync_enabled`,`start_time`,`test_mode`, `virtuemart_version`,
-                  `installed_languages`
+                  `installed_languages`, `print_order_title`, `print_order_footer` 
                   )
                   VALUES
                   (\''.trim(addslashes($post_data['web'])).'\', 
@@ -183,7 +183,9 @@ class Web_field_model extends CI_Model
                    \''.trim(addslashes($post_data['start_time'])).'\',
                    \''.trim(addslashes($post_data['test_mode'])).'\',
                    \''.trim(addslashes($post_data['virtuemart_version'])).'\',
-                   \''.trim(addslashes($post_data['installed_languages'])).'\'    
+                   \''.trim(addslashes($post_data['installed_languages'])).'\', 
+                   \''.trim(addslashes($post_data['print_order_title'])).'\', 
+                   \''.trim(addslashes($post_data['print_order_footer'])).'\' 
                    )
         ';
         
@@ -273,7 +275,9 @@ class Web_field_model extends CI_Model
                        `start_time` = \''.trim(addslashes($post_data['start_time'])).'\',
                        `test_mode` = \''.trim(addslashes($post_data['test_mode'])).'\',
                        `virtuemart_version` = \''.trim(addslashes($post_data['virtuemart_version'])).'\',
-                       `installed_languages` = \''.trim(addslashes($post_data['installed_languages'])).'\' 
+                       `installed_languages` = \''.trim(addslashes($post_data['installed_languages'])).'\',  
+                       `print_order_title` = \''.trim(addslashes($post_data['print_order_title'])).'\', 
+                       `print_order_footer` = \''.trim(addslashes($post_data['print_order_footer'])).'\' 
                            
                    WHERE `web` = \''.$web.'\' 
         ';

@@ -97,6 +97,22 @@
             </tr>
         </table>
         <br>
+        <p>Print order view setup:</p>
+        <table>
+            <tr>
+                <td>Title:</td>
+                <td>
+                    <textarea name="print_order_title" id="print_order_title" cols="80" rows="5"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>Footer:</td>
+                <td>
+                    <textarea name="print_order_footer" id="print_order_footer" cols="80" rows="5"></textarea>                    
+                </td>
+            </tr>
+        </table>
+        <br>
         <p>Providers setup:</p>
         <div id="providers">
             <?php echo $providers_accordion;?>

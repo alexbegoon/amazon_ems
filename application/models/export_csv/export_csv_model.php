@@ -621,7 +621,7 @@ class Export_csv_model extends CI_Model
     {
         if($service == 'generar_gls_summary')
         {
-            $query = ' SELECT *,
+            $query = ' SELECT *, LOWER(`languages`.`language`) as `language`, 
                        (SELECT SUM(`ingresos`) 
                         FROM `pedidos` 
                         WHERE  `procesado` LIKE  \'PEDIDO_ENGELSA_GLS_AQUI\' 
@@ -632,9 +632,13 @@ class Export_csv_model extends CI_Model
                         WHERE  `procesado` LIKE  \'PEDIDO_ENGELSA_GLS_AQUI\' 
                         OR     `procesado` LIKE  \'PEDIDO_MARABE_AQUI\' 
                         ) AS `total_gasto` 
-                       FROM  `pedidos` 
-                       WHERE  `procesado` LIKE  \'PEDIDO_ENGELSA_GLS_AQUI\' 
-                       OR     `procesado` LIKE  \'PEDIDO_MARABE_AQUI\' 
+                       FROM  `pedidos` as `pedidos`
+                       LEFT JOIN `'.$this->db->dbprefix('web_field').'` as `web_field` 
+                       USING(`web`) 
+                       LEFT JOIN `'.$this->db->dbprefix('languages').'` as `languages` 
+                       ON  `languages`.`code` = `web_field`.`template_language`  
+                       WHERE  `pedidos`.`procesado` LIKE  \'PEDIDO_ENGELSA_GLS_AQUI\' 
+                       OR     `pedidos`.`procesado` LIKE  \'PEDIDO_MARABE_AQUI\' 
             ';
         }
         
@@ -754,6 +758,7 @@ class Export_csv_model extends CI_Model
                 $order_for_printer->payment_method      = $order->formadepago;
                 $order_for_printer->web                 = $order->web;
                 $order_for_printer->country             = $country;
+                $order_for_printer->other_info          = $order; 
                 
                 for($i = 1; $i <= 10; $i++)
                 {
