@@ -8,7 +8,7 @@
 
 $lang['print_order_sku']                    = 'Codice di riferimento(Codice a barre)';
 $lang['print_order_customer_name']          = 'Nome';
-$lang['print_order_units']                  = 'Unita\'(la palabra se escribe asi para singular y para plural)';
+$lang['print_order_units']                  = 'Unita\'';
 $lang['print_order_shipping_address']       = 'Indirizzo';
 $lang['print_order_zip_code']               = 'CAP(Codice di Avviamento Postale)';
 $lang['print_order_city']                   = 'Citta\'';
