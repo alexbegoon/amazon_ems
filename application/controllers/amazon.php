@@ -151,7 +151,7 @@ class Amazon extends CI_Controller {
                      'field'   => 'tax', 
                      'label'   => 'Taxes', 
                      'rules'   => 'required|numeric'
-                  )
+                  )   
             );
         
         $this->form_validation->set_rules($config);

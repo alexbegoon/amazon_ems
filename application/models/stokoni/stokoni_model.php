@@ -510,7 +510,7 @@ class Stokoni_model extends CI_Model
         foreach ($products as $product)
         {
             // Amazon DE
-            $price_rule = $this->get_price_rule($product->proveedor, 'AMAZON-DE');
+            $price_rule = $this->get_price_rule($product->proveedor, 'AMAZON-DE', $product->ean);
             
             if($price_rule)
             {
@@ -539,7 +539,7 @@ class Stokoni_model extends CI_Model
             // End Amazon DE
             
             // Amazon CO UK
-            $price_rule = $this->get_price_rule($product->proveedor, 'AMAZON-CO-UK');
+            $price_rule = $this->get_price_rule($product->proveedor, 'AMAZON-CO-UK', $product->ean);
             
             if($price_rule)
             {
@@ -568,7 +568,7 @@ class Stokoni_model extends CI_Model
             // End Amazon CO UK
             
             // Amazon USA
-            $price_rule = $this->get_price_rule($product->proveedor, 'AMAZON-USA');
+            $price_rule = $this->get_price_rule($product->proveedor, 'AMAZON-USA', $product->ean);
             
             if($price_rule)
             {
@@ -608,23 +608,28 @@ class Stokoni_model extends CI_Model
         
     }
     
-    private function get_price_rule($provider_name,$web)
-    {
-        if(isset($this->_buffer_data['price_rule'][$provider_name][$web]))
-        {
-            return $this->_buffer_data['price_rule'][$provider_name][$web];
-        }
-            
+    private function get_price_rule($provider_name,$web,$ean)
+    {            
         $this->db->where('provider_name', $provider_name);
         $this->db->where('web', $web);
+        $this->db->where('ean', $ean);
         
         $query = $this->db->get('amazon_price_rules');
         
         if($query->num_rows() == 1)
         {
-            $this->_buffer_data['price_rule'][$provider_name][$web] = $query->row();
-            
-            return $this->_buffer_data['price_rule'][$provider_name][$web];
+            return $query->row();
+        }
+        
+        $this->db->where('provider_name', $provider_name);
+        $this->db->where('web', $web);
+        $this->db->where(' ( ean = "" OR ean IS NULL) ', null);
+        
+        $query = $this->db->get('amazon_price_rules');
+                
+        if($query->num_rows() == 1)
+        {
+            return $query->row();
         }
         
         return FALSE;

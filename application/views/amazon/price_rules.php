@@ -36,6 +36,7 @@
                     <th colspan="2">Action</th>
                     <th>Web</th>
                     <th>Provider</th>
+                    <th>EAN</th>
                     <th>Profit Margin</th>
                     <th>Extra Margin</th>
                     <th>Transport Margin</th>
@@ -49,6 +50,7 @@
                     <td><a href="#" title="Edit" class="edit" onclick="AJAX_edit('<?php echo base_url().'index.php/amazon/edit_price_rule';?>', <?php echo $rule->id;?>);return false;"></a></td>
                     <td class="web"><?php echo $rule->web; ?></td>
                     <td class="provider_name"><?php echo $rule->provider_name; ?></td>
+                    <td class="ean"><?php echo empty($rule->ean) ? 'Global' : $rule->ean; ?></td>
                     <td class="multiply"><?php echo $rule->multiply; ?></td>
                     <td class="sum"><?php echo $rule->sum; ?></td>                    
                     <td class="transport"><?php echo $rule->transport; ?></td>

@@ -36,6 +36,12 @@
                 </td>
             </tr>
             <tr>
+                <td>EAN: </td>
+                <td>
+                    <input type="text" name="ean" value="" />
+                </td>
+            </tr>
+            <tr>
                 <td>Profit Margin*: </td>
                 <td>
                     <input type="number" step="any" name="multiply" value="1" required="required"/>

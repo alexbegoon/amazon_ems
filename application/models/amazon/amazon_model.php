@@ -118,7 +118,8 @@ class Amazon_model extends CI_Model
             'sum',
             'transport',
             'marketplace',
-            'tax'
+            'tax',
+            'ean'
             
         );
         

@@ -36,6 +36,12 @@
                 </td>
             </tr>
             <tr>
+                <td>EAN: </td>
+                <td>
+                    <input type="text" name="ean" value="<?php echo $post_data['ean']; ?>" />
+                </td>
+            </tr>
+            <tr>
                 <td>Profit Margin*: </td>
                 <td>
                     <input type="number" step="any" name="multiply" value="<?php echo $post_data['multiply']; ?>" required="required"/>
