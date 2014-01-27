@@ -61,17 +61,28 @@
                 $this->table->set_template($tmpl);
                 
                 $this->lang = new CI_Lang();
-                $this->lang->load('print_order', $order->other_info->language);
-
+                if(isset($order->other_info->language))
+                {
+                    $this->lang->load('print_order', $order->other_info->language);
+                }
                 $order_title = strtoupper($this->lang->line('print_order_packing_slip'));
-                $order_footer = stripslashes($order->other_info->print_order_footer);
-
-                $this->table->add_row($order->other_info->title);
+                if(isset($order->other_info->print_order_footer))
+                {
+                    $order_footer = stripslashes($order->other_info->print_order_footer);
+                }
+                if(isset($order->other_info->title))
+                {
+                    $this->table->add_row($order->other_info->title);
+                }
+                
                 if(!empty($order->other_info->print_order_title))
                 {
                     $this->table->add_row(stripslashes($order->other_info->print_order_title));
                 }
-                $this->table->add_row($order->other_info->url);
+                if(isset($order->other_info->url))
+                {
+                    $this->table->add_row($order->other_info->url);
+                }
                 $this->table->add_row('');
                 $this->table->add_row($this->lang->line('print_order_id').': '.$order->id);
                 $this->table->add_row($this->lang->line('print_order_customer_name').': '.$order->name);
