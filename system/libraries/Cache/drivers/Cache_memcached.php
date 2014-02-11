@@ -162,7 +162,7 @@ class CI_Cache_memcached extends CI_Driver {
 			}			
 		}
 		
-		$this->_memcached = new Memcached();
+		$this->_memcached = new Memcache();
 
 		foreach ($this->_memcache_conf as $name => $cache_server)
 		{
