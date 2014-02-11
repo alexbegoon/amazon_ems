@@ -190,5 +190,12 @@ class Dashboard extends CI_Controller {
         ->set_content_type('application/json')
         ->set_output(json_encode($data));
     }
+    
+    public function cache_info()
+    {
+        $this->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file')); 
+        
+        var_dump($this->cache->memcached->cache_info);
+    }
 }
 
