@@ -464,8 +464,8 @@ class Dashboard_model extends CI_Model {
             return false;
         }
         
-        $this->db->cache_on();
-        
+        $this->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file'));      
+                
         $query = ' SELECT CASE 
                             WHEN COUNT(*) > 0 
                             THEN COUNT(*) 
@@ -481,15 +481,21 @@ class Dashboard_model extends CI_Model {
         {
             if(!empty($order->correo) && is_string($order->correo))
             {
-                $result = $this->db->query($query, array($order->correo));
-                if(is_object($result->row()))
+                if($this->cache->memcached->get_metadata($this->router->class.$this->router->method.$order->correo))
                 {
-                    $order->total_number = $result->row()->total_number;
+                    $order->total_number = $this->cache->memcached->get($this->router->class.$this->router->method.$order->correo);
+                }
+                else
+                {
+                    $result = $this->db->query($query, array($order->correo));
+                    if(is_object($result->row()))
+                    {
+                        $order->total_number = $result->row()->total_number;
+                        $this->cache->memcached->save($this->router->class.$this->router->method.$order->correo, $order->total_number, 10000);
+                    }
                 }
             }
         }
-        
-        $this->db->cache_off();
     }
     
     public function get_order_for_printer($id)
