@@ -51,6 +51,14 @@ class Reviews extends CI_Controller
         $this->pagination->initialize($config); 
         $data['pagination'] = $this->pagination->create_links();
         
+        $this->load->driver('cache');
+        $this->cache->memcached->save('foo', 'bar', 600);
+        
+        for($i = 1; $i <= 500; $i++)
+        {
+            $data['from_cache'][] = $this->cache->memcached->get('foo');
+        }
+        
         // Load view
         $this->load->template('reviews/index', $data);
                 

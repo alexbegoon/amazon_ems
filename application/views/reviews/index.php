@@ -9,6 +9,7 @@
 <article>
     <h1><?php echo $title; ?></h1>
     <div>
+        <?php var_dump($from_cache);?>
         <?php echo form_open(current_url()); ?>
         <div class="filters">
             <div id="rating_filter_radios">
