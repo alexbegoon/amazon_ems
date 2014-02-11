@@ -195,7 +195,7 @@ class Dashboard extends CI_Controller {
     {
         $this->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file')); 
         
-        var_dump($this->cache->memcached->cache_info);
+        var_dump($this->cache->memcached->cache_info());
     }
 }
 
