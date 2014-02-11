@@ -51,8 +51,8 @@ class Reviews extends CI_Controller
         $this->pagination->initialize($config); 
         $data['pagination'] = $this->pagination->create_links();
         
-        $this->load->driver('cache', array('adapter' => 'memcached', 'backup' => 'file'));
-        var_dump($this->cache->memcached->is_supported());
+        $this->load->driver('cache', array('adapter' => 'memcache', 'backup' => 'file'));
+        var_dump($this->cache->memcache->is_supported());
         die;
         $this->cache->memcached->save('foo', 'bar', 600);
         
