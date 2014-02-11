@@ -62,7 +62,7 @@ class Reviews extends CI_Controller
         }
         
         // Load view
-        $this->load->template('reviews/index', $data);
+//        $this->load->template('reviews/index', $data);
                 
     }
    
