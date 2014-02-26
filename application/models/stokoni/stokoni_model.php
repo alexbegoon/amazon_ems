@@ -442,6 +442,7 @@ class Stokoni_model extends CI_Model
         $proveedors = array('ENGELSA', 'EUCERIN', 'CAUDALIE'); // Providers that should be on Amazon
         $this->db->set_dbprefix('');
         $this->db->where_in('proveedor', $proveedors);
+        $this->db->where('stock >', 0);
         $query = $this->db->get('stokoni');
         $this->db->set_dbprefix('amazoni4_');
         $products = $query->result();
