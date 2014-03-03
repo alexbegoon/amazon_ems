@@ -13,7 +13,7 @@ class Sync_products_coqueteo extends Sync_products
     {
         parent::__construct();
         
-        $this->_url_service = 'http://localhost/ficherocoqueteo/fichero.csv';
+        $this->_url_service = 'http://www.buyin.es/ficherocoqueteo/fichero.csv';
         $this->_provider_name = 'COQUETEO';
         
         // Test mode toggle
@@ -29,11 +29,7 @@ class Sync_products_coqueteo extends Sync_products
     
     protected function extract_products() 
     {
-//        $data_file = file_get_contents($this->_url_service);
-        $handle = curl_init();
-        curl_setopt($handle, CURLOPT_URL, $this->_url_service);
-        curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
-        $data_file = curl_exec($handle);
+        $data_file = file_get_contents($this->_url_service);
         
         $data_array = explode("\n",$data_file);
         
