@@ -187,4 +187,13 @@ class Amazon extends CI_Controller {
         ->set_content_type('application/json')
         ->set_output(json_encode($data['price_rule']));
     }
+    
+    public function sales_rank($page = 0)
+    {
+        // Prepare data
+        $data['title'] = humanize($this->router->method);
+        
+        // Load view  
+        $this->load->template('amazon/'.$this->router->method, $data);
+    }
 }

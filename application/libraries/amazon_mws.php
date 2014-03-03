@@ -308,6 +308,51 @@ EOD;
      
      $this->submit_feed_request($xml, '_POST_PRODUCT_PRICING_DATA_',$country_code,$merchant_id);
  }
+ 
+ public function get_matching_products($merchant_id)
+ {
+     
+     $request = new MarketplaceWebServiceProducts_Model_ListMatchingProductsRequest();
+     $request->setSellerId($merchant_id);
+     // object or array of parameters
+     invokeListMatchingProducts($service, $request);
+     
+ }
+         
+/**
+  * Get List Matching Products Action Sample
+  * Gets competitive pricing and related information for a product identified by
+  * the MarketplaceId and ASIN.
+  *
+  * @param MarketplaceWebServiceProducts_Interface $service instance of MarketplaceWebServiceProducts_Interface
+  * @param mixed $request MarketplaceWebServiceProducts_Model_ListMatchingProducts or array of parameters
+  */
+
+  function invokeListMatchingProducts(MarketplaceWebServiceProducts_Interface $service, $request)
+  {
+      try {
+        $response = $service->ListMatchingProducts($request);
+
+        echo ("Service Response\n");
+        echo ("=============================================================================\n");
+
+        $dom = new DOMDocument();
+        $dom->loadXML($response->toXML());
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+        echo $dom->saveXML();
+        echo("ResponseHeaderMetadata: " . $response->getResponseHeaderMetadata() . "\n");
+
+     } catch (MarketplaceWebServiceProducts_Exception $ex) {
+        echo("Caught Exception: " . $ex->getMessage() . "\n");
+        echo("Response Status Code: " . $ex->getStatusCode() . "\n");
+        echo("Error Code: " . $ex->getErrorCode() . "\n");
+        echo("Error Type: " . $ex->getErrorType() . "\n");
+        echo("Request ID: " . $ex->getRequestId() . "\n");
+        echo("XML: " . $ex->getXML() . "\n");
+        echo("ResponseHeaderMetadata: " . $ex->getResponseHeaderMetadata() . "\n");
+     }
+ }
 
  public function check_feed_submission_result($country_code,$merchant_id)
  {
