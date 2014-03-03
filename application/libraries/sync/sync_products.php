@@ -13,6 +13,7 @@ abstract class Sync_products
     public function __construct() 
     {
         $this->_CI =& get_instance(); // Instance of CodeIgniter
+        $this->_CI->load->helper('file');
         $this->_db = $this->_CI->db; // Instance of DB object
         $this->_test_mode = FALSE;  // Test mode boolean
         $this->_url_service = null; // URL string of Provider service. Products link
