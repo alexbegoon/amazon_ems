@@ -37,11 +37,15 @@ abstract class Sync_products
         if(is_array($this->_products) && !$this->_test_mode)
         {
             // Check format
-            if(    isset($this->_products[0]['sku']) &&
-                   isset($this->_products[0]['product_name']) &&
-                   isset($this->_products[0]['provider_name']) &&
-                   isset($this->_products[0]['price']) &&
-                   isset($this->_products[0]['stock'])     )
+            
+            reset($this->_products);
+            $first_key = key($this->_products);
+            
+            if(    isset($this->_products[$first_key]['sku']) &&
+                   isset($this->_products[$first_key]['product_name']) &&
+                   isset($this->_products[$first_key]['provider_name']) &&
+                   isset($this->_products[$first_key]['price']) &&
+                   isset($this->_products[$first_key]['stock'])     )
             {
                 $this->_CI->products_model->update_products_table($this->_products);
             }

@@ -179,16 +179,18 @@ class Products_model extends CI_Model
         
         $summary = new stdClass();
         $summary->affected_rows = 0;
-                
+        
         if(!empty($products))
         {
             $this->db->trans_begin();
             // Reset stock before update
-            if($this->providers_model->get_provider_id_by_name($products[0]['provider_name']))
+            reset($products);
+            $first_key = key($products);
+            if($this->providers_model->get_provider_id_by_name($products[$first_key]['provider_name']))
             {
-                $this->db->where('provider_name', $products[0]['provider_name']);
-                $data = array('stock' => 0);
-                $this->db->update('providers_products', $data); 
+                $this->db->where('provider_name', $products[$first_key]['provider_name']);
+                $data = array('stock' => 0, 'updated_on' => date('Y-m-d H:i:s', time()));
+                $this->db->update('providers_products', $data);
             }
             
             foreach ($products as $product)
@@ -201,10 +203,12 @@ class Products_model extends CI_Model
                     
                     if(!$this->is_product_exists($product['sku'], $product['provider_name']))
                     {
+                        $product['created_on'] = $product['updated_on'] = date('Y-m-d H:i:s', time());
                         $this->db->insert('providers_products', $product);
                     }
                     else
                     {
+                        $product['updated_on'] = date('Y-m-d H:i:s', time());
                         $this->db->where('sku', $product['sku']);
                         $this->db->where('provider_name', $product['provider_name']);
                         $this->db->update('providers_products', $product); 
@@ -361,7 +365,7 @@ class Products_model extends CI_Model
         $products = array();
         
         $query = ' SELECT `ean` as `sku`, `descripcion` as `product_name`, 
-                          `precio` as `price`, `stock`, \'ENGELSA\' as `provider_name` 
+                          `precio` as `price`, `stock`, \'ENGELSA\' as `provider_name`, `nombre_marca` as `brand` 
                    FROM `'.$this->db->dbprefix('engelsa').'` 
         ';
         
@@ -382,7 +386,7 @@ class Products_model extends CI_Model
         $products = array();
         
         $query = ' SELECT `ean` as `sku`, `product_name`, `price`, `stock`, 
-                            \'GRUTINET\' as `provider_name` 
+                            \'GRUTINET\' as `provider_name` , `brand_name` as `brand` 
                    FROM `'.$this->db->dbprefix('grutinet').'` 
         ';
         
