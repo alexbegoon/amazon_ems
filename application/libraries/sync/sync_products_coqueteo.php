@@ -13,7 +13,7 @@ class Sync_products_coqueteo extends Sync_products
     {
         parent::__construct();
         
-        $this->_url_service = 'http://www.buyin.es/ficherocoqueteo/fichero.csv';
+        $this->_url_service = 'http://localhost/ficherocoqueteo/fichero.csv';
         $this->_provider_name = 'COQUETEO';
         
         // Test mode toggle
