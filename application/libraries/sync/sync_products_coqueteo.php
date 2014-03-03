@@ -30,7 +30,9 @@ class Sync_products_coqueteo extends Sync_products
     
     protected function extract_products() 
     {
-        $data_file = file_get_contents($this->_url_service);
+//        $data_file = file_get_contents($this->_url_service);
+        
+        $data_file = read_file($this->_url_service);
         
 //        $data_file = read_file($this->_url_service);
         
