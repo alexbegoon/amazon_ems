@@ -29,7 +29,13 @@ class Sync_products_coqueteo extends Sync_products
     
     protected function extract_products() 
     {
-        $data_file = file_get_contents($this->_url_service);
+//        $data_file = file_get_contents($this->_url_service);
+        $ch = curl_init($this->_url_service);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        $strContent= curl_exec($ch);
+        $data_file = curl_getinfo($ch);
+        curl_close($ch);
         
         $data_array = explode("\n",$data_file);
         
