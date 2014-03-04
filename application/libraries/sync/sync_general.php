@@ -114,7 +114,6 @@ class Sync_general
                     $order[45]  = $this->getGasto($order, false); //calculate Gasto
                     $order[9]   = $this->getProcesado($order);
                     unset($order[48]); // Unset order status. We need no this in pedido table
-                    unset($order[49]); // Unset order shipping phrase. We need no this in pedido table
                     // Unset order currencies
                     unset($order[50]);
                     unset($order[51]);
@@ -139,7 +138,7 @@ class Sync_general
                         `precio5`, `cantidad5`, `sku6`, `precio6`, `cantidad6`, `sku7`, `precio7`, 
                         `cantidad7`, `sku8`, `precio8`, `cantidad8`, `sku9`, `precio9`, `cantidad9`, `sku10`, `precio10`, `cantidad10`, 
                         `ingresos`, `web`, `comentarios`, `tracking`, `correo`, `gasto`, `localidad`, 
-                        `formadepago`, `in_stokoni`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ");
+                        `formadepago`, `in_stokoni`, `shipping_phrase`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ");
                     
                         $stmt->execute($order);
                         

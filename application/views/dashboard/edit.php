@@ -46,6 +46,10 @@
                 <td><?php echo htmlentities($order->formadepago);?></td>
             </tr>
             <tr>
+                <td>Shipping method</td>
+                <td><?php echo htmlentities($order->shipping_phrase);?></td>
+            </tr>
+            <tr>
                 <td>Ingresos</td>
                 <td><input type="text" name="ingresos" value="<?php echo round($order->ingresos,2);?>" /></td>
             </tr>
