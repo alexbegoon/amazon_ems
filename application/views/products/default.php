@@ -24,7 +24,7 @@
                     <th>Products with Stock</th>
                 </tr>
                 <?php foreach($providers_statistic as $r):?>
-                <tr onclick="Amazoni.show_provider_statistic('<?php echo $r->provider_name;?>');">
+                <tr style="cursor: pointer;" onclick="Amazoni.show_provider_statistic('<?php echo $r->provider_name;?>');">
                     <td><?php echo $r->provider_name;?></td>
                     <td><?php echo $r->total_products;?></td>
                     <td><?php echo $r->total_products_with_stock;?></td>
