@@ -276,4 +276,36 @@ class Export_csv extends CI_Controller {
         // Load view 
         $this->load->template('export_csv/generar', $data);
     }
+    
+    public function generar_new_products_coqueteo_summary()
+    {
+        // Prepare data
+        $data['title'] = humanize($this->router->method);
+        $data['method'] = str_replace('_summary', '', $this->router->method);
+        $data['button_name'] = 'Download coqueteo new products report';
+        $data['button_link'] = base_url() . 'index.php/export_csv/generar_new_products_coqueteo';
+        
+        
+        // Load view 
+        $this->load->template('export_csv/index', $data);
+    }
+    
+    public function generar_new_products_coqueteo()
+    {
+        // Prepare data
+        $data['title'] = humanize($this->router->method);
+        $data['method'] = str_replace('_summary', '', $this->router->method);
+        
+        // Model tasks
+        $file = $this->export_csv_model->prepare_file($this->router->method);
+                
+        // Export file
+        if(!empty($file))
+        {
+            force_download($file->name, $file->data);
+        }
+        
+        // Load view 
+        $this->load->template('export_csv/generar', $data);
+    }
 }

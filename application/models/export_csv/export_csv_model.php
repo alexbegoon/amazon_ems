@@ -73,6 +73,15 @@ class Export_csv_model extends CI_Model
             return $name . '.txt';
         }
         
+        if($service == 'generar_new_products_coqueteo')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'Coqueteo_new_products_'.$date;
+
+            return $name . '.xls';
+        }
+        
         $date = date('j-n-Y', time());
         
         $name = str_replace('?', $date, $this->_filename_template);
@@ -793,5 +802,94 @@ class Export_csv_model extends CI_Model
     private static function cmp($a, $b) 
     {
         return $b[2] - $a[2];
+    }
+    
+    private function get_file_data_generar_new_products_coqueteo()
+    {
+        $this->load->library('excel');
+        
+        $file = null;
+        
+        $objPHPExcel = new PHPExcel();
+        
+        $objPHPExcel->getProperties()->setCreator("Amazoni4");
+        $objPHPExcel->getProperties()->setLastModifiedBy("Amazoni4");
+        $objPHPExcel->getProperties()->setTitle("Coqueteo new products report. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setSubject("Coqueteo new products report. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setDescription("Coqueteo new products report. Date: ".date('r', time()));
+        
+        $objPHPExcel->setActiveSheetIndex(0);
+        
+        $objPHPExcel->getActiveSheet()->setTitle("Coqueteo new products report");
+        
+        // Get new products from DB
+        $products = array();
+        
+        $this->db->select('p.id');
+        $this->db->from('providers_products as p');
+        $this->db->group_by('p.sku');
+        $this->db->having('COUNT(p.sku) = 1');
+        
+        $query = $this->db->get();
+        
+        $unique_id = array();
+        foreach ( $query->result('array') as $row)
+        {
+            $unique_id[] = $row['id'];
+        }
+        
+        $this->db->select('p.sku, p.product_name, p.price, p.stock, p.provider_name, p.brand, p.created_on, p.updated_on');
+        $this->db->from('providers_products as p');
+        $this->db->where_in('p.id', $unique_id);
+        $this->db->where('p.provider_name =', 'COQUETEO');
+        $this->db->order_by('p.stock', 'DESC');
+        
+        $query = $this->db->get();
+        
+        $products = $query->result('array');
+        
+        // Prepare data
+                
+        $header = array(
+            'EAN',
+            'Product Name',
+            'Brand Name',
+            'Stock',
+            'Price',
+            'Provider Name',
+            'Creation Date',
+            'Update Date'
+        );
+        
+        $i = 0;
+        foreach ($header as $cell)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
+            $i++;
+        }
+        
+        $i = 2;
+        
+        foreach ($products as $product)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $product['sku'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $product['product_name'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $product['brand'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $product['stock'], PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(4, $i, $product['price'], PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(5, $i, $product['provider_name'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(6, $i, $product['created_on'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(7, $i, $product['updated_on'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $i++;
+        }
+        
+        // Write a file
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        
+        $filename = FCPATH .'upload/'.$this->construct_file_name('generar_new_products_coqueteo');
+        
+        $file = $objWriter->save($filename);
+                
+        return read_file($filename);
     }
 }
