@@ -865,6 +865,10 @@ class Export_csv_model extends CI_Model
         foreach ($header as $cell)
         {
             $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 1)->getFill()
+            ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'startcolor' => array('rgb' => 'c3c3c3')
+            ));
             $i++;
         }
         
