@@ -877,6 +877,7 @@ class Export_csv_model extends CI_Model
         foreach ($products as $product)
         {
             $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $product['sku'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFont()->setBold(true);
             $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $product['product_name'], PHPExcel_Cell_DataType::TYPE_STRING);
             $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $product['brand'], PHPExcel_Cell_DataType::TYPE_STRING);
             $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $product['stock'], PHPExcel_Cell_DataType::TYPE_NUMERIC);
