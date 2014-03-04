@@ -119,7 +119,7 @@ if($provider_statistic_history)
                 pointDot : true,
 
                 //Number - Radius of each point dot in pixels
-                pointDotRadius : 2,
+                pointDotRadius : 3,
 
                 //Number - Pixel width of point dot stroke
                 pointDotStrokeWidth : 1,
