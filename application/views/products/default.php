@@ -1,6 +1,6 @@
 <article>
     <h1><?php echo $title;?></h1>
-    <?php echo form_open(base_url().'index.php/products/page/', 'id="products-form"');?>
+    <?php echo form_open(current_url(), 'id="products-form"');?>
     <?php $post_data = $this->input->post();?>
     <div class="filters">
         <div class="ui-widget">
@@ -22,8 +22,8 @@
             <tr>
                 <th>SKU</th>
                 <th>Product name</th>
-                <th>Price</th>
-                <th>Stock</th>
+                <th><a href="javascript:void(0);" id="order_by_price" onclick="Amazoni.order_link(this);">Price</a></th>
+                <th><a href="javascript:void(0);" id="order_by_stock" onclick="Amazoni.order_link(this);">Stock</a></th>
                 <th>Provider</th>
             </tr>
             <?php foreach ($products as $product) { ?>

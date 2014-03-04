@@ -57,8 +57,13 @@ class Products_model extends CI_Model
         {
             $limit      = ' LIMIT 0, 50';
         }
-        
+       
         $order_by = ' ORDER BY `product_name` ';
+        
+        if(isset($post_data['order_by']))
+        {
+            $order_by = ' ORDER BY `'.$post_data['order_by'].'` '.$post_data['order_option'].' ';
+        }
         
         $query = ' SELECT `sku`, `product_name`, `provider_name`, `price`, `stock` 
                    FROM `'.$this->db->dbprefix('providers_products').'` 
