@@ -123,12 +123,15 @@ class Export_csv_model extends CI_Model
             
             $data['ENGELSA']            = array();
             $data['PINTERNACIONAL']     = array();
+            $data['COQUETEO']           = array();
             $data['WAREHOUSE']          = array();
             
             $data['ENGELSA']['products']        = array();
             $data['PINTERNACIONAL']['products'] = array();
             $data['WAREHOUSE']['products']      = array();
+            $data['COQUETEO']['products']       = array();
             $engelsa_products                   = null;
+            $coqueteo_products                  = null;
             $pinternacional_products            = null;
             $warehouse_products                 = null;
             
@@ -136,6 +139,17 @@ class Export_csv_model extends CI_Model
             $data['ENGELSA']['meta'] = array(
                 
                 'pos_1' => 'ENGELSA PROVIDER',
+                'pos_2' => 'NOMBRE',
+                'pos_3' => 'EAN DEL PRODUCTO',
+                'pos_4' => 'CANTIDAD',
+                'pos_5' => 'PRECIO',
+                'pos_6' => 'TOTAL COST'               
+                
+            );
+            
+            $data['COQUETEO']['meta'] = array(
+                
+                'pos_1' => 'COQUETEO PROVIDER',
                 'pos_2' => 'NOMBRE',
                 'pos_3' => 'EAN DEL PRODUCTO',
                 'pos_4' => 'CANTIDAD',
@@ -372,6 +386,83 @@ class Export_csv_model extends CI_Model
                 '',
                 $data['PINTERNACIONAL']['meta']['pos_6'],
                 number_format($total_pinternacional, 2). " ".chr(128),
+                '',
+                '',
+                '',    
+                ''                
+            );
+            $data_rows[] = array('','','','','','','','');
+            $data_rows[] = array('','','','','','','','');
+            $data_rows[] = array('','','','','','','','');
+            
+            // COQUETEO header
+            $data_rows[] = array(
+                $data['COQUETEO']['meta']['pos_1'],
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                ''                
+            );
+            $data_rows[] = array(
+                $data['COQUETEO']['meta']['pos_2'],
+                $data['COQUETEO']['meta']['pos_3'],
+                $data['COQUETEO']['meta']['pos_4'],
+                $data['COQUETEO']['meta']['pos_5'],
+                '',
+                '',
+                '',
+                ''                
+            );
+            $total_coqueteo = 0;
+            if(isset($data['COQUETEO']['products']))
+            {
+                foreach ($data['COQUETEO']['products'] as $product)
+                {
+                    $total_count = 0;
+                    $subtotal_price = 0;
+                    foreach ($product as $v)
+                    {
+                        $total_count += $v->quantity;
+                            
+                        $current_provider_price = $this->products_model->get_product_by_id((int)$v->provider_product_id)->price;
+                        
+                        $subtotal_price += $current_provider_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
+                    }
+                    $coqueteo_products[] = array(
+                            preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
+                            '"'.$product[0]->sku_in_order.'"',
+                            $total_count,
+                            number_format($subtotal_price, 2). " ".chr(128),
+                            '',
+                            '',
+                            '',
+                            ''                
+                                    );
+                    $total_coqueteo += $subtotal_price; 
+                }
+                
+                // Sort products
+                if(is_array($coqueteo_products))
+                {
+                    usort($coqueteo_products, array("Export_csv_model", "cmp"));
+                
+                    foreach($coqueteo_products as $row)
+                    {
+                        $data_rows[] = $row;
+                    }
+                }
+            }
+            
+            
+            // COQUETEO footer
+            $data_rows[] = array(
+                '',
+                '',
+                $data['COQUETEO']['meta']['pos_6'],
+                number_format($total_coqueteo, 2). " ".chr(128),
                 '',
                 '',
                 '',    
