@@ -33,6 +33,14 @@ class Sync_products_pinternacional extends Sync_products
         
         $data_file = file_get_contents($this->_url_service);
         
+        if(!$data_file)
+        {
+            echo "Can't open a file";
+            log_message('ERROR', "Can't open a file");
+            
+            return FALSE;
+        }
+        
         $data_array = explode("\n",$data_file);
         
         $this->_products = array();

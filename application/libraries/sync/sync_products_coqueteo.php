@@ -13,8 +13,8 @@ class Sync_products_coqueteo extends Sync_products
     {
         parent::__construct();
         
-        $this->_url_service = 'http://www.buyin.es/ficherocoqueteo/fichero.csv';
-//        $this->_url_service = '/var/www/vhosts/buyin.es/httpdocs/ficherocoqueteo/fichero.csv';
+        $this->_url_service = FCPATH .'upload/fichero.csv';
+        
         $this->_provider_name = 'COQUETEO';
         
         // Test mode toggle
@@ -30,13 +30,15 @@ class Sync_products_coqueteo extends Sync_products
     
     protected function extract_products() 
     {
-        $headers = get_headers($this->_url_service);
-        var_dump($headers);
-        $data_file = file_get_contents($this->_url_service);
+        $data_file = read_file($this->_url_service);
         
-//        $data_file = read_file($this->_url_service);
-        
-//        $data_file = read_file($this->_url_service);
+        if(!$data_file)
+        {
+            echo "Can't open a file";
+            log_message('ERROR', "Can't open a file");
+            
+            return FALSE;
+        }
         
         $data_array = explode("\n",$data_file);
         
