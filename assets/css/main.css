@@ -52,7 +52,11 @@ body {
   background: #0ca3d2;
   min-width: 1200px;
 }
-
+h2 {
+    font-size: 12pt;
+    font-weight: bold;
+    margin: 5px;
+}
 .login {
   position: relative;
   margin: 50px auto;

@@ -93,6 +93,45 @@ class Products_model extends CI_Model
         return false;        
     }
     
+    public function get_providers_statistic()
+    {
+        $this->db->select('COUNT(*) as total_products, p.provider_name, p.provider_id, 
+        (SELECT COUNT(*) as total_with_stock FROM '.$this->db->dbprefix('providers_products').' 
+        WHERE stock>0 AND provider_name = p.provider_name) as total_products_with_stock');
+        $this->db->from('providers_products as p');
+        $this->db->group_by('provider_name');
+        
+        $query = $this->db->get();
+        
+        return $query->result();
+    }
+
+    public function update_providers_statistic()
+    {
+        $statistic = $this->get_providers_statistic();
+        
+        if(is_array($statistic) && count($statistic) > 0)
+        {
+            foreach ($statistic as $r)
+            {
+                $r->created_on = $r->updated_on = date('Y-m-d H:i:s',time());
+                $this->db->insert('providers_products_statistic_history',$r);
+            }
+            
+            return TRUE;
+        }
+        
+        return FALSE;
+    }
+    
+    public function get_provider_statistic_history($provider_name)
+    {
+        $this->db->where('provider_name',$provider_name);
+        $query = $this->db->get('providers_products_statistic_history');
+        
+        return $query->result();
+    }
+
     public function count_products()
     {
         return $this->_products_quantity;
@@ -223,6 +262,9 @@ class Products_model extends CI_Model
                 }
             }
             $this->db->trans_commit();
+            
+            // Fire statistic updater
+            $this->update_providers_statistic();
         }
         
         return $summary;

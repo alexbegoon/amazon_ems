@@ -13,6 +13,27 @@
             <input type="submit" value="Search" />
         </div>
     </div>
+    <div class="incomes_wrapper">
+        <div class="incomes_summary">
+            <?php if($providers_statistic):?>
+            <h2>Provider Stats</h2>
+            <table class="thin_table">
+                <tr>
+                    <th>Provider</th>
+                    <th>Total Products</th>
+                    <th>Products with Stock</th>
+                </tr>
+                <?php foreach($providers_statistic as $r):?>
+                <tr onclick="Amazoni.show_provider_statistic('<?php echo $r->provider_name;?>');">
+                    <td><?php echo $r->provider_name;?></td>
+                    <td><?php echo $r->total_products;?></td>
+                    <td><?php echo $r->total_products_with_stock;?></td>
+                </tr>
+                <?php endforeach;?>
+            </table>
+            <?php endif;?>
+        </div>
+        <div class="incomes_orders">
         <?php if(count($products) > 0 && !empty($products)) { ?>
         <p><?php echo $total_products;?> products found</p>
         <div class="pagination">
@@ -43,6 +64,8 @@
         <?php } else { ?>
         <p>Products not found</p>
         <?php } ?>
+    </div>
+    </div>
     
     </form>
     <script>

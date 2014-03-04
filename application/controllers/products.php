@@ -43,8 +43,9 @@ class Products extends CI_Controller
             $data['providers_list'] = $this->providers_model->get_providers_list(null,true,true);
         }
         
-        $data['products']       = $this->products_model->get_products($page);
-        $data['total_products'] = $this->products_model->count_products();
+        $data['products']              = $this->products_model->get_products($page);
+        $data['providers_statistic']   = $this->products_model->get_providers_statistic();
+        $data['total_products']        = $this->products_model->count_products();
         
         // Pagination
         
@@ -58,5 +59,15 @@ class Products extends CI_Controller
         
         // Load view  
         $this->load->template('products/default', $data);
+    }
+    
+    function show_provider_statistic($provider_name)
+    {
+        // Load view  
+        $data = array();
+        
+        $data['provider_statistic_history']   = $this->products_model->get_provider_statistic_history($provider_name);
+        
+        $this->load->view('products/statistic', $data);
     }
 }

@@ -23,6 +23,40 @@ Amazoni.new_message_notification = function(){
     
 };
 
+Amazoni.show_provider_statistic = function(provider)
+{
+    if ($( "#modal_window" ).length === 0)
+    {
+        $('body').append('<div id="modal_window"></div>');
+    }
+    
+    $( "#modal_window" ).empty();
+    $( "#modal_window" ).dialog({
+    minHeight: 600,    
+    minWidth: 1000,
+    width: 1000,
+    modal: true,
+    title: 'Provider statistic history',
+    resizable: true,
+    buttons: null,
+    close: function( event, ui ) {
+        $( "#modal_window" ).empty();
+    },
+    open: function(event, ui) { 
+        
+        $( "#modal_window" ).append('<div id="ajax-loader" style="display: block;"></div>');
+        $("#ajax-loader").css('display', 'block');
+        $.ajax({
+                type: "POST",
+                url: url_before_index + "index.php/products/show_provider_statistic/" + provider
+              }).success(function( response ) {
+                $("#ajax-loader").css('display', 'none');  
+                $( "#modal_window" ).append(response);
+              });
+        }
+    });
+}
+
 Amazoni.clear_product_in_order = function(n){
     
     var n = parseInt(n);
