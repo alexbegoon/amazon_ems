@@ -1,5 +1,19 @@
 <div>
-    <canvas id="myChart" width="900" height="600"></canvas>
+    <div>
+        <span style="background-color: rgba(220,220,220,0.5);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span> - Total products</span>
+        <br>
+        <span style="background-color: rgba(103,197,207,0.5);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span> - Total products with stock</span>
+    </div>
+    <br>
+    <div>
+        <span>Products count</span>
+    </div>
+    <div>
+        <canvas id="myChart" width="900" height="600"></canvas>
+    </div>
+    <div style="text-align: center;">
+        <span>Date range</span>
+    </div>
 </div>
 <?php
 
@@ -29,7 +43,7 @@ if($provider_statistic_history)
         }
         else
         {
-            $labels_clean[] = "\"\"";
+            $labels_clean[] = "\"--\"";
         }
         
         $i++;
@@ -44,7 +58,7 @@ if($provider_statistic_history)
         //This will get the first returned node in the jQuery collection.
         
         var data = {
-                labels : [<?php echo implode(',', $labels_clean);?>],
+                labels : [<?php echo implode(',', $labels);?>],
                 datasets : [
                         {
                                 fillColor : "rgba(220,220,220,0.5)",

@@ -174,6 +174,9 @@ if (defined('ENVIRONMENT'))
 
 	// Name of the "system folder"
 	define('SYSDIR', trim(strrchr(trim(BASEPATH, '/'), '/'), '/'));
+        
+        // Seconds per day
+        define('SECONDS_PER_DAY', 86400);
 
 
 	// The path to the "application" folder

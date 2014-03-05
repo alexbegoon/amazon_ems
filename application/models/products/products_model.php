@@ -127,6 +127,8 @@ class Products_model extends CI_Model
     public function get_provider_statistic_history($provider_name)
     {
         $this->db->where('provider_name',$provider_name);
+        $this->db->where('created_on >=',date('Y-m-d H:i:s',time() - 2 * SECONDS_PER_DAY));
+        $this->db->where('created_on <=',date('Y-m-d H:i:s',time()));
         $query = $this->db->get('providers_products_statistic_history');
         
         return $query->result();
