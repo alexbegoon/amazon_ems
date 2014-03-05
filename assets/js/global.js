@@ -14,6 +14,11 @@ var notification_sound = url_before_index + 'assets/sounds/notify'
 // Namespace 
 window.Amazoni = {};
 
+function capitaliseFirstLetter(string)
+{
+    string = string.toLowerCase();
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 Amazoni.new_message_notification = function(){
     
@@ -36,7 +41,7 @@ Amazoni.show_provider_statistic = function(provider)
     minWidth: 1000,
     width: 1000,
     modal: true,
-    title: 'Provider statistic history',
+    title: capitaliseFirstLetter(provider) + ' products statistic history',
     resizable: true,
     buttons: null,
     close: function( event, ui ) {

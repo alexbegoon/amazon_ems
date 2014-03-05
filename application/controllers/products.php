@@ -66,6 +66,7 @@ class Products extends CI_Controller
         // Load view  
         $data = array();
         
+        $data['provider_name']   = $provider_name;
         $data['provider_statistic_history']   = $this->products_model->get_provider_statistic_history($provider_name);
         
         $this->load->view('products/statistic', $data);
