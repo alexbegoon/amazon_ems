@@ -126,10 +126,20 @@ class Products_model extends CI_Model
     
     public function get_provider_statistic_history($provider_name)
     {
+        // Number of days
+        $days = 31;
+
+        $this->db->select('*, DAYOFYEAR(created_on) as day_of_year, YEAR(created_on) as year, 
+            DATE_FORMAT(created_on, \'%M, %a %e\') as date_name, 
+            AVG(total_products) as total_products, 
+            AVG(total_products_with_stock) as total_products_with_stock');
+        $this->db->from('providers_products_statistic_history');
         $this->db->where('provider_name',$provider_name);
-        $this->db->where('created_on >=',date('Y-m-d H:i:s',time() - 2 * SECONDS_PER_DAY));
+        $this->db->where('created_on >=',date('Y-m-d H:i:s',time() - $days * SECONDS_PER_DAY));
         $this->db->where('created_on <=',date('Y-m-d H:i:s',time()));
-        $query = $this->db->get('providers_products_statistic_history');
+        $this->db->group_by('DAYOFYEAR(created_on)');
+        
+        $query = $this->db->get();
         
         return $query->result();
     }

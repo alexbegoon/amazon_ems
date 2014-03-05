@@ -27,7 +27,7 @@ if($provider_statistic_history)
     
     foreach ($provider_statistic_history as $r)
     {
-        $labels[] = '"'.$r->created_on.'"';
+        $labels[] = '"'.$r->date_name.'"';
         $total_products[] = $r->total_products;
         $total_products_with_stock[] = $r->total_products_with_stock;
     }
