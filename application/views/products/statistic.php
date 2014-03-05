@@ -9,7 +9,33 @@
         <span>Products count</span>
     </div>
     <div>
-        <canvas id="myChart" width="900" height="600"></canvas>
+        <canvas id="Chart_both" width="900" height="600"></canvas>
+    </div>
+    <div style="text-align: center;">
+        <span>Date range</span>
+    </div>
+    <br>
+    <div>
+        <span style="background-color: rgba(220,220,220,0.5);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span> - Total products</span>
+    </div>
+    <div>
+        <span>Products count</span>
+    </div>
+    <div>
+        <canvas id="Chart_total" width="900" height="600"></canvas>
+    </div>
+    <div style="text-align: center;">
+        <span>Date range</span>
+    </div>
+    <br>
+    <div>
+        <span style="background-color: rgba(103,197,207,0.5);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span> - Total products with stock</span>
+    </div>
+    <div>
+        <span>Products count</span>
+    </div>
+    <div>
+        <canvas id="Chart_total_with_stock" width="900" height="600"></canvas>
     </div>
     <div style="text-align: center;">
         <span>Date range</span>
@@ -53,29 +79,6 @@ if($provider_statistic_history)
 ?>
 <script>
     $(function(){
-        //Get context with jQuery - using jQuery's .get() method.
-        var ctx = $("#myChart").get(0).getContext("2d");
-        //This will get the first returned node in the jQuery collection.
-        
-        var data = {
-                labels : [<?php echo implode(',', $labels);?>],
-                datasets : [
-                        {
-                                fillColor : "rgba(220,220,220,0.5)",
-                                strokeColor : "rgba(220,220,220,1)",
-                                pointColor : "rgba(220,220,220,1)",
-                                pointStrokeColor : "#fff",
-                                data : [<?php echo implode(',', $total_products);?>]
-                        },
-                        {
-                                fillColor : "rgba(103,197,207,0.5)",
-                                strokeColor : "rgba(103,197,207,1)",
-                                pointColor : "rgba(103,197,207,1)",
-                                pointStrokeColor : "#fff",
-                                data : [<?php echo implode(',', $total_products_with_stock);?>]
-                        }
-                ]
-        }
         
         var options = {
 				
@@ -115,7 +118,7 @@ if($provider_statistic_history)
                 scaleFontStyle : "normal",
 
                 //String - Scale label font colour	
-                scaleFontColor : "#666",	
+                scaleFontColor : "#111",	
 
                 ///Boolean - Whether grid lines are shown across the chart
                 scaleShowGridLines : true,
@@ -161,7 +164,63 @@ if($provider_statistic_history)
 
         }
         
-        var myNewChart = new Chart(ctx).Line(data, options);
+        //Get context with jQuery - using jQuery's .get() method.
+        var ctx_both = $("#Chart_both").get(0).getContext("2d");
+        var ctx_total = $("#Chart_total").get(0).getContext("2d");
+        var ctx_total_with_stock = $("#Chart_total_with_stock").get(0).getContext("2d");
+        //This will get the first returned node in the jQuery collection.
+        
+        var data_both = {
+                labels : [<?php echo implode(',', $labels);?>],
+                datasets : [
+                        {
+                                fillColor : "rgba(220,220,220,0.5)",
+                                strokeColor : "rgba(220,220,220,1)",
+                                pointColor : "rgba(220,220,220,1)",
+                                pointStrokeColor : "#fff",
+                                data : [<?php echo implode(',', $total_products);?>]
+                        },
+                        {
+                                fillColor : "rgba(103,197,207,0.5)",
+                                strokeColor : "rgba(103,197,207,1)",
+                                pointColor : "rgba(103,197,207,1)",
+                                pointStrokeColor : "#fff",
+                                data : [<?php echo implode(',', $total_products_with_stock);?>]
+                        }
+                ]
+        }
+        
+        var data_total = {
+                labels : [<?php echo implode(',', $labels);?>],
+                datasets : [
+                        {
+                                fillColor : "rgba(220,220,220,0.5)",
+                                strokeColor : "rgba(220,220,220,1)",
+                                pointColor : "rgba(220,220,220,1)",
+                                pointStrokeColor : "#fff",
+                                data : [<?php echo implode(',', $total_products);?>]
+                        }
+                ]
+        }
+        
+        var data_total_with_stock = {
+                labels : [<?php echo implode(',', $labels);?>],
+                datasets : [
+                        {
+                                fillColor : "rgba(103,197,207,0.5)",
+                                strokeColor : "rgba(103,197,207,1)",
+                                pointColor : "rgba(103,197,207,1)",
+                                pointStrokeColor : "#fff",
+                                data : [<?php echo implode(',', $total_products_with_stock);?>]
+                        }
+                ]
+        }
+        
+        
+        
+        var Chart_both              = new Chart(ctx_both).Line(data_both, options);
+        var Chart_total             = new Chart(ctx_total).Line(data_total, options);
+        var Chart_total_with_stock  = new Chart(ctx_total_with_stock).Line(data_total_with_stock, options);
         
         
         
