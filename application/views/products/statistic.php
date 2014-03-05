@@ -14,6 +14,7 @@
     <div style="text-align: center;">
         <span>Date range</span>
     </div>
+    <hr>
     <br>
     <div>
         <span style="background-color: rgba(220,220,220,0.5);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span> - Total products</span>
@@ -27,6 +28,7 @@
     <div style="text-align: center;">
         <span>Date range</span>
     </div>
+    <hr>
     <br>
     <div>
         <span style="background-color: rgba(103,197,207,0.5);">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span> - Total products with stock</span>
