@@ -182,5 +182,22 @@ class Amazon_model extends CI_Model
         return '1';
     }
     
+    public function get_sales_rank($page)
+    {
+        $this->load->library('amazon_mws');
+        $this->output->enable_profiler(TRUE);
+        
+//        $this->amazon_mws->request_report(MERCHANT_ID,'gb', '_GET_NEMO_MERCHANT_LISTINGS_DATA_');
+        
+//        $this->amazon_mws->check_status_of_reports(MERCHANT_ID,'gb');
+          $this->amazon_mws->get_report_ids(MERCHANT_ID,'gb', array('7950418516'));
+//        $this->amazon_mws->get_report(MERCHANT_ID,'gb','32079204044');
+//        $this->amazon_mws->get_report(MERCHANT_ID,'gb','7948303260');
+    }
     
+    public function sync_reports_with_amazon()
+    {
+        
+        
+    }
 }

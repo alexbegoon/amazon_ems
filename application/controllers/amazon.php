@@ -193,6 +193,8 @@ class Amazon extends CI_Controller {
         // Prepare data
         $data['title'] = humanize($this->router->method);
         
+        $data['sales_rank'] = $this->amazon_model->get_sales_rank($page);
+        
         // Load view  
         $this->load->template('amazon/'.$this->router->method, $data);
     }
