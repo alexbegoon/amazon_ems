@@ -217,7 +217,7 @@ class Amazon_model extends CI_Model
             $this->unzip->allow(array('htm', 'html', 'txt', 'chm', 'HTM', 'HTML'));
 
             $extract_path = FCPATH.'upload/'.md5(time()).'/';
-
+            var_dump($extract_path);die;
             // Extract files
             $this->unzip->extract($upload_data['full_path'], $extract_path);
 
