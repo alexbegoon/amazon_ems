@@ -275,6 +275,8 @@ class Amazon_model extends CI_Model
         {
             $data = array();
             
+            $this->db->trans_begin();
+            
             foreach($temp_data as $row)
             {
                 // Unset IDs of temp table
@@ -303,7 +305,11 @@ class Amazon_model extends CI_Model
                 }
             }
             
+            $this->db->trans_commit();
+            
+            $this->db->trans_begin();
             $this->db->insert_batch('amazon_sales_rank', $data);
+            $this->db->trans_commit();
             
             $response['affected_rows'] = $this->db->affected_rows();
             
