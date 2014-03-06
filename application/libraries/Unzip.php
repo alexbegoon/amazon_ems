@@ -131,7 +131,7 @@ class Unzip {
 					{
 						$this->set_debug('Creating folder: ' . $this->_target_dir . '/' . $str);
 
-						if ( ! mkdir($this->_target_dir . '/' . $str))
+						if ( ! @mkdir($this->_target_dir . '/' . $str))
 						{
 							$this->set_error('Desitnation path is not writable.');
 							return FALSE;
