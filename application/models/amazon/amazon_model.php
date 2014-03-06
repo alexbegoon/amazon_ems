@@ -209,6 +209,8 @@ class Amazon_model extends CI_Model
         
         error_reporting(E_ALL ^ E_NOTICE);
         
+        $this->db->trans_begin();
+        
         $data = array();
         
         if($upload_data['file_ext'] == '.zip')
@@ -252,6 +254,8 @@ class Amazon_model extends CI_Model
             }
         }
         
+        $this->db->trans_commit();
+        
         $this->db->order_by('sales_rank', 'DESC');
         return $this->db->get('amazon_sales_rank_temp')->result();
         
@@ -261,10 +265,7 @@ class Amazon_model extends CI_Model
     {
         if($d)
         {
-             $this->db->trans_begin();
-             $result = $this->db->insert_batch('amazon_sales_rank_temp', $d);
-             $this->db->trans_commit();
-             return $result;
+             return $this->db->insert_batch('amazon_sales_rank_temp', $d);
         }
     }
     
