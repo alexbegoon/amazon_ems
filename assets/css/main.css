@@ -57,6 +57,9 @@ h2 {
     font-weight: bold;
     margin: 5px;
 }
+th a {
+    white-space: nowrap!important;
+}
 .login {
   position: relative;
   margin: 50px auto;
