@@ -261,7 +261,10 @@ class Amazon_model extends CI_Model
     {
         if($d)
         {
-             return $this->db->insert_batch('amazon_sales_rank_temp', $d);
+             $this->db->trans_begin();
+             $result = $this->db->insert_batch('amazon_sales_rank_temp', $d);
+             $this->db->trans_commit();
+             return $result;
         }
     }
     
