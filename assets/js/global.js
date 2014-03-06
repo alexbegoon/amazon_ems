@@ -132,11 +132,11 @@ $(function() {
     {
         if(Amazoni.order_option == "DESC")
         {
-            $('#order_by_'+Amazoni.order_by).append(' &#8679;');
+            $('#order_by_'+Amazoni.order_by).append('<span style="font-size:13pt">&#8679;</span>');
         }
         else
         {
-            $('#order_by_'+Amazoni.order_by).append(' &#8681;');
+            $('#order_by_'+Amazoni.order_by).append('<span style="font-size:13pt">&#8681;</span>');
         }
     }
 });
