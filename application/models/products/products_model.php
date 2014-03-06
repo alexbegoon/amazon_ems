@@ -65,7 +65,8 @@ class Products_model extends CI_Model
             $order_by = ' ORDER BY `'.$post_data['order_by'].'` '.$post_data['order_option'].' ';
         }
         
-        $query = ' SELECT `sku`, `product_name`, `provider_name`, `price`, `stock` 
+        $query = ' SELECT `sku`, `product_name`, `provider_name`, `price`, 
+                                `stock`, `sales_rank_de`, `sales_rank_uk` 
                    FROM `'.$this->db->dbprefix('providers_products').'` 
                    '.$where.' 
                    '.$order_by.' 

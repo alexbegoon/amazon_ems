@@ -45,14 +45,18 @@
                 <th>Product name</th>
                 <th><a href="javascript:void(0);" id="order_by_price" onclick="Amazoni.order_link(this);">Price</a></th>
                 <th><a href="javascript:void(0);" id="order_by_stock" onclick="Amazoni.order_link(this);">Stock</a></th>
+                <th><a href="javascript:void(0);" id="order_by_sales_rank_uk" onclick="Amazoni.order_link(this);">Sales Rank UK</a></th>
+                <th><a href="javascript:void(0);" id="order_by_sales_rank_de" onclick="Amazoni.order_link(this);">Sales Rank DE</a></th>
                 <th>Provider</th>
             </tr>
             <?php foreach ($products as $product) { ?>
             <tr>
-                <td><?php echo $product->sku;?></td>
+                <td class="bold"><?php echo $product->sku;?></td>
                 <td><?php echo htmlentities($product->product_name);?></td>
                 <td><?php echo number_format($product->price,2);?>&euro;</td>
                 <td><?php echo $product->stock;?></td>
+                <td><?php echo $product->sales_rank_uk;?></td>
+                <td><?php echo $product->sales_rank_de;?></td>
                 <td><?php echo $product->provider_name;?></td>
             </tr>    
             <?php } ?>
