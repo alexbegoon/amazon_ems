@@ -4,7 +4,7 @@
 <h3>Your file was successfully uploaded!</h3>
 <?php if(!empty($data)):?>
 <br>
-<p><?php echo count($data);?> products was parsed. First 100 products at the bottom table.</p>
+<p><?php echo $data['total_rows'];?> products was parsed. First 100 products at the bottom table.</p>
 <br>
 <input type="submit" value="Store data" />
 <br>
@@ -23,7 +23,7 @@
             <th>Web</th>
         </tr>
         <?php $i = 1;?>
-        <?php foreach($data as $row):?>
+        <?php foreach($data['first_rows'] as $row):?>
         <?php if($i >= 100){break;}?>
         <?php
         $td_attr = '';

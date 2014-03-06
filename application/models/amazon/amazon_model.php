@@ -256,8 +256,14 @@ class Amazon_model extends CI_Model
         
         $this->db->trans_commit();
         
+        $return = array();
+        
+        $return['total_rows'] = $this->db->count_all('amazon_sales_rank_temp');
+        
         $this->db->order_by('sales_rank', 'DESC');
-        return $this->db->get('amazon_sales_rank_temp')->result();
+        $return['first_rows'] = $this->db->get('amazon_sales_rank_temp', 100, 0)->result();
+        
+        return $return;
         
     }
     
