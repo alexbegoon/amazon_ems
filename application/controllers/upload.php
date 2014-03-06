@@ -10,7 +10,7 @@
 class Upload extends CI_Controller {
 
         private $_upload_path           = './upload/';
-        private $_allowed_types         = 'txt|zip|htm|html';
+        private $_allowed_types         = 'txt|zip|htm|html|HTM|HTML';
         private $_max_size              = '10000';
         private $_max_width             = '1024';
         private $_max_height            = '768';
