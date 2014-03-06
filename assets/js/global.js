@@ -484,39 +484,43 @@ function IsEmail(email) {
   });
   
   $(function() {
-    var search = $('#search').val();
+      if($('#search').length)
+          {
+              var search = $('#search').val();
     
-    if (search !== '') {
-        var table = $('table');
+                if (search !== '') {
+                    var table = $('table');
 
-        table.find('tr').each(function(index, row) {
+                    table.find('tr').each(function(index, row) {
 
-            var allCells = $(row).find('td');
+                        var allCells = $(row).find('td');
 
-            if(allCells.length > 0) {
-                var found = false;
+                        if(allCells.length > 0) {
+                            var found = false;
 
-                allCells.each(function(index, td) {
+                            allCells.each(function(index, td) {
 
-                    var regExp = new RegExp(search,'i');
-                        
-                    if (regExp.test($(td).text())) {
-//                        console.log($(td).text());
-                        $(td).html(function(index, oldHTML) {
-                            return oldHTML.replace(new RegExp(search,'i'), '<b class="pulsar" style="background-color:#ffff00;">$&</b>');
-                        });
-                    }
-                });
-            }
-        });    
-    }
-    var selectedEffect = 'pulsate';
+                                var regExp = new RegExp(search,'i');
+
+                                if (regExp.test($(td).text())) {
+            //                        console.log($(td).text());
+                                    $(td).html(function(index, oldHTML) {
+                                        return oldHTML.replace(new RegExp(search,'i'), '<b class="pulsar" style="background-color:#ffff00;">$&</b>');
+                                    });
+                                }
+                            });
+                        }
+                    });    
+                }
+                var selectedEffect = 'pulsate';
+
+                setTimeout(function() {
+                    $('b.pulsar').hide();
+                    $('b.pulsar').show( selectedEffect, 1000);
+                  }, 100 );
+
     
-    setTimeout(function() {
-        $('b.pulsar').hide();
-        $('b.pulsar').show( selectedEffect, 1000);
-      }, 100 );
-    
+          }
     
   });
   

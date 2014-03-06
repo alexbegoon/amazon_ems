@@ -336,7 +336,8 @@ class Products_model extends CI_Model
                         $sku = preg_replace($regexps->sku_regexp_2, '', $sku);
                     }
                     
-                    $query = ' SELECT `product_name`, `sku`, `provider_name`, `id`, `price`, `provider_id`, `stock` 
+                    $query = ' SELECT `product_name`, `sku`, `provider_name`, `id`, 
+                                        `price`, `provider_id`, `stock`, `brand` 
                                FROM `'.$this->db->dbprefix('providers_products').'` 
                                WHERE `sku` = \''.$sku.'\' 
                                ORDER BY `price` 

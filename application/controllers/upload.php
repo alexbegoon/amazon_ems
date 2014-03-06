@@ -10,8 +10,8 @@
 class Upload extends CI_Controller {
 
         private $_upload_path           = './upload/';
-        private $_allowed_types         = 'txt';
-        private $_max_size              = '1000';
+        private $_allowed_types         = 'txt|zip|htm|html';
+        private $_max_size              = '10000';
         private $_max_width             = '1024';
         private $_max_height            = '768';
     
@@ -25,10 +25,13 @@ class Upload extends CI_Controller {
                    redirect('auth/login');
                 }
                 
+                ini_set('upload_max_filesize', '10M');
+                
 		$this->load->helper(array('form', 'url'));
                 
                 // Load model
                 $this->load->model('upload/upload_model');
+                $this->load->model('amazon/amazon_model');
 	}
 
 	function index()
@@ -97,8 +100,6 @@ class Upload extends CI_Controller {
                 $config['upload_path']      = $this->_upload_path;
 		$config['allowed_types']    = $this->_allowed_types;
 		$config['max_size']         = $this->_max_size;
-//		$config['max_width']        = $this->_max_width;
-//		$config['max_height']       = $this->_max_height;
 
 		$this->load->library('upload', $config);
 
@@ -123,13 +124,118 @@ class Upload extends CI_Controller {
 		}
         }
         
+        function upload_amazon_usa_sellercentral_data()
+        {
+                $config['upload_path']      = $this->_upload_path;
+                $config['allowed_types']    = $this->_allowed_types;
+                $config['max_size']         = $this->_max_size;
+
+                $this->load->library('upload', $config);
+
+                if ( ! $this->upload->do_upload())
+                {
+                        $error = array('error' => $this->upload->display_errors());
+                        $error['title'] = humanize($this->router->method);
+                        $error['url'] = 'upload/'.$this->router->method;
+                        $error['help_info'] = '';
+
+                        $this->load->template('upload/upload_form', $error);
+                }
+                else
+                {
+                        $data = array('upload_data' => $this->upload->data());
+                        $data['title']  = humanize($this->router->method);
+                        $data['url']    = 'upload/'.$this->router->method;
+                        $data['data']   = $this->amazon_model->parse_sellercentral_data($data['upload_data'], 'AMAZON-USA');
+
+
+                        $this->load->template('upload/upload_sellercentral_success', $data);
+                }
+        }
+        function upload_amazon_uk_sellercentral_data()
+        {
+            $config['upload_path']      = $this->_upload_path;
+            $config['allowed_types']    = $this->_allowed_types;
+            $config['max_size']         = $this->_max_size;
+
+            $this->load->library('upload', $config);
+
+            if ( ! $this->upload->do_upload())
+            {
+                    $error = array('error' => $this->upload->display_errors());
+                    $error['title'] = humanize($this->router->method);
+                    $error['url'] = 'upload/'.$this->router->method;
+                    $error['help_info'] = '';
+
+                    $this->load->template('upload/upload_form', $error);
+            }
+            else
+            {
+                    $data = array('upload_data' => $this->upload->data());
+                    $data['title']  = humanize($this->router->method);
+                    $data['url']    = 'upload/'.$this->router->method;
+                    $data['data']   = $this->amazon_model->parse_sellercentral_data($data['upload_data'], 'AMAZON-CO-UK');
+
+
+                    $this->load->template('upload/upload_sellercentral_success', $data);
+            }
+        }
+        function upload_amazon_de_sellercentral_data()
+        {
+            $config['upload_path']      = $this->_upload_path;
+            $config['allowed_types']    = $this->_allowed_types;
+            $config['max_size']         = $this->_max_size;            
+            
+            $this->load->library('upload', $config);
+
+            if ( ! $this->upload->do_upload())
+            {
+                    $error = array('error' => $this->upload->display_errors());
+                    $error['title'] = humanize($this->router->method);
+                    $error['url'] = 'upload/'.$this->router->method;
+                    $error['help_info'] = '';
+
+                    $this->load->template('upload/upload_form', $error);
+            }
+            else
+            {
+                    $data = array('upload_data' => $this->upload->data());
+                    $data['title']  = humanize($this->router->method);
+                    $data['url']    = 'upload/'.$this->router->method;
+                    $data['data']   = $this->amazon_model->parse_sellercentral_data($data['upload_data'], 'AMAZON-DE');
+
+
+                    $this->load->template('upload/upload_sellercentral_success', $data);
+            }
+        }
+        
+        function store_sellercentral_data()
+        {
+            $data['title']  = 'Store Sellercentral Data';
+            $post_data = $this->input->post();
+            
+            $store_response = $this->amazon_model->store_sellercentral_data();
+            if($store_response !== false)
+            {
+                $data['affected_rows'] = 'All';
+                $data['response']   = 'Data successfully stored';
+                $data['url']        = $post_data['url'];
+                $this->load->template('upload/upload_store', $data);
+            }
+            else
+            {
+                $data['affected_rows'] = 0;
+                $data['response'] = 'Error!!! Cant store sellercentral data';
+                $data['url']      = $post_data['url'];
+                $this->load->template('upload/upload_store', $data);
+            }
+        }
+                
         function upload_amazon_usa_orders()
         {
                 $config['upload_path']      = $this->_upload_path;
 		$config['allowed_types']    = $this->_allowed_types;
 		$config['max_size']         = $this->_max_size;
-//		$config['max_width']        = $this->_max_width;
-//		$config['max_height']       = $this->_max_height;
 
 		$this->load->library('upload', $config);
 

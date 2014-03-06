@@ -57,6 +57,30 @@
                 <span>Upload USA Orders</span>
             </a>
         </div>
+        <div class="menu-item">
+            <a class="menu-item-img" href="<?php echo base_url().'index.php/upload/upload_amazon_usa_sellercentral_data';?>">
+                <img src="<?php echo base_url().'assets/imgs/Actions-arrow-up-eject-icon.png';?>" alt="Upload USA Sellercentral Data" />
+            </a>
+            <a class="menu-item" href="<?php echo base_url().'index.php/upload/upload_amazon_usa_sellercentral_data';?>">
+                <span>Upload USA Sellercentral Data</span>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a class="menu-item-img" href="<?php echo base_url().'index.php/upload/upload_amazon_uk_sellercentral_data';?>">
+                <img src="<?php echo base_url().'assets/imgs/Actions-arrow-up-eject-icon.png';?>" alt="Upload UK Sellercentral Data" />
+            </a>
+            <a class="menu-item" href="<?php echo base_url().'index.php/upload/upload_amazon_uk_sellercentral_data';?>">
+                <span>Upload UK Sellercentral Data</span>
+            </a>
+        </div>
+        <div class="menu-item">
+            <a class="menu-item-img" href="<?php echo base_url().'index.php/upload/upload_amazon_de_sellercentral_data';?>">
+                <img src="<?php echo base_url().'assets/imgs/Actions-arrow-up-eject-icon.png';?>" alt="Upload DE Sellercentral Data" />
+            </a>
+            <a class="menu-item" href="<?php echo base_url().'index.php/upload/upload_amazon_de_sellercentral_data';?>">
+                <span>Upload DE Sellercentral Data</span>
+            </a>
+        </div>
         
     </div>
     <div id="modal_window" title=""></div>
