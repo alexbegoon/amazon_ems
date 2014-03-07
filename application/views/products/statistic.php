@@ -9,7 +9,7 @@
         <span>Products count</span>
     </div>
     <div>
-        <canvas id="Chart_both" width="900" height="600"></canvas>
+        <canvas id="Chart_both" width="1200" height="600"></canvas>
     </div>
     <div style="text-align: center;">
         <span>Date range</span>
@@ -23,7 +23,7 @@
         <span>Products count</span>
     </div>
     <div>
-        <canvas id="Chart_total" width="900" height="600"></canvas>
+        <canvas id="Chart_total" width="1200" height="600"></canvas>
     </div>
     <div style="text-align: center;">
         <span>Date range</span>
@@ -37,7 +37,7 @@
         <span>Products count</span>
     </div>
     <div>
-        <canvas id="Chart_total_with_stock" width="900" height="600"></canvas>
+        <canvas id="Chart_total_with_stock" width="1200" height="600"></canvas>
     </div>
     <div style="text-align: center;">
         <span>Date range</span>

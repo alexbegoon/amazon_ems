@@ -38,8 +38,8 @@ Amazoni.show_provider_statistic = function(provider)
     $( "#modal_window" ).empty();
     $( "#modal_window" ).dialog({
     minHeight: 600,    
-    minWidth: 1000,
-    width: 1000,
+    minWidth: 1200,
+    width: 1250,
     modal: true,
     title: capitaliseFirstLetter(provider) + ' products statistic history',
     resizable: true,
