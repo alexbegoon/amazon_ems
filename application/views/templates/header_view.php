@@ -20,8 +20,11 @@
   <script type="text/javascript" src="<?php echo base_url().'assets/js/global.js'; ?>"></script>
   <script type="text/javascript" src="<?php echo base_url().'assets/js/Chart.js'; ?>"></script>
   <script>
-  Amazoni.order_by        =  '<?php echo isset($_POST['order_by']) ? $_POST['order_by'] : '';?>';
-  Amazoni.order_option    =  '<?php echo isset($_POST['order_option']) ? $_POST['order_option'] : '';?>';
+  <?php
+        $order_by_data = get_order_by_info();
+  ?>
+  Amazoni.order_by        =  '<?php echo $order_by_data['order_by'];?>';
+  Amazoni.order_option    =  '<?php echo $order_by_data['order_option'];?>';
   </script>
   <?php endif;?>
   

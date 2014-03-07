@@ -217,3 +217,58 @@ if ( ! function_exists('get_rating_stars'))
             return img($image_properties);
         }
 }
+
+if ( ! function_exists('get_order_by_info'))
+{
+	function get_order_by_info()
+        {
+            $CI =& get_instance();
+            
+            $index = $CI->router->class . '_' . $CI->router->method;
+            
+            $data = array(
+                
+                'order_by' => null,
+                'order_option' => null,
+                'order_direction' => null,
+                'direction'         => null, 
+                'index'                 => $index
+                
+            );
+    
+            if($CI->session->userdata($index))
+            {
+                if(isset($CI->session->userdata($index)['order_by']))
+                {
+                    $data['order_by'] = $CI->session->userdata($index)['order_by'];
+                }
+            }
+
+            if($CI->session->userdata($index))
+            {
+                if(isset($CI->session->userdata($index)['order_option']))
+                {
+                    $data['order_option'] = $CI->session->userdata($index)['order_option'];
+                }
+            }
+
+            if($CI->input->post('order_by'))
+            {
+                $data['order_by'] = $CI->input->post('order_by');
+            }
+
+            if($CI->input->post('order_option'))
+            {
+                $data['order_option'] = $CI->input->post('order_option');
+            }
+                
+            $data['direction'] = $data['order_direction'] = $data['order_option'];
+            
+            if($data['order_option'] === null || $data['order_by'] === null)
+            {
+                return false;
+            }
+            
+            return $data;
+        }
+}

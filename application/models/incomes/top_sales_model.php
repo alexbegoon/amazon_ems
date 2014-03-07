@@ -142,10 +142,10 @@ class Top_sales_model extends CI_Model
         }
         
         $order_by = ' `total_sold` DESC ';
-        
-        if(!empty($post_data['order_by']) && !empty($post_data['order_option']))
+                
+        if($order_by_data = get_order_by_info())
         {
-            $order_by = $post_data['order_by'] . ' ' . $post_data['order_option'];
+            $order_by = $order_by_data['order_by'] . ' ' . $order_by_data['order_option'];
         }
         
         if ($page)
