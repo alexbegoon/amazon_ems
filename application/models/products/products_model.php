@@ -355,6 +355,9 @@ class Products_model extends CI_Model
             }
             $this->db->trans_commit();
             
+            // Store products history
+            $this->store_products_history();
+            
             // Fire statistic updater
             $this->update_providers_statistic();
         }
@@ -363,6 +366,59 @@ class Products_model extends CI_Model
     }
     
     /**
+     * Make a flashdata of Products table
+     */
+    private function store_products_history()
+    {
+        $this->db->select('id as product_id, price, stock, NOW() as created_on');
+        $query = $this->db->get('providers_products');
+        
+        $data = array();
+        
+        if($query->num_rows() > 0)
+        {
+            $products = $query->result('array');
+            
+            foreach ($products as $p)
+            {
+                $this->db->select('price, stock');
+                $this->db->where('product_id',$p['product_id']);
+                $this->db->order_by('created_on','DESC');
+                $this->db->limit(1);
+                $query = $this->db->get('providers_products_history');
+                if($query->num_rows() == 1)
+                {
+                    // Check that history table need this row. 
+                    // We need now dublicates in history.
+                    if(   $query->row()->price != $p['price'] || 
+                          $query->row()->stock != $p['stock']
+                        )
+                    {
+                        $data[] = $p;
+                    }
+                }
+                else 
+                {
+                    $data[] = $p;
+                }
+            }
+            
+            $res = false;
+            
+            if(count($data) > 0)
+            {
+                $this->db->trans_begin();
+            
+                $res = $this->db->insert_batch('providers_products_history', $data);
+
+                $this->db->trans_commit();
+            }
+            
+            return $res;
+        }
+    }
+
+        /**
      * Check product existance
      * @param type $sku
      * @param type $provider_name
