@@ -3,7 +3,7 @@
 /**
  * Description of dashboard_model
  *
- * @author sanchezz
+ * @author Alexander.B <alexbassmusic@gmail.com> - https://www.odesk.com/users/~01ae8f6e1a81c189cf
  */
 class Dashboard_model extends CI_Model {
     

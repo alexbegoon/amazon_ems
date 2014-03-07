@@ -184,4 +184,32 @@ class Exchange_rates_model extends CI_Model {
         return FALSE;
         
     }
+    
+    /**
+     * Return currency symbol using 3 chars currency code
+     * @param string $currency_code 3 chars currency code
+     */
+    public function get_currency_symbol_by_code($currency_code)
+    {
+        if(isset($this->_buffer_data['currency_symbols'][$currency_code]))
+        {
+            return $this->_buffer_data['currency_symbols'][$currency_code];
+        }
+        
+        if(!empty($currency_code) && strlen($currency_code) === 3)
+        {
+            $this->db->select('currency_symbol');
+            $this->db->where('currency_code_3', $currency_code);
+            $query = $this->db->get('currencies',1,0);
+            
+            if($query->num_rows() === 1)
+            {
+                $this->_buffer_data['currency_symbols'][$currency_code] = $query->row()->currency_symbol;
+                
+                return $this->_buffer_data['currency_symbols'][$currency_code];
+            }
+        }
+        
+        return null;
+    }
 }

@@ -57,8 +57,18 @@ h2 {
     font-weight: bold;
     margin: 5px;
 }
-th a {
+th a,th {
     white-space: nowrap!important;
+}
+.ok_icon {
+    display: inline-block;
+    /*float: left;*/
+    width: 16px;
+    height: 16px;
+    background: url(../imgs/Ok-icon.png);
+}
+.no_data {
+    color: #ff0000!important;
 }
 .login {
   position: relative;
@@ -825,7 +835,8 @@ div.incomes_wrapper {
     overflow: hidden;
 }
 
-div.incomes_summary, div.incomes_orders {
+div.incomes_summary, div.incomes_orders,
+div.products_stats, div.products_list {
     float: left;
 }
 
@@ -837,6 +848,16 @@ div.incomes_orders {
     width: 55%;
     padding-left: 5%;
 }
+
+div.products_stats {
+    width: 20%;
+    padding-top: 67px;
+}
+div.products_list {
+    width: 75%;
+    padding-left: 5%;
+}
+
 
 /*************** Tracking *****************/
 div.tracking_wrapper{

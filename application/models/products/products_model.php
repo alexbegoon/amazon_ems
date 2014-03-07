@@ -20,6 +20,7 @@ class Products_model extends CI_Model
         // Load models
         $this->load->model('incomes/providers_model');
         $this->load->model('incomes/web_field_model');
+        $this->load->model('incomes/exchange_rates_model');
         $this->load->model('incomes/taxes_model');
         $this->load->model('stokoni/stokoni_model');
     }
@@ -66,7 +67,7 @@ class Products_model extends CI_Model
         }
         
         $query = ' SELECT `sku`, `product_name`, `provider_name`, `price`, 
-                                `stock`, `sales_rank_de`, `sales_rank_uk` 
+                                `stock`, `sales_rank_de`, `sales_rank_uk`, `updated_on` 
                    FROM `'.$this->db->dbprefix('providers_products').'` 
                    '.$where.' 
                    '.$order_by.' 
@@ -88,13 +89,91 @@ class Products_model extends CI_Model
             
             $this->_products_quantity   = (int)$result->row()->total_count;
             
+            $this->_products = $this->get_amazon_low_prices($this->_products);
+            
             return $this->_products;
         }
         
         return false;        
     }
     
-    public function get_providers_statistic()
+    private function get_amazon_low_prices($products)
+    {
+        $data = array();
+        
+        if(is_array($products) && count($products) > 0)
+        {
+            $webs = array();
+            
+            $webs[] = array(
+                'web' => 'AMAZON-DE',
+                'prefix' => 'de'
+            );
+            $webs[] = array(
+                'web' => 'AMAZON-CO-UK',
+                'prefix' => 'uk'
+            );
+            $webs[] = array(
+                'web' => 'AMAZON-USA',
+                'prefix' => 'usa'
+            );
+            
+            foreach($products as $p)
+            {
+                foreach($webs as $web)
+                {
+                    $this->db->select(' ROUND(low_price,2) as low_price_'.$web['prefix'].', 
+                                        low_price_currency_code as low_price_currency_code_'.$web['prefix'].', 
+                                        ROUND(low_price_delivery,2) as low_price_delivery_'.$web['prefix'].', 
+                                        low_price_delivery_currency_code as low_price_delivery_currency_code_'.$web['prefix'].'
+                                      ');
+                    
+                    $this->db->from('amazon_sales_rank');
+
+                    $this->db->where('ean', $p->sku);
+                    $this->db->where('web', $web['web']);
+
+                    $this->db->order_by('updated_on','DESC');
+                    $this->db->limit(1);
+
+                    $query = $this->db->get();
+
+                    $result = $query->row();
+
+                    if($result)
+                    {
+                        $p->{'low_price_'.$web['prefix']} = $result->{'low_price_'.$web['prefix']};
+                        $p->{'low_price_currency_code_'.$web['prefix']} = $result->{'low_price_currency_code_'.$web['prefix']};
+                        $p->{'low_price_currency_symbol_'.$web['prefix']} = 
+                                $this->exchange_rates_model->get_currency_symbol_by_code(
+                                                    $result->{'low_price_currency_code_'.$web['prefix']}
+                                );
+                        $p->{'low_price_delivery_'.$web['prefix']} = $result->{'low_price_delivery_'.$web['prefix']};
+                        $p->{'low_price_delivery_currency_code_'.$web['prefix']} = $result->{'low_price_delivery_currency_code_'.$web['prefix']};
+                        $p->{'low_price_delivery_currency_symbol_'.$web['prefix']} = 
+                                $this->exchange_rates_model->get_currency_symbol_by_code(
+                                                    $result->{'low_price_delivery_currency_code_'.$web['prefix']}
+                                );
+                    }
+                    else
+                    {
+                        $p->{'low_price_'.$web['prefix']}                            = null;
+                        $p->{'low_price_currency_code_'.$web['prefix']}              = null;
+                        $p->{'low_price_currency_symbol_'.$web['prefix']}            = null;
+                        $p->{'low_price_delivery_'.$web['prefix']}                   = null;
+                        $p->{'low_price_delivery_currency_code_'.$web['prefix']}     = null;
+                        $p->{'low_price_delivery_currency_symbol_'.$web['prefix']}   = null;
+                    }
+                }
+                
+                $data[] = $p;
+            }
+        }
+        
+        return $data;
+    }
+
+        public function get_providers_statistic()
     {
         $this->db->select('COUNT(*) as total_products, p.provider_name, p.provider_id, 
         (SELECT COUNT(*) as total_with_stock FROM '.$this->db->dbprefix('providers_products').' 

@@ -14,7 +14,7 @@
         </div>
     </div>
     <div class="incomes_wrapper">
-        <div class="incomes_summary">
+        <div class="products_stats">
             <?php if($providers_statistic):?>
             <h2>Provider Stats</h2>
             <table class="thin_table">
@@ -33,7 +33,7 @@
             </table>
             <?php endif;?>
         </div>
-        <div class="incomes_orders">
+        <div class="products_list">
         <?php if(count($products) > 0 && !empty($products)) { ?>
         <p><?php echo $total_products;?> products found</p>
         <div class="pagination">
@@ -47,16 +47,89 @@
                 <th><a href="javascript:void(0);" id="order_by_stock" onclick="Amazoni.order_link(this);">Stock</a></th>
                 <th><a href="javascript:void(0);" id="order_by_sales_rank_uk" onclick="Amazoni.order_link(this);">Sales Rank UK</a></th>
                 <th><a href="javascript:void(0);" id="order_by_sales_rank_de" onclick="Amazoni.order_link(this);">Sales Rank DE</a></th>
+                <th>Low Price UK</th>
+                <th>Low Price DE</th>
+                <th>Low Price USA</th>
                 <th>Provider</th>
             </tr>
             <?php foreach ($products as $product) { ?>
-            <tr>
+            <?php
+            
+                $low_price_uk = '';
+                $low_price_de = '';
+                $low_price_usa = '';
+                
+                if($product->low_price_uk > 0)
+                {
+                    $low_price_uk = "
+                                        <span>$product->low_price_uk</span>
+                                        <span>$product->low_price_currency_symbol_uk</span>
+                                        <br>
+                                        <span>+</span>
+                                        <span>$product->low_price_delivery_uk</span>
+                                        <span>$product->low_price_delivery_currency_symbol_uk</span>
+                    ";
+                }
+                else 
+                {
+                    $low_price_uk = "<span class=\"ok_icon\"></span>";
+                }
+                
+                if($product->low_price_de > 0)
+                {
+                    $low_price_de = "
+                                        <span>$product->low_price_de</span>
+                                        <span>$product->low_price_currency_symbol_de</span>
+                                        <br>
+                                        <span>+</span>
+                                        <span>$product->low_price_delivery_de</span>
+                                        <span>$product->low_price_delivery_currency_symbol_de</span>
+                    ";
+                }
+                else 
+                {
+                    $low_price_de = "<span class=\"ok_icon\"></span>";
+                }
+                
+                if($product->low_price_usa > 0)
+                {
+                    $low_price_usa = "
+                                        <span>$product->low_price_usa</span>
+                                        <span>$product->low_price_currency_symbol_usa</span>
+                                        <br>
+                                        <span>+</span>
+                                        <span>$product->low_price_delivery_usa</span>
+                                        <span>$product->low_price_delivery_currency_symbol_usa</span>
+                    ";
+                }
+                else 
+                {
+                    $low_price_usa = "<span class=\"ok_icon\"></span>";
+                }
+                
+                if($product->low_price_uk === null)
+                {
+                    $low_price_uk = '<span class="no_data">No data</span>';
+                }
+                if($product->low_price_de === null)
+                {
+                    $low_price_de = '<span class="no_data">No data</span>';
+                }
+                if($product->low_price_usa === null)
+                {
+                    $low_price_usa = '<span class="no_data">No data</span>';
+                }
+            ?>
+            <tr title="Last updated: <?php echo $product->updated_on;?>">
                 <td class="bold"><?php echo $product->sku;?></td>
                 <td><?php echo htmlentities($product->product_name);?></td>
                 <td><?php echo number_format($product->price,2);?>&euro;</td>
                 <td><?php echo $product->stock;?></td>
                 <td><?php echo $product->sales_rank_uk;?></td>
                 <td><?php echo $product->sales_rank_de;?></td>
+                <td><?php echo ($low_price_uk);?></td>
+                <td><?php echo ($low_price_de);?></td>
+                <td><?php echo ($low_price_usa);?></td>
                 <td><?php echo $product->provider_name;?></td>
             </tr>    
             <?php } ?>
