@@ -60,9 +60,9 @@ class Products_model extends CI_Model
        
         $order_by = ' ORDER BY `product_name` ';
         
-        if(isset($post_data['order_by']))
+        if($order_by_data = get_order_by_info())
         {
-            $order_by = ' ORDER BY `'.$post_data['order_by'].'` '.$post_data['order_option'].' ';
+            $order_by = ' ORDER BY `'.$order_by_data['order_by'].'` '.$order_by_data['order_option'].' ';
         }
         
         $query = ' SELECT `sku`, `product_name`, `provider_name`, `price`, 
