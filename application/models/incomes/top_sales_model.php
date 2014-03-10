@@ -119,7 +119,14 @@ class Top_sales_model extends CI_Model
             $provider_id = (int)$post_data['provider'];
         }
         
-        $where = ' WHERE `order_date` > \''.$start_date.'\' ';
+        $where = ' WHERE `created_at` > \''.$start_date.'\' ';
+        
+        if( isset($post_data['created_at']) && !empty($post_data['created_at']) )
+        {
+            $start_date = $post_data['created_at'];
+            $end_date = date('Y-m-d', strtotime($post_data['created_at']) + 60 * 60 * 24);
+            $where = ' WHERE `created_at` BETWEEN \''.$start_date.'\' AND \''.$end_date.'\' ';
+        }
         
         if(!empty($provider_id))
         {

@@ -1,11 +1,15 @@
 <article>
     <h1><?php echo $title;?></h1>
     <?php echo form_open(current_url());?>
-    <?php $search = $this->input->post("search");?>
+    <?php $search = $this->input->post("search");
+            $created_at = $this->input->post("created_at");
+    ?>
     <div class="filters">
         <input type="button" value="Back" id="incomes_back" />
         <label for="search">Buscar: </label>
         <input id="search" type="text" name="search" value="<?php echo $search;?>" />
+        <label for="date_picker">Date: </label>
+        <input id="date_picker" type="text" name="created_at" value="<?php echo $created_at;?>" />
         <input type="submit" value="Buscar" />
     </div>
     <div id="radios">
@@ -91,6 +95,12 @@
             });
             $( "#web_list input" ).click(function(){
                 $("form").submit();
+            });
+            
+            
+            // Datepicker
+            $('#date_picker').datepicker({
+                dateFormat: 'yy-mm-dd'
             });
         });
     </script>
