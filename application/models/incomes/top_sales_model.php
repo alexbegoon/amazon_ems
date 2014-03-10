@@ -157,9 +157,9 @@ class Top_sales_model extends CI_Model
             $limit      = '0, 50';
         }
         
-        $query = ' SELECT `sku`, `product_name`, SUM(`sales_price` * `quantity`) as `total_sold`, 
-                          SUM(`quantity`) as `total_quantity`, `provider_name`, MAX(`order_date`) as `last_date_purchase` 
-                   FROM `'.$this->db->dbprefix('top_sales').'` 
+        $query = ' SELECT `sku`, `product_name`, SUM(`order_price` * `quantity`) as `total_sold`, 
+                          SUM(`quantity`) as `total_quantity`, `provider_name`, MAX(`created_at`) as `last_date_purchase` 
+                   FROM `'.$this->db->dbprefix('products_sales_history').'` 
                    '.$where.' 
                    GROUP BY `sku` 
                    ORDER BY '.$order_by.'
@@ -174,7 +174,7 @@ class Top_sales_model extends CI_Model
         }
         
         $query = ' SELECT `sku` 
-                   FROM `'.$this->db->dbprefix('top_sales').'` 
+                   FROM `'.$this->db->dbprefix('products_sales_history').'` 
                    '.$where.' 
                    GROUP BY `sku`  
         ';
@@ -209,15 +209,15 @@ class Top_sales_model extends CI_Model
         
         $start_date = date('Y-m-d', mktime(0, 0, 0, date('m') - $period, date('d'), date('Y')));
         
-        $query = ' SELECT `top`.`web`, SUM(`top`.`sales_price` * `top`.`quantity`) as `total_sold`, 
+        $query = ' SELECT `top`.`web`, SUM(`top`.`order_price` * `top`.`quantity`) as `total_sold`, 
                            SUM(`top`.`quantity`) as `total_quantity`, 
-                           MAX(`top`.`order_date`) as `last_date_purchase`, 
+                           MAX(`top`.`created_at`) as `last_date_purchase`, 
                            `top`.`sku`, `top`.`product_name`, 
                            `orders`.`pais` as `country`
-                   FROM `'.$this->db->dbprefix('top_sales').'` as `top`
+                   FROM `'.$this->db->dbprefix('products_sales_history').'` as `top`
                    LEFT JOIN `pedidos` as `orders` 
                    ON `orders`.`id` = `order_id` 
-                   WHERE `sku` = \''.$sku.'\' AND `order_date` > \''.$start_date.'\' 
+                   WHERE `sku` = \''.$sku.'\' AND `created_at` > \''.$start_date.'\' 
                    GROUP BY `web`, `country` 
                    ORDER BY `total_sold` DESC
         ';
