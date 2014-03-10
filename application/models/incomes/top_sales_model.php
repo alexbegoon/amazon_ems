@@ -119,32 +119,30 @@ class Top_sales_model extends CI_Model
             $provider_id = (int)$post_data['provider'];
         }
         
-        $where = ' WHERE `created_at` > \''.$start_date.'\' ';
+        $where = ' WHERE `h`.`created_at` > \''.$start_date.'\' ';
         
-        if( isset($post_data['created_at']) && !empty($post_data['created_at']) )
+        if( !empty($post_data['date_from']) && !empty($post_data['date_to']) )
         {
-            $start_date = $post_data['created_at'];
-            $end_date = date('Y-m-d', strtotime($post_data['created_at']) + 60 * 60 * 24);
-            $where = ' WHERE `created_at` BETWEEN \''.$start_date.'\' AND \''.$end_date.'\' ';
+            $where = ' WHERE `h`.`created_at` > \''.$post_data['date_from'].'\' AND `h`.`created_at` < \''.$post_data['date_to'].'\' ';
         }
         
         if(!empty($provider_id))
         {
-            $where .= ' AND `provider_id` = '.$provider_id.' ';
+            $where .= ' AND `h`.`provider_id` = '.$provider_id.' ';
         }
         
         if(!empty($post_data['search']))
         {
-            $where .= ' AND ( `sku` LIKE \'%'.trim($post_data['search']).'%\' OR 
-                              `order_date` LIKE \'%'.trim($post_data['search']).'%\' OR 
-                              `product_name` LIKE \'%'.addslashes(trim($post_data['search'])).'%\' OR 
-                              `provider_name` LIKE \'%'.trim($post_data['search']).'%\'   
+            $where .= ' AND ( `h`.`sku` LIKE \'%'.trim($post_data['search']).'%\' OR 
+                              `h`.`order_date` LIKE \'%'.trim($post_data['search']).'%\' OR 
+                              `h`.`product_name` LIKE \'%'.addslashes(trim($post_data['search'])).'%\' OR 
+                              `h`.`provider_name` LIKE \'%'.trim($post_data['search']).'%\'   
             ) ';
         }
         
         if(!empty($post_data['web']))
         {
-            $where .= ' AND ( `web` = \''.trim($post_data['web']).'\' 
+            $where .= ' AND ( `h`.`web` = \''.trim($post_data['web']).'\' 
             ) ';
         }
         
@@ -152,7 +150,7 @@ class Top_sales_model extends CI_Model
                 
         if($order_by_data = get_order_by_info())
         {
-            $order_by = $order_by_data['order_by'] . ' ' . $order_by_data['order_option'];
+            $order_by = ' '.$order_by_data['order_by'] . ' ' . $order_by_data['order_option'];
         }
         
         if ($page)
@@ -164,11 +162,22 @@ class Top_sales_model extends CI_Model
             $limit      = '0, 50';
         }
         
-        $query = ' SELECT `sku`, `product_name`, SUM(`order_price` * `quantity`) as `total_sold`, 
-                          SUM(`quantity`) as `total_quantity`, `provider_name`, MAX(`created_at`) as `last_date_purchase` 
-                   FROM `'.$this->db->dbprefix('products_sales_history').'` 
+        $query = ' SELECT `h`.`sku`, `h`.`product_name`, SUM(`h`.`order_price` * `h`.`quantity`) as `total_sold`, 
+                          SUM(`h`.`quantity`) as `total_quantity`, `h`.`provider_name`, MAX(`h`.`created_at`) as `last_date_purchase` 
+                   FROM `'.$this->db->dbprefix('products_sales_history').'` as `h`
+                   LEFT JOIN `pedidos` as `p` 
+                   ON `p`.`id` = `h`.`order_id` 
                    '.$where.' 
-                   GROUP BY `sku` 
+                   AND ( `p`.`procesado` = \'ENVIADO_TOURLINE\'
+                        OR `p`.`procesado` = \'ENVIADO_PACK\' 
+                        OR `p`.`procesado` = \'ENVIADO_MEGASUR\' 
+                        OR `p`.`procesado` = \'ENVIADO_MARABE\' 
+                        OR `p`.`procesado` = \'ENVIADO_GRUTINET\' 
+                        OR `p`.`procesado` = \'ENVIADO_GLS\' 
+                        OR `p`.`procesado` = \'ENVIADO_FEDEX\' 
+                    ) 
+                   
+                   GROUP BY `h`.`sku` 
                    ORDER BY '.$order_by.'
                    LIMIT '.$limit.'
         ';
@@ -180,10 +189,20 @@ class Top_sales_model extends CI_Model
             $products = $result->result();
         }
         
-        $query = ' SELECT `sku` 
-                   FROM `'.$this->db->dbprefix('products_sales_history').'` 
+        $query = ' SELECT `h`.`sku` 
+                   FROM `'.$this->db->dbprefix('products_sales_history').'` as `h` 
+                   LEFT JOIN `pedidos` as `p` 
+                   ON `p`.`id` = `h`.`order_id`     
                    '.$where.' 
-                   GROUP BY `sku`  
+                   AND ( `p`.`procesado` = \'ENVIADO_TOURLINE\'
+                        OR `p`.`procesado` = \'ENVIADO_PACK\' 
+                        OR `p`.`procesado` = \'ENVIADO_MEGASUR\' 
+                        OR `p`.`procesado` = \'ENVIADO_MARABE\' 
+                        OR `p`.`procesado` = \'ENVIADO_GRUTINET\' 
+                        OR `p`.`procesado` = \'ENVIADO_GLS\' 
+                        OR `p`.`procesado` = \'ENVIADO_FEDEX\' 
+                    ) 
+                   GROUP BY `h`.`sku`  
         ';
         
         $result = $this->db->query($query);
@@ -216,6 +235,18 @@ class Top_sales_model extends CI_Model
         
         $start_date = date('Y-m-d', mktime(0, 0, 0, date('m') - $period, date('d'), date('Y')));
         
+        $where = ' WHERE `sku` = \''.$sku.'\' AND `created_at` > \''.$start_date.'\'  ';
+        
+        if( !empty($post_data['date_from']) && !empty($post_data['date_to']) )
+        {
+            $where = ' WHERE `sku` = \''.$sku.'\' AND `created_at` > \''.$post_data['date_from'].'\' AND `created_at` < \''.$post_data['date_to'].'\' ';
+        }
+        
+        if( isset($post_data['created_at']) && !empty($post_data['created_at']) )
+        {
+            $where = ' WHERE `sku` = \''.$sku.'\' AND `created_at` > \''.$post_data['created_at'].'\' ';
+        }
+        
         $query = ' SELECT `top`.`web`, SUM(`top`.`order_price` * `top`.`quantity`) as `total_sold`, 
                            SUM(`top`.`quantity`) as `total_quantity`, 
                            MAX(`top`.`created_at`) as `last_date_purchase`, 
@@ -224,7 +255,15 @@ class Top_sales_model extends CI_Model
                    FROM `'.$this->db->dbprefix('products_sales_history').'` as `top`
                    LEFT JOIN `pedidos` as `orders` 
                    ON `orders`.`id` = `order_id` 
-                   WHERE `sku` = \''.$sku.'\' AND `created_at` > \''.$start_date.'\' 
+                   '.$where.' 
+                   AND ( `orders`.`procesado` = \'ENVIADO_TOURLINE\'
+                        OR `orders`.`procesado` = \'ENVIADO_PACK\' 
+                        OR `orders`.`procesado` = \'ENVIADO_MEGASUR\' 
+                        OR `orders`.`procesado` = \'ENVIADO_MARABE\' 
+                        OR `orders`.`procesado` = \'ENVIADO_GRUTINET\' 
+                        OR `orders`.`procesado` = \'ENVIADO_GLS\' 
+                        OR `orders`.`procesado` = \'ENVIADO_FEDEX\' 
+                    ) 
                    GROUP BY `web`, `country` 
                    ORDER BY `total_sold` DESC
         ';

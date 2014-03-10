@@ -2,14 +2,17 @@
     <h1><?php echo $title;?></h1>
     <?php echo form_open(current_url());?>
     <?php $search = $this->input->post("search");
-            $created_at = $this->input->post("created_at");
+            $date_from = $this->input->post("date_from");
+            $date_to = $this->input->post("date_to");
     ?>
     <div class="filters">
         <input type="button" value="Back" id="incomes_back" />
         <label for="search">Buscar: </label>
         <input id="search" type="text" name="search" value="<?php echo $search;?>" />
-        <label for="date_picker">Date: </label>
-        <input id="date_picker" type="text" name="created_at" value="<?php echo $created_at;?>" />
+        <label for="date_picker">Date from: </label>
+        <input id="date_picker" type="text" name="date_from" value="<?php echo $date_from;?>" />
+        <label for="date_picker_2">Date to: </label>
+        <input id="date_picker_2" type="text" name="date_to" value="<?php echo $date_to;?>" />
         <input type="submit" value="Buscar" />
     </div>
     <div id="radios">
@@ -88,6 +91,7 @@
             $( "#radios2" ).buttonsetv();
             $( "#web_list" ).buttonsetv();
             $("#radios input").click(function(){
+                $('#date_picker, #date_picker_2').val(null);
                 $("form").submit();
             });
             $("#radios2 input").click(function(){
@@ -99,9 +103,44 @@
             
             
             // Datepicker
-            $('#date_picker').datepicker({
-                dateFormat: 'yy-mm-dd'
+            $('#date_picker, #date_picker_2').datepicker({
+                dateFormat: 'yy-mm-dd',
+                onSelect: function(  ) {
+                    var dateFrom = $('#date_picker').datepicker("getDate");
+                    var dateTo   = $('#date_picker_2').datepicker("getDate");
+                    var rMin = new Date(dateFrom); 
+                    var rMax = new Date(dateTo);
+                    if(this.id == 'date_picker')
+                    {
+                        $('#date_picker_2').datepicker("option","minDate",new Date(rMin.getTime() + 86400000));
+                        $('#date_picker').datepicker("option","maxDate",rMin);
+                    }
+                    else
+                    {
+                        $('#date_picker_2').datepicker("option","minDate",rMax);
+                        $('#date_picker').datepicker("option","maxDate",new Date(rMax.getTime() - 86400000));
+                    }
+                    
+                    $('#date_picker, #date_picker_2').attr('required','required');
+                    
+                    $('#radios input').removeAttr('checked');
+                    $( "#radios" ).buttonset('refresh');
+                },
+                onClose: function(){
+                    
+                    $('#date_picker, #date_picker_2').attr('required','required');
+                    
+                    $('#radios input').removeAttr('checked');
+                    $( "#radios" ).buttonset('refresh');
+                    
+                    if( $('#date_picker').val() == '' && $('#date_picker').val() == '' )
+                    {
+                        $('#date_picker, #date_picker_2').removeAttr('required');
+                    }
+                    
+                }
             });
+            
         });
     </script>
 </article>
