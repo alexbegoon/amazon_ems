@@ -178,7 +178,9 @@ class Sync_general
      */
     private function isExist($order) {
                 
-        $query = 'SELECT id FROM pedidos 
+        $hash = strtolower(substr(preg_replace('/\d/','',md5((string)(rand(0,100).rand(0,100).rand(0,100).rand(0,100)))),0,10));
+        
+        $query = 'SELECT id as '.$hash.' FROM pedidos 
                   WHERE pedido = \''.$order[0].'\' AND 
                         web    = \''.$this->_config->web.'\' 
         ';
