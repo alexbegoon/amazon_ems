@@ -426,12 +426,14 @@ class Products_model extends CI_Model
      */
     private function is_product_exists($sku,$provider_name)
     {
-        $this->db->select('id');
+        $hash = strtolower(substr(preg_replace('/\d/','',md5((string)(rand(0,100).rand(0,100).rand(0,100).rand(0,100)))),0,10));
+        
+        $this->db->select('id as '.$hash);
         $this->db->where('sku =',$sku);
         $this->db->where('provider_name =',$provider_name);
         $query = $this->db->get('providers_products');
         
-        if($query->num_rows == 1)
+        if($query->num_rows > 0)
         {
             return TRUE;
         }

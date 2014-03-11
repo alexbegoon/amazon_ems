@@ -514,7 +514,9 @@ class Upload_model extends CI_Model {
     {
         if(!empty($order) && is_array($order))
         {
-            $query = ' SELECT `id` 
+            $hash = strtolower(substr(preg_replace('/\d/','',md5((string)(rand(0,100).rand(0,100).rand(0,100).rand(0,100)))),0,10));
+            
+            $query = ' SELECT `id` as `'.$hash.'` 
                        FROM `pedidos` 
                        WHERE `pedido` = \''.$order['pedido'].'\' 
                        AND   `web` = \''.$order['web'].'\'     

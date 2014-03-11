@@ -483,7 +483,9 @@ class Top_sales_model extends CI_Model
             return FALSE;
         }
         
-        $query = 'SELECT `id` 
+        $hash = strtolower(substr(preg_replace('/\d/','',md5((string)(rand(0,100).rand(0,100).rand(0,100).rand(0,100)))),0,10));
+        
+        $query = 'SELECT `id` as `'.$hash.'` 
                   FROM `'.$this->db->dbprefix('top_sales').'` 
                   WHERE `sku` = \''.$product->sku.'\' 
                   AND   `provider_name` = \''.$product->provider_name.'\' 
