@@ -162,6 +162,11 @@ class Top_sales_model extends CI_Model
             $limit      = '0, 50';
         }
         
+        if($post_data['to_excel'] == '1')
+        {
+            $limit      = '0, 65000';
+        }
+        
         $query = ' SELECT `h`.`sku`, `h`.`product_name`, SUM(`h`.`order_price` * `h`.`quantity`) as `total_sold`, 
                           SUM(`h`.`quantity`) as `total_quantity`, `h`.`provider_name`, MAX(`h`.`created_at`) as `last_date_purchase` 
                    FROM `'.$this->db->dbprefix('products_sales_history').'` as `h`
@@ -212,10 +217,111 @@ class Top_sales_model extends CI_Model
             $this->_total_rows = $result->num_rows();
         }
         
+        if($post_data['to_excel'] == '1')
+        {
+            return $this->export_to_excel($products, $post_data);
+        }
+        
         return $products;
     }
     
-    public function get_product_details($sku)
+    private function export_to_excel($products, $post_data)
+    {
+        $this->load->library('excel');
+        $this->load->helper('download');
+        $this->load->helper('file');
+        
+        $file = null;
+        
+        $objPHPExcel = new PHPExcel();
+        
+        $objPHPExcel->getProperties()->setCreator("Amazoni4");
+        $objPHPExcel->getProperties()->setLastModifiedBy("Amazoni4");
+        $objPHPExcel->getProperties()->setTitle("Top sales report. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setSubject("Top sales report. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setDescription("Top sales report. Date: ".date('r', time()));
+        
+        $objPHPExcel->setActiveSheetIndex(0);
+        
+        $objPHPExcel->getActiveSheet()->setTitle("Top sales report");
+        
+        // Prepare Excel header
+        $header = array(
+            'EAN',
+            'Product Name',
+            'Total sold',
+            'Total quantity',
+            'Provider Name',
+            'Date of last purchase'
+        );
+        
+        $i = 0;
+        foreach ($header as $cell)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 1)->getFill()
+            ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'startcolor' => array('rgb' => 'ededed')
+            ));
+            $i++;
+        }
+        
+        // Insert data
+        if(count($products) > 0)
+        {
+            $i = 2;
+            foreach($products as $p)
+            {
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $p->sku, PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFont()->setBold(true);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, stripslashes(preg_replace('/^"|"$/','',$p->product_name)), PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, round($p->total_sold,2), PHPExcel_Cell_DataType::TYPE_NUMERIC);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $p->total_quantity, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(4, $i, $p->provider_name, PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(5, $i, $p->last_date_purchase, PHPExcel_Cell_DataType::TYPE_STRING);
+                $i++;
+            }
+            
+            // Write a file
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+
+            $name = 'top_sales_';
+            
+            if (isset($post_data['period']))
+            {
+                switch ( $post_data['period'] )
+                {
+                    case '1' : $name .= 'last_month';
+                        break;
+                    case '3' : $name .= 'last_three_months';
+                        break;
+                    case '6' : $name .= 'last_six_months';
+                        break;
+                    case '12' : $name .= 'last_year';
+                        break;
+                }
+            }
+                        
+            if( !empty($post_data['date_from']) && !empty($post_data['date_to']) )
+            {
+                $name = 'top_sales_';
+                
+                $name .= 'from_'.$post_data['date_from'].'_to_'.$post_data['date_to'];
+            }
+            
+            $filename = FCPATH .'upload/'.$name.'.xls';
+
+            $file = $objWriter->save($filename);
+            
+            force_download($name.'.xls', read_file($filename));
+
+            return read_file($filename);
+        }
+        
+        return false;
+    }
+
+        public function get_product_details($sku)
     {
         if(empty($sku) && !is_string($sku))
         {

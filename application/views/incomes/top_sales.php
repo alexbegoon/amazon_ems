@@ -14,6 +14,10 @@
         <label for="date_picker_2">Date to: </label>
         <input id="date_picker_2" type="text" name="date_to" value="<?php echo $date_to;?>" />
         <input type="submit" value="Buscar" />
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <label for="to_excel" title="Export filtered data to Excel list">To Excel: </label>
+        <button id="to_excel"><span class="excel_icon"></span></button>
+        
     </div>
     <div id="radios">
         <?php echo $period_radios; ?>
@@ -47,8 +51,8 @@
                 </tr>
                 <?php foreach ($products_list as $product) { ?>
                 <tr onclick="show_top_sales_details('<?php echo $product->sku;?>')">
-                    <td><?php echo $product->sku;?></td>
-                    <td><?php echo htmlentities(stripslashes($product->product_name));?></td>
+                    <td class="bold"><?php echo $product->sku;?></td>
+                    <td><?php echo htmlentities(stripslashes(preg_replace('/^"|"$/','',$product->product_name)));?></td>
                     <td><?php echo number_format($product->total_sold,2);?>&euro;</td>
                     <td><?php echo $product->total_quantity;?></td>
                     <td><?php echo $product->provider_name;?></td>
@@ -65,11 +69,20 @@
             <?php } ?>
         </div>
     </div>
-    
+    <input type="hidden" id="excel_toggle" name="to_excel" value="0" />
     </form>
     <script>
         // Radios UI
         $(function() {
+            
+            $('form input, form a').click(function(){
+                $('#excel_toggle').val('0');
+            });
+            
+            $('#to_excel').click(function(){
+                $('#excel_toggle').val('1');
+            });
+            
             (function( $ ){
             //plugin buttonset vertical
             $.fn.buttonsetv = function() {
