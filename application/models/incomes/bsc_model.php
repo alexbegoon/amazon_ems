@@ -109,7 +109,7 @@ class Bsc_model extends CI_Model
                             'buyin_trend'           => $this->get_buyin_trend($product->id, $start_date, $end_date),
                             'units_sold_amazon'     => $this->total_count_amazon_sales($product->id, $start_date, $end_date),
                             'amazon_trend'          => $this->get_amazon_trend($product->id, $start_date, $end_date),
-                            'is_best_price'         => $this->is_best_price($product->id),
+                            'is_best_price'         => $this->is_best_price($p->sku),
                             'total_trend'           => $this->get_total_trend($product->id, $start_date, $end_date),
                             'quantity_needed'       => '',
                             'target_price'          => '',
@@ -184,28 +184,49 @@ class Bsc_model extends CI_Model
      * @param int $id
      * @return int
      */
-    private function is_best_price($id)
+    private function is_best_price($sku)
     {
-            $query = $this->db->select('sales_rank_uk, sales_rank_de')
-                     ->from('providers_products')
-                     ->where('id',$id)
-                     ->get();
+            $webs = array();
             
-            if($query->num_rows() == 1)
+            $webs[] = array(
+                'web' => 'AMAZON-DE',
+                'prefix' => 'de'
+            );
+            $webs[] = array(
+                'web' => 'AMAZON-CO-UK',
+                'prefix' => 'uk'
+            );
+            $webs[] = array(
+                'web' => 'AMAZON-USA',
+                'prefix' => 'usa'
+            );
+            
+            foreach($webs as $web)
             {
+                $this->db->select(' low_price, low_price_delivery ');
+
+                $this->db->from('amazon_sales_rank');
+
+                $this->db->where('ean', $sku);
+                $this->db->where('web', $web['web']);
+
+                $this->db->order_by('updated_on','DESC');
+                $this->db->limit(1);
+
+                $query = $this->db->get();
+
                 $result = $query->row();
-                
-                if($result->sales_rank_uk === '0')
+
+                if($result)
                 {
-                    return 1;
-                }
-                if($result->sales_rank_de === '0')
-                {
-                    return 1;
+                    if($result->low_price > 0 || $result->low_price_delivery > 0)
+                    {
+                        return 0;
+                    }
                 }
             }
             
-            return 0;
+            return 1;
     }
 
     private function get_total_trend($id, $start_date, $end_date)
