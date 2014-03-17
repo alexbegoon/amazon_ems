@@ -1060,9 +1060,11 @@ $(function() {
 });
 
 
-//Main menu effects
+
 
 $(function() {
+    
+   //Main menu effects
    
     $('body header').on('click', 'li', function(){
         
@@ -1072,4 +1074,21 @@ $(function() {
             
     });
     
+    // The same sku rows effect
+    
+    $('table tr').on('mouseover', function(){
+       
+        var element_sku = $(this).attr('data-sku');
+        
+        if($("tr[data-sku='"+element_sku+"']" ).length > 1)
+        {
+            $("tr[data-sku='"+element_sku+"']" ).addClass('markered');
+
+            $('table tr').on('mouseleave', function(){
+
+                $("tr[data-sku='"+element_sku+"']" ).removeClass('markered');
+
+            });
+        }
+    });
 });

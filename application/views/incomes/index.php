@@ -50,11 +50,11 @@
             </a>
         </div>
         <div class="menu-item">
-            <a class="menu-item-img" href="<?php echo base_url().'index.php/incomes/top_sales';?>">
-                <img src="<?php echo base_url().'assets/imgs/Misc-Stats-icon.png';?>" alt="Proveedores" />
+            <a class="menu-item-img" href="<?php echo base_url().'index.php/bsc';?>">
+                <img src="<?php echo base_url().'assets/imgs/presentation-icon.png';?>" alt="BSC" />
             </a>
-            <a class="menu-item" href="<?php echo base_url().'index.php/incomes/top_sales';?>">
-                <span>Top sales</span>
+            <a class="menu-item" href="<?php echo base_url().'index.php/bsc';?>">
+                <span>BSC</span>
             </a>
         </div>
         <div class="menu-item">

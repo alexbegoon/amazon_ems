@@ -75,6 +75,26 @@ th a,th {
     height: 16px;
     background: url(../imgs/icon_excel.png);
 }
+.a_up, .a_down
+{
+    display: inline-block;
+    margin-right: 2px;
+    width: 8px;
+    height: 16px;
+    background: url(../imgs/arrows.png);
+}
+.a_up
+{
+    background-position: 0 0;
+}
+.a_down
+{
+    background-position: 8px 0;
+}
+tr.markered td
+{
+    background:#ffff99!important;
+}
 label, button
 {
     cursor: pointer;
@@ -515,9 +535,9 @@ table.recurrent tbody tr:hover td,
 table.recurrent tbody tr.odd-row:hover td,
 table.thin_table tbody tr:hover td, 
 table.thin_table tbody tr.odd-row:hover td {
-    background: -moz-linear-gradient(100% 25% 90deg, #e8f6fe, #e3f6ff);
-    background: -webkit-gradient(linear, 0% 0%, 0% 25%, from(#e8f6fe), to(#e3f6ff));
-    color: #000;
+    background: -moz-linear-gradient(100% 25% 90deg, #e8f6fe, #e3f6ff)!important;
+    background: -webkit-gradient(linear, 0% 0%, 0% 25%, from(#e8f6fe), to(#e3f6ff))!important;
+    color: #000!important;
 }
 table.orders td, table.orders th,table.recurrent td, 
 table.recurrent th, table.thin_table th, table.thin_table td{
@@ -544,11 +564,11 @@ table tr.total td {
     font-size: 14px;
 }
 
-table td.gasto {
+table td.gasto, table td.red {
     color: #ff3333!important;
 }
 
-table td.ingreso {
+table td.ingreso, table td.green {
     color: #009900!important;
 }
 
