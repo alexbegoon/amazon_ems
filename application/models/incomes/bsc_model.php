@@ -36,8 +36,11 @@ class Bsc_model extends CI_Model
         
         if( isset($post_data['date_from']) && isset($post_data['date_to']) )
         {
-            $start_date = $post_data['date_from'];
-            $end_date = $post_data['date_to'];
+            if( !empty($post_data['date_from']) && !empty($post_data['date_to']) )
+            {
+                $start_date = $post_data['date_from'];
+                $end_date = $post_data['date_to'];
+            }
         }
         
         $order_statuses = array('ENVIADO_TOURLINE',
