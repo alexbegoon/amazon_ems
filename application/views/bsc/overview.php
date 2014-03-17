@@ -6,16 +6,22 @@ $date_to = $this->input->post("date_to");
     <h1><?php echo $title;?></h1>
     <?php echo form_open(current_url());?>
     <div class="filters">
+        <label for="providers_list">Provider: </label>
+        <?php echo $providers_list; ?>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         <label for="date_picker">Date from: </label>
         <input id="date_picker" type="text" name="date_from" value="<?php echo $date_from;?>" />
         <label for="date_picker_2">Date to: </label>
         <input id="date_picker_2" type="text" name="date_to" value="<?php echo $date_to;?>" />
         <input type="submit" value="Process" />
+        <br>
+        <br>
     </div>
     <div>
         <div id="radios">
             <?php echo $period_radios; ?>
         </div>
+        <br>
     </div>
     
     
@@ -117,6 +123,7 @@ $date_to = $this->input->post("date_to");
 <script>
     $(function(){
         $( "#radios" ).buttonset();
+        $('#providers_list').combobox();
         
         $("#radios input").click(function(){
             $('#date_picker, #date_picker_2').val(null);

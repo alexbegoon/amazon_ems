@@ -50,8 +50,6 @@ class Bsc_model extends CI_Model
                                 'ENVIADO_GRUTINET',
                                 'ENVIADO_GLS',
                                 'ENVIADO_FEDEX');
-        
-        $where = ' WHERE `h`.`created_at` > \''.$start_date.'\' ';
       
         // Get top sales SKUs
         
@@ -63,6 +61,15 @@ class Bsc_model extends CI_Model
         $this->db->set_dbprefix($dbprefix);
         $this->db->where('h.created_at >',$start_date);
         $this->db->where('h.created_at <',$end_date);
+        
+        if( isset($post_data['provider']) )
+        {
+            if( !empty($post_data['provider']) )
+            {
+                $this->db->where('h.provider_name',$post_data['provider']);
+            }
+        }
+        
         $this->db->where_in('p.procesado',$order_statuses);
         $this->db->group_by('h.sku');
         $this->db->order_by('total_quantity','DESC');

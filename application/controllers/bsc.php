@@ -26,6 +26,7 @@ class Bsc extends CI_Controller{
          
          // Load model
          $this->load->model('incomes/bsc_model');
+         $this->load->model('incomes/providers_model');
     }
     
     public function index()
@@ -39,10 +40,21 @@ class Bsc extends CI_Controller{
     
     public function overview($page = 0)
     {
+        $post_data = $this->input->post();
+        
         // Load data 
         $data['title'] = ucfirst($this->router->method);
         $data['overview']  = $this->bsc_model->get_overview($page);
         $data['period_radios']  = $this->bsc_model->get_radio_inputs_periods();
+        $data['providers_list']  = $this->bsc_model->get_radio_inputs_periods();
+        if(isset($post_data['provider']))
+        {
+            $data['providers_list'] = $this->providers_model->get_providers_list($post_data['provider'],true,true);
+        }
+        else 
+        {
+            $data['providers_list'] = $this->providers_model->get_providers_list(null,true,true);
+        }
         
         
         // Pagination
