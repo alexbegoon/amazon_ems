@@ -44,6 +44,7 @@ $products_options = array(
     
     <?php if($overview) :?>
     <?php //var_dump($overview);die;?>
+    <p><?php echo $unique_products_count;?> unique products found.</p>
     <div class="pagination">
     <?php echo $pagination;?>
     </div>
@@ -54,8 +55,9 @@ $products_options = array(
             <th>Provider</th>
             <th>Stock</th>
             <th>Price</th>
-            <th>Last price</th>
             <th>Last sold(date)</th>
+            <th>Units Sold Stokoni</th>
+            <th>Trend</th>
             <th>Units Sold BuyIn</th>
             <th>Trend</th>
             <th>Units Sold Amazon</th>
@@ -77,7 +79,7 @@ $products_options = array(
                             'class'       => 'product_selector',
                             'id'          => 'checkbox_product_id_'.$row['id'],
                             'value'       => $row['id'],
-                            'checked'     => FALSE,
+                            'checked'     => $row['is_checked']
                             );
 
 
@@ -88,9 +90,19 @@ $products_options = array(
             <td><?php echo $row['product_name'] ;?></td>
             <td><?php echo $row['provider_name'] ;?></td>
             <td><?php echo $row['stock'] ;?></td>
-            <td><?php echo number_format($row['price'], 2);?>&euro;</td>
-            <td title="<?php echo $row['last_price_date'] ? 'Date of last price: '.$row['last_price_date'] : 'No data';?>"><?php echo $row['last_price'] ? number_format($row['last_price'], 2).'&euro;' : 'No data';?></td>
+            <td title="<?php echo $row['last_price'] ? 'The last price was: '.number_format($row['last_price'], 2).'&euro;' : null;?>"><?php echo number_format($row['price'], 2);?>&euro;</td>
             <td><?php echo $row['date_of_last_purchase'] ;?></td>
+            <td><?php echo $row['units_sold_warehouse'] ;?></td>
+            <td class="<?php
+                    echo ($row['warehouse_trend'] > 0) ? 'green' : ''; 
+                    echo ($row['warehouse_trend'] < 0) ? 'red' : ''; 
+            ?>"><?php 
+            
+                    echo ($row['warehouse_trend'] > 0) ? '<span class="a_up"></span>' : ''; 
+                    echo ($row['warehouse_trend'] < 0) ? '<span class="a_down"></span>' : ''; 
+                    echo round($row['warehouse_trend'],2) ;?>%
+            
+            </td>
             <td><?php echo $row['units_sold_buyin'] ;?></td>
             <td class="<?php
                     echo ($row['buyin_trend'] > 0) ? 'green' : ''; 
@@ -140,6 +152,7 @@ $products_options = array(
     <div class="pagination">
     <?php echo $pagination;?>
     </div>
+    <p><?php echo $unique_products_count;?> unique products found.</p>
     <?php endif;?>
     <?php echo form_close();?>
 </article>

@@ -18,10 +18,10 @@
             </a>
         </div>
         <div class="menu-item">
-            <a class="menu-item-img" href="<?php echo '#';?>">
+            <a class="menu-item-img" href="<?php echo base_url().'index.php/bsc/ssa';?>">
                 <img src="<?php echo base_url().'assets/imgs/Misc-Stats-icon.png';?>" alt="SSA" />
             </a>
-            <a class="menu-item" href="<?php echo '#';?>">
+            <a class="menu-item" href="<?php echo base_url().'index.php/bsc/ssa';?>">
                 <span>SSA</span>
             </a>
         </div>

@@ -107,7 +107,8 @@ th a {
 }
 tr.markered td
 {
-    background:#ffff99!important;
+    border-top: 3px solid #000;
+    border-bottom: 3px solid #000;
 }
 label, button
 {

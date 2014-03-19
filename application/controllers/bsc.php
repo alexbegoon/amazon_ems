@@ -42,6 +42,8 @@ class Bsc extends CI_Controller{
     {
         $post_data = $this->input->post();
         
+        $this->bsc_model->store_checkboxes();
+        
         if(isset($post_data['to_excel']))
         {
             if($post_data['to_excel'] == 1)
@@ -54,7 +56,8 @@ class Bsc extends CI_Controller{
         $data['title'] = ucfirst($this->router->method);
         $data['overview']  = $this->bsc_model->get_overview($page);
         $data['period_radios']  = $this->bsc_model->get_radio_inputs_periods();
-        $data['providers_list']  = $this->bsc_model->get_radio_inputs_periods();
+        $data['unique_products_count']  = $this->bsc_model->get_unique_products_count();
+        
         if(isset($post_data['provider']))
         {
             $data['providers_list'] = $this->providers_model->get_providers_list($post_data['provider'],true,true);
@@ -83,5 +86,14 @@ class Bsc extends CI_Controller{
         {
             $this->output->set_output('success');
         }
+    }
+    
+    public function ssa($page = 0)
+    {
+        // Load data 
+        $data['title'] = ucfirst($this->router->method);
+        
+        // Load view 
+        $this->load->template('bsc/ssa', $data);
     }
 }
