@@ -42,6 +42,14 @@ class Bsc extends CI_Controller{
     {
         $post_data = $this->input->post();
         
+        if(isset($post_data['to_excel']))
+        {
+            if($post_data['to_excel'] == 1)
+            {
+                $this->bsc_model->export_to_excel();
+            }
+        }
+        
         // Load data 
         $data['title'] = ucfirst($this->router->method);
         $data['overview']  = $this->bsc_model->get_overview($page);
@@ -56,7 +64,6 @@ class Bsc extends CI_Controller{
             $data['providers_list'] = $this->providers_model->get_providers_list(null,true,true);
         }
         
-        
         // Pagination
         
         $config['base_url'] = base_url().'index.php/bsc/overview/';
@@ -68,5 +75,13 @@ class Bsc extends CI_Controller{
         
         // Load view 
         $this->load->template('bsc/overview', $data);
+    }
+    
+    public function update_product($id)
+    {
+        if($this->bsc_model->update_product($id))
+        {
+            $this->output->set_output('success');
+        }
     }
 }

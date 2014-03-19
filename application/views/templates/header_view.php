@@ -97,7 +97,7 @@
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_stokoni_summary';?>" onclick="confirm(this);return false;">Generar Stokoni Summary</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_new_products_coqueteo_summary';?>" ">Coqueteo New Products Report</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_new_products_coqueteo_summary';?>">Coqueteo New Products Report</a>
                             </li>
                         </ul>
                     </li>
@@ -179,7 +179,7 @@
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_stokoni_summary';?>" onclick="confirm(this);return false;">Generar Stokoni Summary</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_new_products_coqueteo_summary';?>" ">Coqueteo New Products Report</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_new_products_coqueteo_summary';?>">Coqueteo New Products Report</a>
                             </li>
                         </ul>
                     </li>

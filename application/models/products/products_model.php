@@ -344,6 +344,11 @@ class Products_model extends CI_Model
                     }
                     else
                     {
+                        if($product['stock'] <= 0)
+                        {
+                            $product['provider_ordered'] = 0;
+                        }
+                        
                         $product['updated_on'] = date('Y-m-d H:i:s', time());
                         $this->db->where('sku', $product['sku']);
                         $this->db->where('provider_name', $product['provider_name']);

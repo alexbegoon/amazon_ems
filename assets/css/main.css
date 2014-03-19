@@ -57,7 +57,7 @@ h2 {
     font-weight: bold;
     margin: 5px;
 }
-th a,th {
+th a {
     white-space: nowrap!important;
 }
 .ok_icon {
@@ -90,6 +90,20 @@ th a,th {
 .a_down
 {
     background-position: 8px 0;
+}
+.apply_icon
+{
+    display: inline-block;
+    margin-right: 2px;
+    width: 16px;
+    height: 16px;
+    background: url(../imgs/Actions-dialog-ok-apply-icon.png);
+    opacity: 0.6;
+    cursor: pointer;
+}
+.apply_icon:hover
+{
+    opacity: 1;
 }
 tr.markered td
 {
@@ -539,6 +553,22 @@ table.thin_table tbody tr.odd-row:hover td {
     background: -webkit-gradient(linear, 0% 0%, 0% 25%, from(#e8f6fe), to(#e3f6ff))!important;
     color: #000!important;
 }
+
+table.thin_table td input[type=text],
+table.thin_table td input[type=number]
+{
+    -moz-outline-radius: 3px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    height: 20px;
+    width: 50px;
+    outline: none;
+}
+table.thin_table td input[type=text]:focus,
+table.thin_table td input[type=number]:focus
+{
+    border-color: #c4c4c4 #d1d1d1 #d4d4d4;
+}
 table.orders td, table.orders th,table.recurrent td, 
 table.recurrent th, table.thin_table th, table.thin_table td{
     padding: 5px;
@@ -722,6 +752,17 @@ b.warning_icon{
     left:47%;
     background: url(../imgs/ajax-loader.gif);
     display: none;
+}
+.small-ajax-loader
+{
+    opacity: 1!important;
+    background-image: url(../imgs/small-ajax-loader.gif)!important;
+    background-repeat: no-repeat!important;
+    background-position: center center!important;
+}
+.small-ajax-loader input
+{
+    opacity: 0.2!important;
 }
 #success-icon, #error-icon {
     position: absolute;

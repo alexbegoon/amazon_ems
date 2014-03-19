@@ -111,10 +111,10 @@ class Bsc_model extends CI_Model
                             'amazon_trend'          => $this->get_amazon_trend($product->id, $start_date, $end_date),
                             'is_best_price'         => $this->is_best_price($p->sku),
                             'total_trend'           => $this->get_total_trend($product->id, $start_date, $end_date),
-                            'quantity_needed'       => '',
-                            'target_price'          => '',
-                            'provider_order'        => '',
-                            'provider_order_date'   => ''
+                            'quantity_needed'       => $product->quantity_needed,
+                            'target_price'          => $product->target_price,
+                            'provider_ordered'      => $product->provider_ordered,
+                            'provider_order_date'   => $product->provider_order_date
 
                         );
                     }
@@ -382,12 +382,15 @@ class Bsc_model extends CI_Model
 
     private function get_products_by_sku($sku)
     {
+        $post_data = $this->input->post();
+        
         if($sku)
         {
-            $query = $this->db->select('
+            $this->db->select('
                         p_p.id, p_p.sku, 
                         p_p.product_name, p_p.provider_name,
-                        p_p.stock, p_p.price,
+                        p_p.stock, p_p.price, p_p.quantity_needed, 
+                        p_p.target_price, p_p.provider_ordered, p_p.provider_order_date,
                         ( SELECT p_p_h.price
                         FROM '.$this->db->dbprefix('providers_products_history').' as p_p_h
                         WHERE p_p_h.product_id = p_p.id
@@ -403,11 +406,25 @@ class Bsc_model extends CI_Model
                         LIMIT 0,1
                         ) as last_price_date
                         
-            ')
-            ->from('providers_products as p_p')
-            ->where('p_p.sku',$sku)
-            ->order_by('p_p.provider_name')
-            ->get();
+            ');
+            $this->db->from('providers_products as p_p');
+            $this->db->where('p_p.sku',$sku);
+            if(isset($post_data['products_mode']))
+            {
+                switch ($post_data['products_mode'])
+                {
+                    case '1' : 
+                        break;
+                    case '2' : 
+                        $this->db->where('p_p.provider_ordered',0);
+                        break;
+                    case '3' : 
+                        $this->db->where('p_p.provider_order_date >',date('Y-m-d H:i:s', time() - 60 * 60 * 24 * 30));
+                        break;
+                }
+            }
+            $this->db->order_by('p_p.provider_name');
+            $query = $this->db->get();
 
             return $query->result();
         }
@@ -427,8 +444,121 @@ class Bsc_model extends CI_Model
         }
     }
 
-        public function get_total_rows()
+    public function get_total_rows()
     {
         return $this->_total_rows;
     }
+    
+    public function update_product($id)
+    {
+        $post_data = $this->input->post();
+        
+        $post_data['updated_on'] = date('Y-m-d H:i:s', time());
+        
+        return $this->db->update('providers_products', $post_data, array('id' => $id));
+    }
+    
+    public function export_to_excel()
+    {
+        $this->load->library('excel');
+        $this->load->helper('download');
+        $this->load->helper('file');
+        
+        $post_data = $this->input->post();
+        
+        $file = null;
+        
+        $objPHPExcel = new PHPExcel();
+        
+        $objPHPExcel->getProperties()->setCreator("Amazoni4");
+        $objPHPExcel->getProperties()->setLastModifiedBy("Amazoni4");
+        $objPHPExcel->getProperties()->setTitle("BSC products report. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setSubject("BSC products report. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setDescription("BSC products report. Date: ".date('r', time()));
+        
+        $objPHPExcel->setActiveSheetIndex(0);
+        
+        $objPHPExcel->getActiveSheet()->setTitle("BSC products report");
+        
+        // Prepare Excel header
+        $header = array(
+            'EAN',
+            'Product Name',
+            'Units'
+        );
+        
+        $i = 0;
+        foreach ($header as $cell)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 1)->getFill()
+            ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'startcolor' => array('rgb' => 'ededed')
+            ));
+            $i++;
+        }
+        
+        // Get products
+        
+        if(!isset($post_data['product_id']))
+        {
+            return false;
+        }
+        if(count($post_data['product_id']) <= 0)
+        {
+            return false;
+        }
+        
+        $query = $this->db->select('sku, product_name, quantity_needed')
+                 ->from('providers_products')
+                 ->where_in('id', $post_data['product_id'])
+                 ->get();
+        
+        $products = $query->result();
+        
+        // Insert data
+        if(count($products) > 0)
+        {
+            $i = 2;
+            foreach($products as $p)
+            {
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $p->sku, PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFont()->setBold(true);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, stripslashes(preg_replace('/^"|"$/','',$p->product_name)), PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $p->quantity_needed, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+                $i++;
+            }
+            
+            // Write a file
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+
+            $name = 'bsc_products_report_'.  date('_Y_m_d_H_i_s__', time());
+            
+            $filename = FCPATH .'upload/'.$name.'.xls';
+
+            $file = $objWriter->save($filename);
+            
+            $this->mark_products_as_ordered_to_provider($post_data['product_id']);
+            
+            force_download($name.'.xls', read_file($filename));
+
+            return read_file($filename);
+        }
+        
+        return false;
+    }
+    
+    private function mark_products_as_ordered_to_provider($ids)
+    {
+        $data = array();
+        
+        $data['provider_order_date'] = $data['updated_on'] = date('Y-m-d H:i:s',time());
+        $data['provider_ordered']    = 1;
+        
+        foreach ($ids as $id) 
+        {
+            $this->db->update('providers_products', $data, array('id' => $id));
+        }
+    }
+            
 }
