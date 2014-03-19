@@ -231,7 +231,8 @@ $products_options = array(
                 
                 if(!this.checkValidity() || !$.isNumeric(el.val()))
                 {
-                    alert(this.validationMessage);
+                    var validation_msg = this.validationMessage || 'Please, enter a valid number';
+                    alert(validation_msg);
                     el.val(null);
                     el.focus();
                 }
