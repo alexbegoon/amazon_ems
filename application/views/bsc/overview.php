@@ -229,7 +229,7 @@ $products_options = array(
                 
                 var el = $(this);
                 
-                if(!this.checkValidity())
+                if(!this.checkValidity() || !$.isNumeric(el.val()))
                 {
                     alert(this.validationMessage);
                     el.val(null);
