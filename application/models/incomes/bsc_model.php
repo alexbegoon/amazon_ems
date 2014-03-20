@@ -16,7 +16,7 @@ class Bsc_model extends CI_Model
         $this->load->database();
     }
     
-    public function get_overview($page)
+    public function get_overview($page, $ssa_view = false)
     {
         $data = array();
         
@@ -44,6 +44,12 @@ class Bsc_model extends CI_Model
             }
         }
         
+        if($ssa_view)
+        {
+            $start_date = date('Y-m-d H:i:s', time() - 60 * 60 * 24 * 30);
+            $end_date = date('Y-m-d H:i:s', time());
+        }
+        
         $order_statuses = array('ENVIADO_TOURLINE',
                                 'ENVIADO_PACK',
                                 'ENVIADO_MEGASUR',
@@ -54,21 +60,37 @@ class Bsc_model extends CI_Model
       
         // Get top sales SKUs
         
-        $this->db->select('h.sku, SUM(h.quantity) as total_quantity');
+        
+        if($ssa_view)
+        {
+            $this->db->select('h.sku, p_p.stock as stock, SUM(h.quantity) as total_quantity');
+        }
+        else 
+        {
+            $this->db->select('h.sku, SUM(h.quantity) as total_quantity');
+        }
         $this->db->from('products_sales_history as h');
         $dbprefix = $this->db->dbprefix;
         $this->db->set_dbprefix(null);
         $this->db->join('pedidos as p','p.id = h.order_id','left');
         $this->db->set_dbprefix($dbprefix);
+        if($ssa_view)
+        {
+            $this->db->join('providers_products as p_p','p_p.id = h.provider_product_id','left');
+        }
         $this->db->where('h.created_at >',$start_date);
         $this->db->where('h.created_at <',$end_date);
         $this->db->where_in('p.procesado',$order_statuses);
         $this->db->group_by('h.sku');
+        if($ssa_view)
+        {
+            $this->db->having('stock < total_quantity');
+        }
         $this->db->order_by('total_quantity','DESC');
         $this->db->limit('50',$page);
         
         $result = $this->db->get();
-        
+                
         if($result->num_rows() > 0)
         {
             $top_products = $result->result();
@@ -79,7 +101,7 @@ class Bsc_model extends CI_Model
             {
                 $top_products_skus[] = $p->sku;
                 
-                $products = $this->get_products_by_sku($p->sku);
+                $products = $this->get_products_by_sku($p->sku, $ssa_view);
                 
                 if( count($products) > 0 && is_array($products) )
                 {
@@ -109,7 +131,8 @@ class Bsc_model extends CI_Model
                             'target_price'          => $product->target_price,
                             'provider_ordered'      => $product->provider_ordered,
                             'provider_order_date'   => $product->provider_order_date,
-                            'is_checked'            => $product->is_checked > 0 ? TRUE : FALSE
+                            'is_checked'            => $product->is_checked > 0 ? TRUE : FALSE,
+                            'is_checked_ssa'        => $product->is_checked_ssa > 0 ? TRUE : FALSE
 
                         );
                     }
@@ -476,7 +499,7 @@ class Bsc_model extends CI_Model
         }
     }
 
-    private function get_products_by_sku($sku)
+    private function get_products_by_sku($sku, $ssa_view)
     {
         $post_data = $this->input->post();
         
@@ -488,8 +511,8 @@ class Bsc_model extends CI_Model
             '_WAREHOUSE'
 
         );
-                
         
+            
         if($sku)
         {
             $this->db->select('
@@ -497,7 +520,7 @@ class Bsc_model extends CI_Model
                         p_p.product_name, p_p.provider_name,
                         p_p.stock, p_p.price, p_p.quantity_needed, 
                         p_p.target_price, p_p.provider_ordered, DATE(p_p.provider_order_date) as provider_order_date, 
-                        p_p.is_checked, 
+                        p_p.is_checked, p_p.is_checked_ssa,  
                         ( SELECT p_p_h.price
                         FROM '.$this->db->dbprefix('providers_products_history').' as p_p_h
                         WHERE p_p_h.product_id = p_p.id
@@ -531,7 +554,15 @@ class Bsc_model extends CI_Model
                         break;
                 }
             }
-            $this->db->order_by('p_p.provider_name');
+            if($ssa_view)
+            {
+                $this->db->order_by('p_p.price');
+            }
+            else 
+            {
+                $this->db->order_by('p_p.provider_name');
+            }
+            
             $query = $this->db->get();
 
             return $query->result();
@@ -654,6 +685,94 @@ class Bsc_model extends CI_Model
         return false;
     }
     
+    public function export_to_excel_ssa()
+    {
+        $this->load->library('excel');
+        $this->load->helper('download');
+        $this->load->helper('file');
+        
+        $post_data = $this->input->post();
+        
+        $file = null;
+        
+        $objPHPExcel = new PHPExcel();
+        
+        $objPHPExcel->getProperties()->setCreator("Amazoni4");
+        $objPHPExcel->getProperties()->setLastModifiedBy("Amazoni4");
+        $objPHPExcel->getProperties()->setTitle("SSA products report. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setSubject("SSA products report. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setDescription("SSA products report. Date: ".date('r', time()));
+        
+        $objPHPExcel->setActiveSheetIndex(0);
+        
+        $objPHPExcel->getActiveSheet()->setTitle("SSA products report");
+        
+        // Prepare Excel header
+        $header = array(
+            'EAN',
+            'Product Name',
+            'Units',
+            'Price'
+        );
+        
+        $i = 0;
+        foreach ($header as $cell)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 1)->getFill()
+            ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'startcolor' => array('rgb' => 'ededed')
+            ));
+            $i++;
+        }
+        
+        // Get products
+        
+        $product_ids = array();
+        
+        $query = $this->db->select('id, sku, product_name, quantity_needed, target_price')
+                 ->from('providers_products')
+                 ->where('is_checked_ssa', 1)
+                 ->get();
+        
+        $products = $query->result();
+        
+        // Insert data
+        if(count($products) > 0)
+        {
+            $i = 2;
+            foreach($products as $p)
+            {
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $p->sku, PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFont()->setBold(true);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, stripslashes(preg_replace('/^"|"$/','',$p->product_name)), PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $p->quantity_needed, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $p->target_price > 0 ? $p->target_price : null, $p->target_price > 0 ? PHPExcel_Cell_DataType::TYPE_NUMERIC : PHPExcel_Cell_DataType::TYPE_STRING);
+                $i++;
+                
+                $product_ids[] = $p->id;
+            }
+            
+            // Write a file
+            $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+
+            $name = 'ssa_products_report_'.  date('_Y_m_d_H_i_s__', time());
+            
+            $filename = FCPATH .'upload/'.$name.'.xls';
+
+            $file = $objWriter->save($filename);
+            
+            $this->mark_products_as_ordered_to_provider($product_ids);
+            $this->reset_ssa_checkboxes();
+            
+            force_download($name.'.xls', read_file($filename));
+
+            return read_file($filename);
+        }
+        
+        return false;
+    }
+    
     private function mark_products_as_ordered_to_provider($ids)
     {
         $data = array();
@@ -686,11 +805,38 @@ class Bsc_model extends CI_Model
         }
     }
     
+    public function store_ssa_checkboxes()
+    {
+        $post_data = $this->input->post();
+        
+        $data = array();
+        
+        if( isset($post_data['product_id']) )
+        {
+            if( count($post_data['product_id']) > 0 )
+            {
+                $data['updated_on'] = date('Y-m-d H:i:s', time());
+                $data['is_checked_ssa'] = 1;
+
+                $this->db->where_in('id',$post_data['product_id']);
+                $this->db->update('providers_products',$data);
+            }
+        }
+    }
+    
     private function reset_checkboxes()
     {
         $data = array();
         
         $data['is_checked'] = 0;
+        
+        $this->db->update('providers_products',$data);
+    }
+    private function reset_ssa_checkboxes()
+    {
+        $data = array();
+        
+        $data['is_checked_ssa'] = 0;
         
         $this->db->update('providers_products',$data);
     }

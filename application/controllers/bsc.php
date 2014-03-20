@@ -90,8 +90,31 @@ class Bsc extends CI_Controller{
     
     public function ssa($page = 0)
     {
+        $post_data = $this->input->post();
+        
+        $this->bsc_model->store_ssa_checkboxes();
+        
+        if(isset($post_data['to_excel']))
+        {
+            if($post_data['to_excel'] == 1)
+            {
+                $this->bsc_model->export_to_excel_ssa();
+            }
+        }
+        
         // Load data 
         $data['title'] = ucfirst($this->router->method);
+        $data['overview']  = $this->bsc_model->get_overview($page, true);
+        $data['unique_products_count']  = $this->bsc_model->get_unique_products_count();
+        
+        // Pagination
+        
+        $config['base_url'] = base_url().'index.php/bsc/ssa/';
+        $config['total_rows'] = $this->bsc_model->get_total_rows();
+        $config['per_page'] = 50; 
+
+        $this->pagination->initialize($config); 
+        $data['pagination'] = $this->pagination->create_links();
         
         // Load view 
         $this->load->template('bsc/ssa', $data);

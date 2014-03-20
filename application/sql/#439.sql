@@ -10,3 +10,7 @@ ADD COLUMN `provider_order_date` DATETIME NULL AFTER `provider_ordered`;
 
 ALTER TABLE `amazoni`.`amazoni4_providers_products` 
 ADD COLUMN `is_checked` TINYINT(1) NULL DEFAULT 0 AFTER `provider_order_date`;
+
+
+ALTER TABLE `amazoni`.`amazoni4_providers_products` 
+ADD COLUMN `is_checked_ssa` TINYINT(1) NULL DEFAULT 0 AFTER `is_checked`;
