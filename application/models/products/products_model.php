@@ -1242,4 +1242,20 @@ class Products_model extends CI_Model
         log_message('INFO', $msg);
         return false;
     }
+    
+    /**
+     * Delete product from providers_products table.
+     * Be careful!
+     * @param int $id
+     * @return bool Boolean
+     */
+    public function delete_product($id)
+    {
+        if(is_int($id) && $id > 0)
+        {
+            return $this->db->delete('providers_products', array('id' => $id));
+        }
+        
+        return FALSE;
+    }
 }

@@ -25,7 +25,6 @@ class Sync_products_coqueteo extends Sync_products
         
         // Store products
         $this->store_products();
-        
     }
     
     protected function extract_products() 
@@ -70,6 +69,13 @@ class Sync_products_coqueteo extends Sync_products
                 $ean = (string)preg_replace('/^#/', '', $product[3]);
             }
             
+            // Excluded products need to be removed
+            if(in_array((string)$ean, $this->_eans_to_exclude))
+            {
+                $this->delete_product_by_ean($ean, $this->_provider_name);
+                continue;
+            }
+            
             if( isset($ean) && preg_match('/^\d{13}/', $ean) )
             {
                 
@@ -107,5 +113,29 @@ class Sync_products_coqueteo extends Sync_products
             
             $i++;
         }
+    }
+    
+    protected function check_products_exceptions()
+    {
+        $this->_CI->load->library('excel');
+        
+        $xls_path = FCPATH . '/bloqueados_coqueteo.xls';
+        
+        $objReader = PHPExcel_IOFactory::createReader('Excel5');
+        
+        $objPHPExcel = $objReader->load($xls_path);
+        
+        $sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
+        
+        $eans_to_exclude = array();
+        
+        foreach($sheetData as $row)
+        {
+            $eans_to_exclude[] = (string)preg_replace('/^#/', '', $row['B']);
+        }
+        
+        $this->_eans_to_exclude = $eans_to_exclude;
+        
+        return TRUE;
     }
 }

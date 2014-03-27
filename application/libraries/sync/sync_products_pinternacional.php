@@ -24,13 +24,10 @@ class Sync_products_pinternacional extends Sync_products
         
         // Store products
         $this->store_products();
-        
     }
     
     protected function extract_products() 
-    {
-        $eans_to_exclude = $this->check_products_exceptions();
-        
+    {        
         $data_file = file_get_contents($this->_url_service);
         
         if(!$data_file)
@@ -64,7 +61,7 @@ class Sync_products_pinternacional extends Sync_products
                 $this->_products[$i]['product_name'] = trim($product[0]);
                 $this->_products[$i]['provider_name'] = $this->_provider_name;
                 $this->_products[$i]['price']   = (float)$product[2];
-                if(in_array((string)$this->_products[$i]['sku'], $eans_to_exclude) || (int)$product[3] <= 3)
+                if(in_array((string)$this->_products[$i]['sku'], $this->_eans_to_exclude) || (int)$product[3] <= 3)
                 {
                     $this->_products[$i]['stock'] = 0;
                 }
@@ -90,7 +87,7 @@ class Sync_products_pinternacional extends Sync_products
         }
     }
     
-    private function check_products_exceptions()
+    protected function check_products_exceptions()
     {
         $this->_CI->load->library('excel');
         
@@ -109,7 +106,8 @@ class Sync_products_pinternacional extends Sync_products
             $eans_to_exclude[] = (string)preg_replace('/^#/', '', $row['B']);
         }
         
-        return $eans_to_exclude;
-
+        $this->_eans_to_exclude = $eans_to_exclude;
+        
+        return TRUE;
     }
 }
