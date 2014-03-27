@@ -316,6 +316,9 @@ class Products_model extends CI_Model
         $summary = new stdClass();
         $summary->affected_rows = 0;
         
+        $products_to_insert = array();
+        $products_to_update = array();
+        
         if(!empty($products))
         {
             $this->db->trans_begin();
@@ -337,10 +340,12 @@ class Products_model extends CI_Model
                 {
                     $product['provider_id'] = $provider_id;
                     
-                    if(!$this->is_product_exists($product['sku'], $product['provider_name']))
+                    $product_id = $this->is_product_exists($product['sku'], $product['provider_name']);
+                    
+                    if(!$product_id)
                     {
                         $product['created_on'] = $product['updated_on'] = date('Y-m-d H:i:s', time());
-                        $this->db->insert('providers_products', $product);
+                        $products_to_insert[] = $product;
                     }
                     else
                     {
@@ -348,16 +353,17 @@ class Products_model extends CI_Model
                         {
                             $product['provider_ordered'] = 0;
                         }
-                        
+                        $product['id'] = $product_id;
                         $product['updated_on'] = date('Y-m-d H:i:s', time());
-                        $this->db->where('sku', $product['sku']);
-                        $this->db->where('provider_name', $product['provider_name']);
-                        $this->db->update('providers_products', $product); 
+                        $products_to_update[] = $product;
                     }
                     
                     $summary->affected_rows += $this->db->affected_rows();
                 }
             }
+            $this->batch_insert($products_to_insert);
+            $this->batch_update($products_to_update);
+            
             $this->db->trans_commit();
             
             // Store products history
@@ -370,6 +376,32 @@ class Products_model extends CI_Model
         return $summary;
     }
     
+    /**
+     * Insert products to providers_products table
+     * @param type $data
+     */
+    private function batch_insert($data)
+    {
+        if(count($data) > 0)
+        {
+            return $this->db->insert_batch('providers_products', $data); 
+        }
+        return FALSE;
+    }
+    
+    /**
+     * Update products in providers_products table
+     * @param type $data
+     */
+    private function batch_update($data)
+    {
+        if(count($data) > 0)
+        {
+            return $this->db->update_batch('providers_products', $data, 'id'); 
+        }
+        return FALSE;
+    }
+
     /**
      * Make a flashdata of Products table
      */
@@ -423,7 +455,7 @@ class Products_model extends CI_Model
         }
     }
 
-        /**
+    /**
      * Check product existance
      * @param type $sku
      * @param type $provider_name
@@ -433,14 +465,14 @@ class Products_model extends CI_Model
     {
         $hash = strtolower(substr(preg_replace('/\d/','',md5((string)(rand(0,100).rand(0,100).rand(0,100).rand(0,100)))),0,10));
         
-        $this->db->select('id as '.$hash);
+        $this->db->select('id as '.$hash.', id as product_id');
         $this->db->where('sku =',$sku);
         $this->db->where('provider_name =',$provider_name);
-        $query = $this->db->get('providers_products');
+        $query = $this->db->get('providers_products',1,0);
         
         if($query->num_rows > 0)
         {
-            return TRUE;
+            return (int)$query->row()->product_id;
         }
         
         return FALSE;
