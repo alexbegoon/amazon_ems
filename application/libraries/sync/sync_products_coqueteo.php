@@ -69,13 +69,6 @@ class Sync_products_coqueteo extends Sync_products
                 $ean = (string)preg_replace('/^#/', '', $product[3]);
             }
             
-            // Excluded products need to be removed
-            if(in_array((string)$ean, $this->_eans_to_exclude))
-            {
-                $this->delete_product_by_ean($ean, $this->_provider_name);
-                continue;
-            }
-            
             if( isset($ean) && preg_match('/^\d{13}/', $ean) )
             {
                 
@@ -83,7 +76,7 @@ class Sync_products_coqueteo extends Sync_products
                 $this->_products[$i]['product_name'] = trim($product[2]);
                 $this->_products[$i]['provider_name'] = $this->_provider_name;
                 $this->_products[$i]['price']   = $price;
-                if( $price <= floatval(1) )
+                if( $price <= floatval(1) || in_array((string)$ean, $this->_eans_to_exclude) )
                 {
                     $this->_products[$i]['stock']   = 0;
                 }

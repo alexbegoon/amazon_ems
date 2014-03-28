@@ -47,13 +47,15 @@ class Sync_process extends CI_Controller
                 }
             }
         }
+        
+        $this->output->set_output('Done');
     }
     
     public function sync_engelsa()
     {
-        
         $this->load->library($this->_path_to_library . 'Sync_engelsa', array('config' => 'Config_engelsa'));
         
+        $this->output->set_output('Done');
     }
     
     public function sync_grutinet()
@@ -65,6 +67,8 @@ class Sync_process extends CI_Controller
         
         // Load sync process class
         $this->load->library($this->_path_to_library.'sync_grutinet',$config);
+        
+        $this->output->set_output('Done');
     }
     
     /**
@@ -79,6 +83,8 @@ class Sync_process extends CI_Controller
             
             delete_files(FCPATH.'application/cache/'.$folder.'/', TRUE);
         }
+        
+        $this->output->set_output('Done');
     }
     
     public function sync_top_sales()
@@ -88,6 +94,8 @@ class Sync_process extends CI_Controller
 //        $this->output->enable_profiler(TRUE);
         
         $this->top_sales_model->sync_with_pedidos();
+        
+        $this->output->set_output('Done');
     }
     
     public function sync_product_list_with_engelsa_and_grutinet()
@@ -100,6 +108,8 @@ class Sync_process extends CI_Controller
         
         $this->products_model->sync_with_engelsa();
         $this->products_model->sync_with_grutinet();
+        
+        $this->output->set_output('Done');
     }
     
     public function send_magnet_emails()
@@ -107,6 +117,8 @@ class Sync_process extends CI_Controller
         $this->load->model('magnet/magnet_model');
         
         $this->magnet_model->send_email_messages();
+        
+        $this->output->set_output('Done');
     }
     
     public function sync_reviews()
@@ -121,6 +133,8 @@ class Sync_process extends CI_Controller
         $this->load->model('amazon/amazon_model');
         
         $this->amazon_model->update_log();
+        
+        $this->output->set_output('Done');
     }
     
     /**
@@ -142,6 +156,8 @@ class Sync_process extends CI_Controller
         
         $this->stokoni_model->upload_stock_to_amazon();
         $this->stokoni_model->upload_prices_to_amazon();
+        
+        $this->output->set_output('Done');
     }
     
     public function sync_providers_products()
@@ -155,5 +171,7 @@ class Sync_process extends CI_Controller
         require_once FCPATH . $this->_path_to_sync_library . 'sync_products_coqueteo.php';
         
         new Sync_products_coqueteo();
+        
+        $this->output->set_output('Done');
     }
 }
