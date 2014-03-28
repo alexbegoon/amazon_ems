@@ -190,15 +190,20 @@ class Products_model extends CI_Model
     {
         $statistic = $this->get_providers_statistic();
         
+        $insert_data = array();
+        
         if(is_array($statistic) && count($statistic) > 0)
         {
             foreach ($statistic as $r)
             {
                 $r->created_on = $r->updated_on = date('Y-m-d H:i:s',time());
-                $this->db->insert('providers_products_statistic_history',$r);
+                $insert_data[] = (array)$r;
             }
             
-            return TRUE;
+            if(is_array($insert_data) && count($insert_data) > 0)
+            {
+                return $this->db->insert_batch('providers_products_statistic_history',$insert_data);
+            }
         }
         
         return FALSE;
