@@ -357,12 +357,12 @@ class Products_model extends CI_Model
                         $product['updated_on'] = date('Y-m-d H:i:s', time());
                         $products_to_update[] = $product;
                     }
-                    
-                    $summary->affected_rows += $this->db->affected_rows();
                 }
             }
             $this->batch_insert($products_to_insert);
+            $summary->affected_rows += $this->db->affected_rows();
             $this->batch_update($products_to_update);
+            $summary->affected_rows += $this->db->affected_rows();
             
             $this->db->trans_commit();
             
@@ -407,52 +407,32 @@ class Products_model extends CI_Model
      */
     private function store_products_history()
     {
-        $this->db->select('id as product_id, price, stock, NOW() as created_on');
-        $query = $this->db->get('providers_products');
+        $query =  $this->db->select('p.id as product_id, p.price, p.stock, NOW() as created_on')
+                           ->from('providers_products as p')
+                           ->where('price != ( SELECT p_h.price FROM '.$this->db->dbprefix('providers_products_history').' as p_h '
+                                   . 'WHERE p_h.product_id = p.id '
+                                   . 'ORDER BY p_h.created_on DESC '
+                                   . 'LIMIT 0,1 )')
+                           ->or_where('stock != ( SELECT p_h.stock FROM '.$this->db->dbprefix('providers_products_history').' as p_h '
+                                      . 'WHERE p_h.product_id = p.id '
+                                      . 'ORDER BY p_h.created_on DESC '
+                                      . 'LIMIT 0,1 )')
+                           ->get();
         
-        $data = array();
+        $data = $query->result('array');
         
-        if($query->num_rows() > 0)
+        if(count($data) > 0)
         {
-            $products = $query->result('array');
-            
-            foreach ($products as $p)
-            {
-                $this->db->select('price, stock');
-                $this->db->where('product_id',$p['product_id']);
-                $this->db->order_by('created_on','DESC');
-                $this->db->limit(1);
-                $query = $this->db->get('providers_products_history');
-                if($query->num_rows() == 1)
-                {
-                    // Check that history table need this row. 
-                    // We need now dublicates in history.
-                    if(   $query->row()->price != $p['price'] || 
-                          $query->row()->stock != $p['stock']
-                        )
-                    {
-                        $data[] = $p;
-                    }
-                }
-                else 
-                {
-                    $data[] = $p;
-                }
-            }
-            
-            $res = false;
-            
-            if(count($data) > 0)
-            {
-                $this->db->trans_begin();
-            
-                $res = $this->db->insert_batch('providers_products_history', $data);
+            $this->db->trans_begin();
 
-                $this->db->trans_commit();
-            }
+            $res = $this->db->insert_batch('providers_products_history', $data);
+
+            $this->db->trans_commit();
             
             return $res;
         }
+
+        return FALSE;
     }
 
     /**
