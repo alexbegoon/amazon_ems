@@ -91,8 +91,11 @@ class Export_csv extends CI_Controller {
         // Export file
         if(!empty($file))
         {
-            write_file(APPPATH . 'logs/CSV_export_'. date('d-m-Y_H-i-s', time()).'.csv', $file->data);
-            force_download($file->name, $file->data);
+            if(write_file(APPPATH . 'logs/CSV_export_'. date('d-m-Y_H-i-s', time()).'.csv', $file->data))
+            {
+                $this->export_csv_model->batch_update_orders_statuses();
+                force_download($file->name, $file->data);
+            }
         }
         
         // Load view 
