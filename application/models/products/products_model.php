@@ -422,6 +422,10 @@ class Products_model extends CI_Model
                                       . 'WHERE p_h.product_id = p.id '
                                       . 'ORDER BY p_h.created_on DESC '
                                       . 'LIMIT 0,1 )')
+                           ->or_where('( SELECT p_h.id FROM '.$this->db->dbprefix('providers_products_history').' as p_h '
+                                      . 'WHERE p_h.product_id = p.id '
+                                      . 'ORDER BY p_h.created_on DESC '
+                                      . 'LIMIT 0,1 ) IS NULL')
                            ->get();
         
         $data = $query->result('array');
