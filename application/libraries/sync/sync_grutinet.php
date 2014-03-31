@@ -47,7 +47,7 @@ class Sync_grutinet
             // Insert data to GRUTINET temp table
             if (!$this->_config['test_mode'])
             {
-                $this->insert_data($this->_db->dbprefix('grutinet_temp'), $products);
+                $this->insert_data('grutinet_temp', $products);
             }
 
             // Compare Grutinet table with temp and ADD the new items if need
@@ -130,48 +130,9 @@ class Sync_grutinet
     
     private function insert_data($table, $data = array()){
         
-        // http://stackoverflow.com/questions/1176352/pdo-prepared-inserts-multiple-rows-in-single-query
-        // http://stackoverflow.com/questions/10060721/pdo-mysql-insert-multiple-rows-in-one-query
-        # INSERT (name) VALUE (value),(value)
-        if (count($data) > 1) 
+        if (count($data) > 0) 
         {
-            $this->_db->trans_begin(); // helps speed up inserts
-
-            $fieldnames = array_keys($data[0]);
-            $count_values = count(array_values($data[0]));
-
-            # array(????) untill x from first data
-            for($i = 0; $i < $count_values; $i++)
-            {
-                $placeholder[] = '?';
-            }
-
-            $query  = 'INSERT INTO `'.$table.'` 
-                       (`'. implode('`, `', $fieldnames) .'`) 
-                       VALUES ('. implode(', ', $placeholder).')';
-
-            foreach($data as $item) 
-            {
-                $this->_db->query($query, $item);
-            }
-
-            $this->_db->trans_commit();
-        } 
-        else 
-        {
-            $fieldnames = array_keys($data[0]);
-            $values     = array_values($data[0]);
-            
-            foreach ($values as $value)
-            {
-                $escaped_values[] = $this->_db->escape($value);
-            }
-            
-            $query  = 'INSERT INTO `'.$table.'` 
-                       (`'. implode('`, `', $fieldnames) .'`) 
-                       VALUES ( '. implode(', ', $escaped_values). ' )';
-            
-            $this->_db->query($query);
+            $this->_CI->db->insert_batch($table, $data);
         }
     }
     
@@ -189,7 +150,7 @@ class Sync_grutinet
         
         if ($result->num_rows() > 0)
         {
-            $this->insert_data($this->_db->dbprefix('grutinet'), $result->result('array'));
+            $this->insert_data('grutinet', $result->result('array'));
             
             return $result->result('array');
         }
@@ -213,7 +174,7 @@ class Sync_grutinet
         
         if ($result->num_rows() > 0)
         {
-            $this->update_data($this->_db->dbprefix('grutinet'), $result->result('array'));
+            $this->update_data('grutinet', $result->result('array'));
             return $result->result('array');
         }
         
@@ -222,24 +183,17 @@ class Sync_grutinet
     
     private function update_data($table, $data = array())
     {
-        
-        $query = ' UPDATE `'.$table.'` 
-                   SET `price`=?, `stock`=?, `product_name`=?  
-                   WHERE `ean`=?
-        ';
+        $update_data = array();
         
         foreach ($data as $item)
         {
-            $this->_db->query($query, array(
-                        $item['price'], 
-                        $item['stock'], 
-                        $item['product_name'], 
-                        $item['ean'])
-                    );
+            $update_data[] = array( 'price'             => $item['price'], 
+                                    'stock'             => $item['stock'], 
+                                    'product_name'      => $item['product_name'],
+                                    'ean'               => $item['ean']);
         }
         
-        return true;
-        
+        return $this->_CI->db->update_batch($table, $update_data, 'ean');        
     }
     
     private function remove_items()

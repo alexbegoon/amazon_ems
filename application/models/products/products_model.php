@@ -324,6 +324,8 @@ class Products_model extends CI_Model
         $products_to_insert = array();
         $products_to_update = array();
         
+        $existing_products = $this->are_products_exists($products);
+        
         if(!empty($products))
         {
             $this->db->trans_begin();
@@ -345,9 +347,7 @@ class Products_model extends CI_Model
                 {
                     $product['provider_id'] = $provider_id;
                     
-                    $product_id = $this->is_product_exists($product['sku'], $product['provider_name']);
-                    
-                    if(!$product_id)
+                    if( !isset($existing_products[$product['sku'].'_'.$product['provider_name']]) )
                     {
                         $product['created_on'] = $product['updated_on'] = date('Y-m-d H:i:s', time());
                         $products_to_insert[] = $product;
@@ -358,7 +358,7 @@ class Products_model extends CI_Model
                         {
                             $product['provider_ordered'] = 0;
                         }
-                        $product['id'] = $product_id;
+                        $product['id'] = $existing_products[$product['sku'].'_'.$product['provider_name']];
                         $product['updated_on'] = date('Y-m-d H:i:s', time());
                         $products_to_update[] = $product;
                     }
@@ -466,8 +466,45 @@ class Products_model extends CI_Model
         
         return FALSE;
     }
+    
+    /**
+     * Check existance of an array of products. data format array( array( 'sku' => 'sku1', 'provider_name' => 'provider_name'), ... )
+     * @param array $data
+     * @return array return ID of products, which exists
+     */
+    private function are_products_exists($data)
+    {
+        if( !is_array($data) || count($data) <= 0 )
+        {
+            return FALSE;
+        }
+            
+        reset($data);
+        $first_key = key($data);
+        
+        $this->db->select('id, sku, provider_name');
+        $this->db->where(' ( `sku` = \''.$data[$first_key]['sku'].'\' AND `provider_name` = \''.$data[$first_key]['provider_name'].'\' ) ');
+        
+        array_shift($data);
+        
+        foreach ($data as $item) 
+        {
+            $this->db->or_where(' ( `sku` = \''.$item['sku'].'\' AND `provider_name` = \''.$item['provider_name'].'\' ) ');
+        }
+        
+        $query = $this->db->get('providers_products');
+        
+        $products_exists = $query->result('array');
+        
+        foreach ($products_exists as $product) 
+        {
+            $return[$product['sku'].'_'.$product['provider_name']] = (int)$product['id'];
+        }
+        
+        return $return;
+    }
 
-        public function get_help_info()
+    public function get_help_info()
     {
         $html = '';
         

@@ -59,7 +59,7 @@ class Sync_engelsa {
 
             // Insert data to Engelsa temp table
             if (!$this->_config->test_mode) {
-                $this->insertData($this->_config->prefix.'_engelsa_temp', $this->_data);
+                $this->insertData('engelsa_temp', $this->_data);
             }
 
             // Compare Engelsa table with temp and ADD the new items if need
@@ -150,69 +150,9 @@ class Sync_engelsa {
     
     private function insertData($table, $data = array()){
         
-        // http://stackoverflow.com/questions/1176352/pdo-prepared-inserts-multiple-rows-in-single-query
-        // http://stackoverflow.com/questions/10060721/pdo-mysql-insert-multiple-rows-in-one-query
-        # INSERT (name) VALUE (value),(value)
-        if (count($data) > 1) 
+        if (count($data) > 0) 
         {
-            $this->_dbo->beginTransaction(); // helps speed up inserts
-
-            $fieldnames = array_keys($data[0]);
-            $count_inserts = count(array_values($data));
-            $count_values = count(array_values($data[0]));
-
-            # array(????) untill x from first data
-            for($i = 0; $i < $count_values; $i++)
-            {
-                $placeholder[] = '?';
-            }
-
-            # array((????),(????),(????)) for query
-            for ($i=0; $i < $count_inserts; $i++) 
-            { 
-                $placeholders[] = '('. implode(',',$placeholder) . ')';
-            }
-
-            $query  = 'INSERT INTO `'.$table.'` 
-                       (`'. implode('`, `', $fieldnames) .'`) 
-                       VALUES '. implode(', ', $placeholders);
-
-            $stmt = $this->_dbo->prepare($query);
-
-            $i = 1;
-            foreach($data as $item) 
-            {
-                foreach ($item as $key => $value) 
-                {
-                   $stmt->bindParam($i++, $item[$key]);
-                }
-            }
-
-            //echo $query;
-            $stmt->execute();
-
-            $return['status'] = true;
-            $return['lastid'] = $this->_dbo->lastInsertId();
-
-            $this->_dbo->commit();
-
-            return $return;
-        } 
-        else 
-        {
-            $fieldnames = array_keys($data[0]);
-            $values     = array_values($data[0]);
-            
-            foreach ($values as $value)
-            {
-                $escaped_values[] = $this->_CI->db->escape($value);
-            }
-            
-            $query  = 'INSERT INTO `'.$table.'` 
-                       (`'. implode('`, `', $fieldnames) .'`) 
-                       VALUES ( '. implode(', ', $escaped_values). ' )';
-           
-            $this->_dbo->exec($query);
+            $this->_CI->db->insert_batch($table, $data);
         }
     }
     
@@ -229,7 +169,7 @@ class Sync_engelsa {
             $stmt = $this->_dbo->query($query);
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (count($result) > 0) {
-                $this->insertData($this->_config->prefix.'_engelsa', $result);
+                $this->insertData('engelsa', $result);
             }
         } catch(PDOException $ex) {
             echo $ex->getMessage();
@@ -253,7 +193,7 @@ class Sync_engelsa {
             $stmt = $this->_dbo->query($query);
             $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
             if (count($result) > 0) {
-                $this->updateData($this->_config->prefix.'_engelsa', $result);
+                $this->updateData('engelsa', $result);
             }
         } catch(PDOException $ex) {
             echo $ex->getMessage();
@@ -265,18 +205,16 @@ class Sync_engelsa {
     
     private function updateData($table, $data = array()){
         
-        $query = ' UPDATE `'.$table.'` 
-                   SET `precio`=?, `stock`=?, `descripcion`=? 
-                   WHERE `ean`=?
-        ';
-
-        $stmt = $this->_dbo->prepare($query);
+        $update_data = array();
         
         foreach ($data as $item) {
-            $stmt->execute(array($item['precio'], $item['stock'], $item['descripcion'], $item['ean']));
+            $update_data[] = array( 'precio'        => $item['precio'], 
+                                    'stock'         => $item['stock'], 
+                                    'descripcion'   => $item['descripcion'],
+                                    'ean'           => $item['ean']);
         }
         
-        return true;
+        return $this->_CI->db->update_batch($table, $update_data, 'ean');
         
     }
     
