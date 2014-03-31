@@ -623,9 +623,8 @@ class Dashboard_model extends CI_Model {
         // Load models
         $this->load->model('stokoni/stokoni_model');
         
-        // Get items that sold from warehouse
+        // Get items
         $this->db->where('order_id =', $order_id);
-        $this->db->where('sold_from_warehouse =', 1);
         $this->db->where('canceled =', 0);
         
         $query = $this->db->get('products_sales_history');
@@ -636,9 +635,19 @@ class Dashboard_model extends CI_Model {
             
             foreach ($products as $product)
             {
-                $this->stokoni_model->return_product(   (int)$product->warehouse_product_id,
-                                                        (int)$product->quantity
-                                                    );
+                if((int)$product->sold_from_warehouse === 1)
+                {
+                    $this->stokoni_model->return_product(   (int)$product->warehouse_product_id,
+                                                            (int)$product->quantity
+                                                        );
+                }
+                else 
+                {
+                    $this->products_model->return_product(      
+                                                            (int)$product->provider_product_id,
+                                                            (int)$product->quantity
+                                                        );
+                }
             }
         }
         
@@ -651,7 +660,7 @@ class Dashboard_model extends CI_Model {
             );
         
         $this->db->update('products_sales_history', $data); 
-
+        
         return true;
     }
     

@@ -864,9 +864,9 @@ class Products_model extends CI_Model
                         $products_sales_history_data['out_of_stock'] = TRUE; // Mark order as out of stock product exist
                         if(!$safe_mode)
                         {
-                        $warehouse_product = $this->stokoni_model->find_product_by_ean($row['sku'])[0];
-                        // Save data
-                        $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
+                            $warehouse_product = $this->stokoni_model->find_product_by_ean($row['sku'])[0];
+                            // Save data
+                            $products_sales_history_data[$row['sku']][] = array('sku_in_order' => $row['sku'],
                                                                             'sku' => $warehouse_product->ean,
                                                                             'product_name' => $warehouse_product->nombre,
                                                                             'provider_name' => '_WAREHOUSE',
@@ -885,7 +885,7 @@ class Products_model extends CI_Model
                                                                             'canceled' => 0,
                                                                             'shipping_price' => $shipping_cost
                             );
-
+                        
                         }
                         continue;
                     }
@@ -921,6 +921,8 @@ class Products_model extends CI_Model
                                                                                 'shipping_price' => $shipping_cost  
                                                                                 
                                 );
+                            
+                                $this->sell_product((int)$v->id, (int)$quantity_temp);
 
                             }
                             
@@ -959,6 +961,8 @@ class Products_model extends CI_Model
                                                                                     'canceled' => 0,
                                                                                     'shipping_price' => $shipping_cost
                                     );
+                                
+                                $this->sell_product((int)$v->id, (int)$v->stock);
 
                                 }
                             }
@@ -994,6 +998,8 @@ class Products_model extends CI_Model
                                                                             'canceled' => 0,
                                                                             'shipping_price' => $shipping_cost
                             );
+                        
+                            $this->sell_product((int)$provider_product[0]->id, (int)$quantity_temp);
 
                         }
                     }
@@ -1029,6 +1035,8 @@ class Products_model extends CI_Model
                                                                                 'canceled' => 0,
                                                                                 'shipping_price' => $shipping_cost
                                 );
+                            
+                                $this->sell_product((int)$provider_product[0]->id, (int)$quantity_temp);
 
                             }
                             continue;
@@ -1081,6 +1089,8 @@ class Products_model extends CI_Model
                                                                         'canceled' => 0,
                                                                         'shipping_price' => $shipping_cost
                         );
+                    
+                    $this->sell_product((int)$v->id, (int)$quantity_temp);
 
                     }
                     $quantity_temp = 0;    
@@ -1116,6 +1126,8 @@ class Products_model extends CI_Model
                                                                             'canceled' => 0,
                                                                             'shipping_price' => $shipping_cost
                             );
+                        
+                            $this->sell_product((int)$v->id, (int)$v->stock);
 
                         }
                     }
@@ -1151,6 +1163,8 @@ class Products_model extends CI_Model
                                                                     'canceled' => 0,
                                                                     'shipping_price' => $shipping_cost
                     );
+                
+                $this->sell_product((int)$provider_product[0]->id, (int)$quantity_temp);
 
                 }
             }
@@ -1186,6 +1200,8 @@ class Products_model extends CI_Model
                                                                         'canceled' => 0,
                                                                         'shipping_price' => $shipping_cost
                         );
+                    
+                    $this->sell_product((int)$provider_product[0]->id, (int)$quantity_temp);
 
                     }
                     
@@ -1278,5 +1294,57 @@ class Products_model extends CI_Model
         }
         
         return FALSE;
+    }
+    
+    /**
+     * Sell product by id
+     * @param int $id
+     * @param int $quantity
+     * @return boolean true on success
+     */
+    private function sell_product($id, $quantity)
+    {        
+        // check product
+        if(!$this->get_product_by_id($id))
+        {
+            return FALSE;
+        }
+        
+        // check stock
+        if($this->get_product_by_id($id)->stock >= $quantity)
+        {
+            return $this->db->where('id', $id)
+                            ->set('stock', 'stock - '.$quantity, FALSE)
+                            ->set('updated_on', date('Y-m-d H:i:s', time()))
+                            ->update('providers_products');
+        }
+        else
+        {
+            return $this->db->where('id', $id)
+                            ->set('stock', 0)
+                            ->set('updated_on', date('Y-m-d H:i:s', time()))
+                            ->update('providers_products');
+        }
+        return TRUE;
+    }
+    
+    /**
+     * If order cancelled, then return the item to stock.
+     * @param int $id
+     * @param int $quantity
+     * @return boolean true on success
+     */
+    public function return_product($id, $quantity)
+    {
+        // check product
+        if(!$this->get_product_by_id($id))
+        {
+            return FALSE;
+        }
+        
+        return $this->db->where('id', $id)
+                        ->set('stock', 'stock + '.$quantity, FALSE)
+                        ->set('updated_on', date('Y-m-d H:i:s', time()))
+                        ->update('providers_products');
     }
 }
