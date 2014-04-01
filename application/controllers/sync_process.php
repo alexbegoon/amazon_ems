@@ -86,6 +86,33 @@ class Sync_process extends CI_Controller
             delete_files(FCPATH.'application/cache/'.$folder.'/', TRUE);
         }
         
+        // Remove old files and logs
+        
+        $this->load->helper('file');
+        $files_uploaded = get_dir_file_info(FCPATH.'upload/', FALSE);
+        $files_logs     = get_dir_file_info(FCPATH.'application/logs/', FALSE);
+        
+        foreach ($files_uploaded as $file) 
+        {
+            if( $file['date'] < (time() - SECONDS_PER_DAY*31) )
+            {
+                unlink($file['server_path']);
+            }
+        }
+        
+        foreach ($files_logs as $file) 
+        {
+            if( $file['date'] < (time() - SECONDS_PER_DAY*31) )
+            {
+                echo $file['server_path'];
+                unlink($file['server_path']);
+            }
+        }
+        
+        $this->load->model('amazon/amazon_model');
+        
+        $this->amazon_model->clear_logs();
+        
         $this->output->set_output('Done');
     }
     
@@ -164,15 +191,15 @@ class Sync_process extends CI_Controller
     
     public function sync_providers_products()
     {
-        $this->sync_product_list_with_engelsa_and_grutinet();
-        
-        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_pinternacional.php';
-        
-        new Sync_products_pinternacional();
-        
-        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_coqueteo.php';
-        
-        new Sync_products_coqueteo();
+//        $this->sync_product_list_with_engelsa_and_grutinet();
+//        
+//        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_pinternacional.php';
+//        
+//        new Sync_products_pinternacional();
+//        
+//        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_coqueteo.php';
+//        
+//        new Sync_products_coqueteo();
         
         $this->output->set_output('Done');
     }

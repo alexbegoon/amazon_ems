@@ -521,4 +521,14 @@ class Amazon_model extends CI_Model
         
         return '';
     }
+    
+    /**
+     * Remove very old logs
+     * @return boolean
+     */
+    public function clear_logs()
+    {
+        $this->db->where('timestamp <', date('Y-m-d H:i:s', time() - SECONDS_PER_DAY * 30));
+        return $this->db->delete('amazon_requests_log');
+    }
 }
