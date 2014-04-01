@@ -104,7 +104,6 @@ class Sync_process extends CI_Controller
         {
             if( $file['date'] < (time() - SECONDS_PER_DAY*31) )
             {
-                echo $file['server_path'];
                 unlink($file['server_path']);
             }
         }
