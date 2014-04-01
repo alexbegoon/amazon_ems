@@ -184,7 +184,7 @@ class Sync_process extends CI_Controller
         $this->output->set_output('Done');
     }
     
-    public function sync_coquiteo_products()
+    public function sync_coqueteo_products()
     {
         require_once FCPATH . $this->_path_to_sync_library . 'sync_products_coqueteo.php';
         
@@ -193,7 +193,7 @@ class Sync_process extends CI_Controller
         $this->output->set_output('Done');
     }
     
-    public function sync_pinternational_products()
+    public function sync_pinternacional_products()
     {
         require_once FCPATH . $this->_path_to_sync_library . 'sync_products_pinternacional.php';
         
