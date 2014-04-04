@@ -76,7 +76,7 @@ class Sync_products_coqueteo extends Sync_products
                 $this->_products[$i]['product_name'] = trim($product[2]);
                 $this->_products[$i]['provider_name'] = $this->_provider_name;
                 $this->_products[$i]['price']   = $price;
-                if( $price <= floatval(1) || in_array((string)$ean, $this->_eans_to_exclude) )
+                if( $price <= floatval(1) || in_array((string)$ean, $this->_eans_to_exclude) || (int)$product[4] <= 2 )
                 {
                     $this->_products[$i]['stock']   = 0;
                 }
