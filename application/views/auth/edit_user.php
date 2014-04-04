@@ -35,7 +35,8 @@
             <?php echo lang('edit_user_password_confirm_label', 'password_confirm');?><br />
             <?php echo form_input($password_confirm);?>
       </p>
-
+      
+<br>
 	 <h3><?php echo lang('edit_user_groups_heading');?></h3>
 	<?php foreach ($groups as $group):?>
 	<label class="checkbox">
@@ -54,10 +55,16 @@
 	<?php echo $group['name'];?>
 	</label>
 	<?php endforeach?>
-
+      
+         <br>
+         <br>
+         <p>
+            <?php echo lang('edit_user_receive_notifications_label', 'receive_notifications');?><br />
+            <?php echo form_checkbox($receive_notifications);?>
+      </p>
       <?php echo form_hidden('id', $user->id);?>
       <?php echo form_hidden($csrf); ?>
-
+<br>
       <p><?php echo form_submit('submit', lang('edit_user_submit_btn'));?></p>
 
 <?php echo form_close();?>

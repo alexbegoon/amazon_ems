@@ -40,6 +40,10 @@
             <?php echo lang('create_user_password_confirm_label', 'password_confirm');?> <br />
             <?php echo form_input($password_confirm);?>
       </p>
+      <p>
+            <?php echo lang('create_user_receive_notifications_label', 'receive_notifications');?><br />
+            <?php echo form_checkbox($receive_notifications);?>
+      </p>
 
 
       <p><?php echo form_submit('submit', lang('create_user_submit_btn'));?></p>

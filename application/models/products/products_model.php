@@ -23,6 +23,10 @@ class Products_model extends CI_Model
         $this->load->model('incomes/exchange_rates_model');
         $this->load->model('incomes/taxes_model');
         $this->load->model('stokoni/stokoni_model');
+        
+        // Load  libraries
+        $this->load->library('email');
+        $this->load->library('table');
     }
     
     public function get_products($page)
@@ -370,6 +374,9 @@ class Products_model extends CI_Model
             $summary->affected_rows += $this->db->affected_rows();
             
             $this->db->trans_commit();
+            
+            //Notify staff
+            $this->notify_staff_about_new_products($products_to_insert);
             
             // Store products history
             $this->store_products_history();
@@ -1384,4 +1391,68 @@ class Products_model extends CI_Model
                         ->set('updated_on', date('Y-m-d H:i:s', time()))
                         ->update('providers_products');
     }
+    
+    /**
+     * Notify staff about new products in the system.
+     * @param type $products
+     * @return boolean
+     */
+    private function notify_staff_about_new_products($products)
+    {
+        if(count($products) <= 0){return FALSE;}
+        
+        $body = '<h2>PRODUCTO NUEVO</h2><br><br>';
+        
+        $tmpl = array ('table_open' => '<table border="2">');
+
+        $this->table->set_template($tmpl);
+        $this->table->set_heading('EAN', 'NOMBRE', 'STOCK', 'PRECIO', 'PROVEEDOR');
+        
+        foreach($products as $p)
+        {
+            $this->table->add_row($p['sku'],$p['product_name'],$p['stock'],$p['price'],$p['provider_name']);
+        }
+        
+        $body .= $this->table->generate();
+        
+        // Get emails that we need to notify
+        $emails = $this->get_emails_that_should_be_notified();
+        
+        $config['mailtype'] = 'html';
+        $this->email->initialize($config);
+        $this->email->from('no_reply@amazoni.com.es', 'Amazoni4 System');
+        $this->email->to($emails);
+        $this->email->subject('PRODUCTO NUEVO');
+        $this->email->message($body);
+        
+        if(!$this->email->send())
+        {
+            log_message('INFO',$this->email->print_debugger());
+        }
+    }
+    
+    /**
+     * Get emails that should be notified by system
+     * @return mixed
+     */
+    private function get_emails_that_should_be_notified()
+    {
+        $emails = array();
+        
+        $query = $this->db->select('email')
+                          ->where('active',1)
+                          ->where('receive_notifications',1)
+                          ->get('users');
+        
+        if ($query->num_rows() > 0)
+        {
+            foreach ($query->result() as $row)
+            {
+               $emails[] = $row->email;
+            }
+        }
+        
+        return $emails;
+    }
+
 }

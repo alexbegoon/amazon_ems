@@ -409,6 +409,7 @@ class Auth extends CI_Controller {
 		$this->form_validation->set_rules('email', $this->lang->line('create_user_validation_email_label'), 'required|valid_email');
 		$this->form_validation->set_rules('phone', $this->lang->line('create_user_validation_phone_label'), 'required|xss_clean');
 		$this->form_validation->set_rules('company', $this->lang->line('create_user_validation_company_label'), 'required|xss_clean');
+		$this->form_validation->set_rules('receive_notifications', $this->lang->line('create_user_validation_receive_notifications_label'), 'xss_clean');
 		$this->form_validation->set_rules('password', $this->lang->line('create_user_validation_password_label'), 'required|min_length[' . $this->config->item('min_password_length', 'ion_auth') . ']|max_length[' . $this->config->item('max_password_length', 'ion_auth') . ']|matches[password_confirm]');
 		$this->form_validation->set_rules('password_confirm', $this->lang->line('create_user_validation_password_confirm_label'), 'required');
 
@@ -423,6 +424,7 @@ class Auth extends CI_Controller {
 				'last_name'  => $this->input->post('last_name'),
 				'company'    => $this->input->post('company'),
 				'phone'      => $this->input->post('phone'),
+				'receive_notifications'      => $this->input->post('receive_notifications'),
 			);
 		}
 		if ($this->form_validation->run() == true && $this->ion_auth->register($username, $password, $email, $additional_data))
@@ -480,6 +482,13 @@ class Auth extends CI_Controller {
 				'type'  => 'password',
 				'value' => $this->form_validation->set_value('password_confirm'),
 			);
+			$this->data['receive_notifications'] = array(
+				'name'  => 'receive_notifications',
+				'id'    => 'receive_notifications',
+				'type'  => 'checkbox',
+				'value' => '1',
+                                'checked' => FALSE,
+			);
 
 			$this->_render_page('auth/create_user', $this->data);
 		}
@@ -505,6 +514,7 @@ class Auth extends CI_Controller {
 		$this->form_validation->set_rules('phone', $this->lang->line('edit_user_validation_phone_label'), 'required|xss_clean');
 		$this->form_validation->set_rules('company', $this->lang->line('edit_user_validation_company_label'), 'required|xss_clean');
 		$this->form_validation->set_rules('groups', $this->lang->line('edit_user_validation_groups_label'), 'xss_clean');
+		$this->form_validation->set_rules('receive_notifications', $this->lang->line('edit_user_validation_receive_notifications_label'), 'xss_clean');
 
 		if (isset($_POST) && !empty($_POST))
 		{
@@ -519,6 +529,7 @@ class Auth extends CI_Controller {
 				'last_name'  => $this->input->post('last_name'),
 				'company'    => $this->input->post('company'),
 				'phone'      => $this->input->post('phone'),
+				'receive_notifications'      => $this->input->post('receive_notifications'),
 			);
 
 			//Update the groups user belongs to
@@ -598,6 +609,13 @@ class Auth extends CI_Controller {
 			'name' => 'password_confirm',
 			'id'   => 'password_confirm',
 			'type' => 'password'
+		);
+		$this->data['receive_notifications'] = array(
+			'name' => 'receive_notifications',
+			'id'   => 'receive_notifications',
+			'value'   => '1',
+                        'checked' => (int)$user->receive_notifications === 1 ? TRUE : FALSE,
+			'type' => 'checkbox'
 		);
 
 		$this->_render_page('auth/edit_user', $this->data);
