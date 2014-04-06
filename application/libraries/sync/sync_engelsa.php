@@ -127,7 +127,7 @@ class Sync_engelsa {
         $j = 0;
         foreach ($product_list as $row) {
 
-            $product_arr = explode(',', $row);
+            $product_arr = str_getcsv($row, ',', '"');
             
             if ($i >= $this->_config->start_from_row) {
                 
@@ -146,6 +146,7 @@ class Sync_engelsa {
         }
 
         curl_close($handle);
+        var_dump($this->_data);die;
     }
     
     private function insertData($table, $data = array()){
