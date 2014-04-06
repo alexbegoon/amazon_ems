@@ -146,7 +146,6 @@ class Sync_engelsa {
         }
 
         curl_close($handle);
-        var_dump($this->_data);die;
     }
     
     private function insertData($table, $data = array()){
