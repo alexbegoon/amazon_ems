@@ -317,11 +317,37 @@ class Products_model extends CI_Model
         return $products;
     }
     
+    /**
+     * Fix length of the SKU/EAN
+     * @param type $products
+     * @return array
+     */
+    private function fix_products_sku($products)
+    {
+        if(count($products)<=0)
+        {
+            return $products;
+        }
+        
+        foreach ($products as $p)
+        {
+            if(preg_match("/\d{6,12}/", $p['sku']) === 1)
+            {
+                $p['sku'] = str_pad($p['sku'], 13, '0', STR_PAD_LEFT);
+            }
+            $fixed_products[] = $p;
+        }
+        
+        return $fixed_products;
+    }
+
+
+
     public function update_products_table($products)
     {
         //Load model
         $this->load->model('incomes/providers_model');
-        
+        $products = $this->fix_products_sku($products);
         $summary = new stdClass();
         $summary->affected_rows = 0;
         
