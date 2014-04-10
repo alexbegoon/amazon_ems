@@ -26,6 +26,7 @@ class Tracking_model extends CI_Model
         // Load models
         $this->load->model('dashboard/dashboard_model');
         $this->load->model('incomes/shipping_companies_model');
+        $this->load->model('virtuemart/virtuemart_model');
     }
     
     public function save_tracking()
@@ -76,7 +77,8 @@ class Tracking_model extends CI_Model
         }
         else
         {
-            return $this->email->print_debugger();
+            log_message('ERROR', $this->email->print_debugger());
+            echo 'Error. Cant send message.';
         }
     }
     
@@ -102,7 +104,14 @@ class Tracking_model extends CI_Model
             return false;
         }
         
-        return $this->parser->parse('tracking/email_templates/subject_'.$web_field->template_language, $data, true);
+        $template_language = $this->virtuemart_model->get_template_prefix($post_data['web'], $post_data['pedido']);
+        
+        if( !$this->is_template_exists($template_language, 'tracking/email_templates/subject_') )
+        {
+            $template_language = 'es';
+        }
+        
+        return $this->parser->parse('tracking/email_templates/subject_'.$template_language, $data, true);
     }
     
     private function get_message($post_data)
@@ -126,7 +135,24 @@ class Tracking_model extends CI_Model
         $data['pagina']                 = $web_field->url;
         $data['emailrespuesta']         = $web_field->email;
         
-        return $this->parser->parse('tracking/email_templates/email_'.$web_field->template_language, $data, true);
+        $template_language = $this->virtuemart_model->get_template_prefix($post_data['web'], $post_data['pedido']);
+        
+        if( !$this->is_template_exists($template_language, 'tracking/email_templates/email_') )
+        {
+            $template_language = 'es';
+        }
+        
+        return $this->parser->parse('tracking/email_templates/email_'.$template_language, $data, true);
+    }
+    
+    private function is_template_exists($template_language, $file_path)
+    {
+        if(read_file(FCPATH.APPPATH.'views/'.$file_path.$template_language.'.php'))
+        {
+            return true;
+        }
+        
+        return false;
     }
 
     private function get_web_field($post_data)

@@ -35,6 +35,8 @@ class Virtuemart_model extends CI_Model
         
         if($site && !empty($site->hostname))
         {
+            $active_record = TRUE;
+            
             $config['hostname'] = $site->hostname;
             $config['username'] = $site->username;
             $config['password'] = $site->password;
@@ -51,7 +53,7 @@ class Virtuemart_model extends CI_Model
             $config['autoinit'] = TRUE;
             $config['stricton'] = FALSE;  
  
-            $this->_db_connections[$web] = $this->load->database($config, TRUE);
+            $this->_db_connections[$web] = $this->load->database($config, TRUE, $active_record);
             return $this->_db_connections[$web];
         }
         
@@ -106,6 +108,94 @@ class Virtuemart_model extends CI_Model
         }
             
         return false;
+    }
+    
+    public function get_user_by_order_name($web, $order_name)
+    {
+        $db = $this->create_db_connection($web);
+        
+        if(!$db)
+        {
+            return false;
+        }
+        
+        $virtuemart_version = $this->check_version($web);
+        
+        if($virtuemart_version == '2.0.0.0')
+        {
+            $query = $db->select('users.`name`, users.`username`, users.`email`, users.`language_tag`')
+                        ->from('users as users')
+                        ->join('virtuemart_orders as orders', 'orders.virtuemart_user_id = users.id', 'inner')
+                        ->where('orders.order_number',$order_name)
+                        ->get();
+            
+            if($query)
+            {
+                return $query->row();
+            }
+        }
+        
+        return false;
+    }
+    
+    public function get_language_tag_of_order($web, $order_name)
+    {
+        $user = $this->get_user_by_order_name($web, $order_name);
+        
+        if($user)
+        {
+            return $user->language_tag;
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Return to chars prefix, that helps to choose correct language of the email template
+     * @param type $web
+     * @param type $order_name
+     * @return string
+     */
+    public function get_template_prefix($web, $order_name)
+    {
+        $language_tag = $this->get_language_tag_of_order($web, $order_name);
+        
+        $rules = $this->get_languages_rules();
+        
+        if($language_tag)
+        {
+            if($rules[$language_tag])
+            {
+                return $rules[$language_tag];
+            }
+        }
+        
+        $web_shop = $this->web_field_model->get_web_field($web);
+        
+        if($web_shop)
+        {
+            return $web_shop->template_language;
+        }
+        
+        // Default
+        return 'es';
+    }
+
+    
+    private function get_languages_rules()
+    {
+        return array( 
+            'nl-NL' => 'nl',
+            'en-AU' => 'en',
+            'en-US' => 'en',
+            'en-GB' => 'en',
+            'es-ES' => 'es',
+            'fr-FR' => 'fr',
+            'de-DE' => 'de',
+            'nn-NO' => 'nn',
+            'pt-PT' => 'pt',
+            'sv-SE' => 'sv'
+        );
     }
     
     public function get_order($web, $order_name)
