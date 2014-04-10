@@ -170,12 +170,12 @@ class Magnet_model extends CI_Model
     private function marked_as_received_msg($order_id)
     {
         
-//        $query = ' UPDATE `pedidos` 
-//                   SET `magnet_msg_received` = 1 
-//                   WHERE `id` = '.(int)$order_id.' 
-//        ';
-//        
-//        $this->db->query($query);
+        $query = ' UPDATE `pedidos` 
+                   SET `magnet_msg_received` = 1 
+                   WHERE `id` = '.(int)$order_id.' 
+        ';
+        
+        $this->db->query($query);
         
     }
     
