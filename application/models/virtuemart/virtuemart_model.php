@@ -151,7 +151,7 @@ class Virtuemart_model extends CI_Model
     }
     
     /**
-     * Return to chars prefix, that helps to choose correct language of the email template
+     * Return two chars prefix, that helps to choose correct language of the email template
      * @param type $web
      * @param type $order_name
      * @return string
@@ -194,7 +194,8 @@ class Virtuemart_model extends CI_Model
             'de-DE' => 'de',
             'nn-NO' => 'nn',
             'pt-PT' => 'pt',
-            'sv-SE' => 'sv'
+            'sv-SE' => 'sv',
+            'it-IT' => 'it'
         );
     }
     

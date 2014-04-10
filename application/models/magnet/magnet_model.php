@@ -57,11 +57,12 @@ class Magnet_model extends CI_Model
         }
     }
     
-    private function prepare_link ($web, $product_id, $user_id, $product_name)
+    private function prepare_link ($web, $product_id, $user_id, $product_name, $order_number)
     {
         $virtuemart_version = $this->virtuemart_model->check_version($web);
         $web_site           = $this->web_field_model->get_web_field($web);
         $link               = '';
+        $lang               = $this->get_sef_language($web, $order_number);
         
         if(empty($product_id) || empty($user_id) || empty($product_name))
         {
@@ -74,7 +75,7 @@ class Magnet_model extends CI_Model
         {
             $link     = 'http://';
             $link    .= $web_site->url . '/';
-            $link    .= 'index.php?option=com_virtuemart&view=productdetails&virtuemart_product_id='.$product_id.'&userId='.$user_id.'&token='.$token.'#reviewform';
+            $link    .= ''.$lang.'/?option=com_virtuemart&view=productdetails&virtuemart_product_id='.$product_id.'&userId='.$user_id.'&token='.$token.'#reviewform';
         }
         elseif($virtuemart_version == '1.0.0.0')
         {
@@ -91,6 +92,39 @@ class Magnet_model extends CI_Model
         return $link;
     }
     
+    private function get_sef_language($web, $order_number)
+    {
+        $language_tag = $this->virtuemart_model->get_language_tag_of_order($web, $order_number);
+        $rules = $this->get_language_rules();
+        
+        if(!empty($language_tag))
+        {
+            return $rules[$language_tag];
+        }
+        
+        // Default
+        return 'es';
+    }
+    
+    private function get_language_rules()
+    {
+        return array(
+            // Language Tag = > URL Language Code
+            
+            'nl-NL' => 'nl',
+            'en-AU' => 'au',
+            'en-GB' => 'en',
+            'en-US' => 'us',
+            'es-ES' => 'es',
+            'fr-FR' => 'fr',
+            'de-DE' => 'de',
+            'it-IT' => 'it',
+            'nn-NO' => 'no',
+            'pt-PT' => 'pt',
+            'sv-SE' => 'se'
+        );
+    }
+    
     private function get_token($product_id, $user_id)
     {
         return md5($product_id.$user_id.'BUYIN');
@@ -103,7 +137,7 @@ class Magnet_model extends CI_Model
     private function get_orders()
     {
         
-        $date_from = date('Y-m-d', time() - (11 * 24 * 60 * 60) ); 
+        $date_from = date('Y-m-d', time() - (30 * 24 * 60 * 60) ); 
         $date_to   = date('Y-m-d', time() - (9 * 24 * 60 * 60) );
         
         $query = ' SELECT `pedido`, `nombre`, `nombre` as `name`, 
@@ -118,6 +152,7 @@ class Magnet_model extends CI_Model
                          OR `procesado` = \'ENVIADO_MEGASUR\' 
                          OR `procesado` = \'ENVIADO_MARABE\' 
                          OR `procesado` = \'ENVIADO_PACK\' 
+                         OR `procesado` = \'ENVIADO_TOURLINE\' 
                         )
                     ';
         
@@ -135,12 +170,12 @@ class Magnet_model extends CI_Model
     private function marked_as_received_msg($order_id)
     {
         
-        $query = ' UPDATE `pedidos` 
-                   SET `magnet_msg_received` = 1 
-                   WHERE `id` = '.(int)$order_id.' 
-        ';
-        
-        $this->db->query($query);
+//        $query = ' UPDATE `pedidos` 
+//                   SET `magnet_msg_received` = 1 
+//                   WHERE `id` = '.(int)$order_id.' 
+//        ';
+//        
+//        $this->db->query($query);
         
     }
     
@@ -192,14 +227,14 @@ class Magnet_model extends CI_Model
                         }
                     }
                     
-                    $link = $this->prepare_link($order->web, $product_id, $user_id, $product_name);
+                    $link = $this->prepare_link($order->web, $product_id, $user_id, $product_name, $order->order_number);
                     
                     if(empty($link))
                     {
                         continue;
                     }
                     
-                    $email = $this->prepare_email($order->web, $order->name, $link);
+                    $email = $this->prepare_email($order->web, $order->name, $link, $order->order_number);
                     
                     $email_sent = $this->send_email_to($recipient, $email);
                     
@@ -227,7 +262,7 @@ class Magnet_model extends CI_Model
         }
     }
             
-    private function prepare_email($web, $customer_name, $link)
+    private function prepare_email($web, $customer_name, $link, $order_name)
     {
         
         $web_site = $this->web_field_model->get_web_field($web);
@@ -236,7 +271,9 @@ class Magnet_model extends CI_Model
         
         if($web_site)
         {
-            $template = $this->get_template($web_site->template_language);
+            $template_language = $this->virtuemart_model->get_template_prefix($web, $order_name);
+            
+            $template = $this->get_template($template_language);
             
             $email->from  = $web_site->email;
             $email->title = $web_site->title;
@@ -270,7 +307,7 @@ class Magnet_model extends CI_Model
         $this->email->set_mailtype('html');
         $this->email->to($recipient);
         $this->email->subject($email->subject);
-        $this->email->message($email->body);                   
+        $this->email->message($email->body);      
         if($this->email->send())
         {
             return true;
