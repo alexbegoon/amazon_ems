@@ -369,7 +369,7 @@ class Export_csv_model extends CI_Model
                     }
                     $pinternacional_products[] = array(
                             preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
-                            '"'.$product[0]->sku_in_order.'"',
+                            '"#'.$product[0]->sku.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
                             '',
@@ -446,7 +446,7 @@ class Export_csv_model extends CI_Model
                     }
                     $coqueteo_products[] = array(
                             preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
-                            '"'.$product[0]->sku_in_order.'"',
+                            '"#'.$product[0]->sku.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
                             '',
@@ -523,7 +523,7 @@ class Export_csv_model extends CI_Model
                     }
                     $warehouse_products[] = array(
                             preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
-                            '"'.$product[0]->sku_in_order.'"',
+                            '"#'.$product[0]->sku.'"',
                             $total_count,
                             number_format($subtotal_price, 2). " ".chr(128),
                             '',
@@ -575,17 +575,17 @@ class Export_csv_model extends CI_Model
     
     public function batch_update_orders_statuses()
     {
-        if(count($this->_orders_statuses) > 0)
-        {
-            foreach ($this->_orders_statuses as $r)
-            {
-                $this->dashboard_model->set_status((int)$r['id'], $r['status']);
-            }
-            
-            return true;
-        }
-        
-        return FALSE;
+//        if(count($this->_orders_statuses) > 0)
+//        {
+//            foreach ($this->_orders_statuses as $r)
+//            {
+//                $this->dashboard_model->set_status((int)$r['id'], $r['status']);
+//            }
+//            
+//            return true;
+//        }
+//        
+//        return FALSE;
     }
 
 
