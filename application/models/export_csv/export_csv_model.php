@@ -575,17 +575,17 @@ class Export_csv_model extends CI_Model
     
     public function batch_update_orders_statuses()
     {
-//        if(count($this->_orders_statuses) > 0)
-//        {
-//            foreach ($this->_orders_statuses as $r)
-//            {
-//                $this->dashboard_model->set_status((int)$r['id'], $r['status']);
-//            }
-//            
-//            return true;
-//        }
-//        
-//        return FALSE;
+        if(count($this->_orders_statuses) > 0)
+        {
+            foreach ($this->_orders_statuses as $r)
+            {
+                $this->dashboard_model->set_status((int)$r['id'], $r['status']);
+            }
+            
+            return true;
+        }
+        
+        return FALSE;
     }
 
 
