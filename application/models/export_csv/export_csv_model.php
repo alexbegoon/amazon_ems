@@ -944,6 +944,8 @@ class Export_csv_model extends CI_Model
         
         // Get new products from DB
         $products = array();
+        $date_from      = $this->input->post("date_from");
+        $date_to        = $this->input->post("date_to");
         
         $this->db->select('p.id');
         $this->db->from('providers_products as p');
@@ -962,6 +964,11 @@ class Export_csv_model extends CI_Model
         $this->db->from('providers_products as p');
         $this->db->where_in('p.id', $unique_id);
         $this->db->where('p.provider_name =', 'COQUETEO');
+        if( !empty($date_from) && !empty($date_to) )
+        {
+            $this->db->where('p.created_on >=', $date_from);
+            $this->db->where('p.created_on <=', $date_to);
+        }
         $this->db->order_by('p.stock', 'DESC');
         
         $query = $this->db->get();

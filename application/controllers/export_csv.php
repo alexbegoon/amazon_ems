@@ -282,15 +282,33 @@ class Export_csv extends CI_Controller {
     
     public function generar_new_products_coqueteo_summary()
     {
+        $date_from                  = $this->input->post("date_from");
+        $date_to                    = $this->input->post("date_to");
+        
         // Prepare data
         $data['title'] = humanize($this->router->method);
         $data['method'] = str_replace('_summary', '', $this->router->method);
         $data['button_name'] = 'Download coqueteo new products report';
         $data['button_link'] = base_url() . 'index.php/export_csv/generar_new_products_coqueteo';
         
+        // Filters
+        $input = array(
+              'name'        => 'date_from',
+              'id'          => 'date_picker',
+              'value'       => $date_from,
+            );
+        $data['filters'][]   = form_label('Date from: ', 'date_picker');
+        $data['filters'][]   = form_input($input);
+        $input = array(
+              'name'        => 'date_to',
+              'id'          => 'date_picker_2',
+              'value'       => $date_to,
+            );
+        $data['filters'][]   = form_label('Date to: ', 'date_picker_2');
+        $data['filters'][]   = form_input($input);
         
         // Load view 
-        $this->load->template('export_csv/index', $data);
+        $this->load->template('export_csv/new_coqueteo', $data);
     }
     
     public function generar_new_products_coqueteo()
