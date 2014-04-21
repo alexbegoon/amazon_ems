@@ -33,7 +33,7 @@ class Virtuemart_model extends CI_Model
         }
         $site = $this->web_field_model->get_web_field($web);
         
-        if($site && !empty($site->hostname))
+        if($site && !empty($site->hostname) && strlen($site->hostname) > 12 )
         {
             $active_record = TRUE;
             
