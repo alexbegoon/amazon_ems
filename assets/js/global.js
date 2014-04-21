@@ -694,7 +694,7 @@ function AJAX_delete(url, id) {
 
 }
 
-function AJAX_edit(url,id){
+function AJAX_edit(url,id,sku){
   
     if ($( "#modal_window" ).length === 0)
     {
@@ -707,7 +707,7 @@ function AJAX_edit(url,id){
     minWidth: 400,
     width: 800,
     modal: true,
-    title: 'Edit',
+    title: 'Edit '+sku,
     resizable: true,
     buttons: null,
     close: function( event, ui ) {
@@ -725,6 +725,9 @@ function AJAX_edit(url,id){
           }).success(function( msg ) {
             $( "#modal_window" ).append(msg);
             $("#ajax-loader").css('display', 'none');
+            $("#edit-close").click(function() {
+                $('#modal_window').dialog('close');
+            });
           }).error(function( jqXHR, textStatus, errorThrown ) {
             $( "#modal_window" ).append(textStatus + ':  ' + errorThrown);
             $("#ajax-loader").css('display', 'none');
@@ -939,7 +942,7 @@ $(function() {
 });
 
 
-function confirm(a)
+Amazoni.confirm = function(a)
 {
     if ($( "#modal_window_confirm" ).length === 0)
         {

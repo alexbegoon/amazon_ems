@@ -79,22 +79,22 @@
                         <span>Generar &#8711;</span>
                         <ul class="dropdown generar_menu">
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="confirm(this);return false;">Exportar Preparacion Engelsa</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="confirm(this);return false;">Generar GLS</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar GLS</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_fedex_summary'; ?>" onclick="confirm(this);return false;">Generar FEDEX</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_fedex_summary'; ?>" onclick="Amazoni.confirm(this);return false;">Generar FEDEX</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_pack_summary';?>" onclick="confirm(this);return false;">Generar PACK</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_pack_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar PACK</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_tourline_summary';?>" onclick="confirm(this);return false;">Generar TOURLINE</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_tourline_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar TOURLINE</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_stokoni_summary';?>" onclick="confirm(this);return false;">Generar Stokoni Summary</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_stokoni_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar Stokoni Summary</a>
                             </li>
                             <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_new_products_coqueteo_summary';?>">Coqueteo New Products Report</a>
@@ -161,22 +161,22 @@
                         <span>Generar &#8711;</span>
                         <ul class="dropdown generar_menu">
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="confirm(this);return false;">Exportar Preparacion Engelsa</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="confirm(this);return false;">Generar GLS</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar GLS</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_fedex_summary'; ?>" onclick="confirm(this);return false;">Generar FEDEX</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_fedex_summary'; ?>" onclick="Amazoni.confirm(this);return false;">Generar FEDEX</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_pack_summary';?>" onclick="confirm(this);return false;">Generar PACK</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_pack_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar PACK</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_tourline_summary';?>" onclick="confirm(this);return false;">Generar TOURLINE</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_tourline_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar TOURLINE</a>
                             </li>
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/generar_stokoni_summary';?>" onclick="confirm(this);return false;">Generar Stokoni Summary</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/generar_stokoni_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar Stokoni Summary</a>
                             </li>
                             <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_new_products_coqueteo_summary';?>">Coqueteo New Products Report</a>

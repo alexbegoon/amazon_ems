@@ -71,4 +71,51 @@ class Products extends CI_Controller
         
         $this->load->view('products/statistic', $data);
     }
+    
+    function edit()
+    {
+        $id = $this->input->post('id');
+        
+        $language_code = $this->input->post('translation_language_code');
+        
+        $product = $this->products_model->get_product_by_id($id);
+        
+        $data['product_name'] = null;
+        $data['product_desc'] = null;
+        $data['product_s_desc'] = null;
+        $data['meta_desc'] = null;
+        $data['meta_keywords'] = null;
+        $data['custom_title'] = null;
+        $data['slug'] = null;
+        $data['provider_product_name'] = $product->product_name;
+        $data['product_id'] = $id;
+        $data['translation_languages_dropdown'] = $this->products_model->get_translation_languages_dropdown();
+
+        $data = array_merge($data, $this->products_model->get_product_translation($id, $language_code));
+        
+//        var_dump($data);die;
+        
+        $this->load->view('products/edit_translation', $data);
+    }
+    
+    function save()
+    {
+        $data = $this->input->post();
+        
+        unset($data['provider_product_name']);
+        
+        $this->products_model->save_translation($data);
+    }
+    
+    function get_translation()
+    {
+        $id = $this->input->post('id');
+        $language_code = $this->input->post('language_code');
+        
+        $data = $this->products_model->get_product_translation($id, $language_code);
+        
+        $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($data));
+    }
 }

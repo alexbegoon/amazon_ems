@@ -932,6 +932,9 @@ div.products_list {
     padding-left: 5%;
 }
 
+span.green {
+    color: green;
+}
 
 /*************** Tracking *****************/
 div.tracking_wrapper{

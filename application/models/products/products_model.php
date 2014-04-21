@@ -70,7 +70,7 @@ class Products_model extends CI_Model
             $order_by = ' ORDER BY `'.$order_by_data['order_by'].'` '.$order_by_data['order_option'].' ';
         }
         
-        $query = ' SELECT `sku`, `product_name`, `provider_name`, `price`, 
+        $query = ' SELECT `sku`, `product_name`, `provider_name`, `price`, `id`, 
                                 `stock`, `sales_rank_de`, `sales_rank_uk`, `updated_on` 
                    FROM `'.$this->db->dbprefix('providers_products').'` 
                    '.$where.' 
@@ -1479,6 +1479,58 @@ class Products_model extends CI_Model
         }
         
         return $emails;
+    }
+    
+    /**
+     * Get dropdown of all available translation languages
+     * @return string
+     */
+    public function get_translation_languages_dropdown()
+    {        
+        $query = $this->db->get('translation_languages');
+        
+        foreach ($query->result() as $row)
+        {
+            $options[$row->language_code] = $row->language_name;
+        }
+        
+        $extra = ' id="translation_languages" ';
+        
+        $selected = $this->input->post('language_code');
+        
+        return form_dropdown('language_code', $options, $selected, $extra);
+    }
+    
+    public function get_product_translation($id, $language_code)
+    {
+        if(strlen($language_code) < 5)
+        {
+            $language_code = 'de-DE';
+        }
+        
+        $query = $this->db->where('product_id', $id)
+                          ->where('language_code', $language_code)
+                          ->get('products_translation');
+        
+        return $query->row_array();
+    }
+    
+    public function save_translation($data)
+    {
+        if( count($this->get_product_translation($data['product_id'], $data['language_code'])) <= 0 )
+        {
+            $data['created_on'] = $data['updated_on'] = date('Y-m-d H:i:s',time());
+            
+            $this->db->insert('products_translation', $data); 
+        }
+        else 
+        {
+            $data['updated_on'] = date('Y-m-d H:i:s',time());
+            
+            $this->db->where('product_id', $data['product_id']);
+            $this->db->where('language_code', $data['language_code']);
+            $this->db->update('products_translation', $data); 
+        }
     }
 
 }
