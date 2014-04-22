@@ -94,7 +94,7 @@ $inputs = array(
         <br>
         <?php endforeach;?>
         
-        <input type="hidden" name="product_id" value="<?php echo $product_id?>" />
+        <input type="hidden" name="sku" value="<?php echo $sku?>" />
         
         <div class="edit-buttons">
             <div>
@@ -150,7 +150,7 @@ $inputs = array(
             
         tinymce.remove();
         tinymce.init({
-            mode : 'textareas',
+            mode : 'exact', 
             language : 'es',
             selector: "textarea#product_desc",
             theme: "modern",
@@ -158,7 +158,7 @@ $inputs = array(
                             "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
                             "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
                             "save table contextmenu directionality emoticons template paste textcolor"
-                      ],
+                     ],
             toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons",
             height: 250,
             setup: function(editor) {
@@ -170,23 +170,8 @@ $inputs = array(
          });
     };
     
-    $(function(){
+    Amazoni.update_product_translations = function(){
         
-        Amazoni.get_tinymce();
-        
-        $('textarea').change(function(){
-            tinymce.triggerSave();
-            Amazoni.save_translation();
-        });       
-        
-        
-        $('#edit-save').click(function(){
-            $("#all_saved").show().delay(2000).fadeOut();
-        });
-        
-        $('#translation_languages').combobox({
-            select: function( event, ui ){
-                
                 tinymce.remove();
                 
                 // setup some local variables
@@ -200,7 +185,7 @@ $inputs = array(
                 request = $.ajax({
                     url: url_before_index + "index.php/products/get_translation",
                     type: "post",
-                    data: {id:'<?php echo $product_id?>',language_code:$("#translation_languages").val()}
+                    data: {sku:'<?php echo $sku?>',language_code:$("#translation_languages").val()}
                 });
                 
                 request.done(function (response, textStatus, jqXHR){
@@ -225,8 +210,31 @@ $inputs = array(
                     $inputs.prop("disabled", false);
                     Amazoni.get_tinymce();
                 });
+    };
+        
+    $(function(){
+                    
+        Amazoni.get_tinymce();
+        
+        $('textarea').change(function(){
+            tinymce.triggerSave();
+            Amazoni.save_translation();
+        });       
+        
+        
+        $('#edit-save').click(function(){
+            $("#all_saved").show().delay(2000).fadeOut();
+        });
+        
+        $('#translation_languages').combobox({
+            select: function( event, ui ){
+                Amazoni.update_product_translations();
+            },
+            create: function( event, ui ) {
+                Amazoni.update_product_translations();
             }
                 
         });
+        
     });
 </script>

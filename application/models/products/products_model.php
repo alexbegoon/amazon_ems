@@ -1501,14 +1501,14 @@ class Products_model extends CI_Model
         return form_dropdown('language_code', $options, $selected, $extra);
     }
     
-    public function get_product_translation($id, $language_code)
+    public function get_product_translation($sku, $language_code)
     {
         if(strlen($language_code) < 5)
         {
             $language_code = 'de-DE';
         }
         
-        $query = $this->db->where('product_id', $id)
+        $query = $this->db->where('sku', $sku)
                           ->where('language_code', $language_code)
                           ->get('products_translation');
         
@@ -1516,8 +1516,8 @@ class Products_model extends CI_Model
     }
     
     public function save_translation($data)
-    {
-        if( count($this->get_product_translation($data['product_id'], $data['language_code'])) <= 0 )
+    {        
+        if( count($this->get_product_translation($data['sku'], $data['language_code'])) <= 0 )
         {
             $data['created_on'] = $data['updated_on'] = date('Y-m-d H:i:s',time());
             
@@ -1527,7 +1527,7 @@ class Products_model extends CI_Model
         {
             $data['updated_on'] = date('Y-m-d H:i:s',time());
             
-            $this->db->where('product_id', $data['product_id']);
+            $this->db->where('sku', $data['sku']);
             $this->db->where('language_code', $data['language_code']);
             $this->db->update('products_translation', $data); 
         }

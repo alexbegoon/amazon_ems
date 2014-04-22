@@ -32,3 +32,25 @@ INSERT INTO `amazoni`.`amazoni4_translation_languages` (`language_code`, `langua
 INSERT INTO `amazoni`.`amazoni4_translation_languages` (`language_code`, `language_name`) VALUES ('nn-NO', 'Norsk nynorsk (Norway)');
 INSERT INTO `amazoni`.`amazoni4_translation_languages` (`language_code`, `language_name`) VALUES ('pt-PT', 'Português (pt-PT)');
 INSERT INTO `amazoni`.`amazoni4_translation_languages` (`language_code`, `language_name`) VALUES ('sv-SE', 'Svenska (SE)');
+
+
+-- Part II
+
+TRUNCATE `amazoni`.`amazoni4_products_translation`;
+
+ALTER TABLE `amazoni`.`amazoni4_products_translation` 
+CHANGE COLUMN `product_id` `sku` VARCHAR(64) NOT NULL ;
+
+ALTER TABLE `amazoni`.`amazoni4_products_translation` 
+DROP INDEX `translation_id` ;
+
+ALTER TABLE `amazoni`.`amazoni4_products_translation` 
+ADD INDEX `translation_id` (`sku` ASC);
+
+ALTER TABLE `amazoni`.`amazoni4_providers_products` 
+ADD COLUMN `locked_on` DATETIME NULL DEFAULT NULL AFTER `updated_on`,
+ADD COLUMN `locked_by` INT NULL DEFAULT 0 AFTER `locked_on`;
+
+ALTER TABLE `amazoni`.`amazoni4_products_translation` 
+ADD COLUMN `locked_on` DATETIME NULL DEFAULT NULL AFTER `updated_on`,
+ADD COLUMN `locked_by` INT NULL DEFAULT 0 AFTER `locked_on`;

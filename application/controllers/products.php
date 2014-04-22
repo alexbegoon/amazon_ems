@@ -80,18 +80,18 @@ class Products extends CI_Controller
         
         $product = $this->products_model->get_product_by_id($id);
         
-        $data['product_name'] = null;
-        $data['product_desc'] = null;
-        $data['product_s_desc'] = null;
-        $data['meta_desc'] = null;
-        $data['meta_keywords'] = null;
-        $data['custom_title'] = null;
-        $data['slug'] = null;
+        $data['product_name']   = '';
+        $data['product_desc']   = '';
+        $data['product_s_desc'] = '';
+        $data['meta_desc']      = '';
+        $data['meta_keywords']  = '';
+        $data['custom_title']   = '';
+        $data['slug']           = '';
         $data['provider_product_name'] = $product->product_name;
-        $data['product_id'] = $id;
+        $data['sku'] = $product->sku;
         $data['translation_languages_dropdown'] = $this->products_model->get_translation_languages_dropdown();
 
-        $data = array_merge($data, $this->products_model->get_product_translation($id, $language_code));
+        $data = array_merge($data, $this->products_model->get_product_translation($product->sku, $language_code));
         
 //        var_dump($data);die;
         
@@ -109,10 +109,10 @@ class Products extends CI_Controller
     
     function get_translation()
     {
-        $id = $this->input->post('id');
+        $sku = $this->input->post('sku');
         $language_code = $this->input->post('language_code');
         
-        $data = $this->products_model->get_product_translation($id, $language_code);
+        $data = $this->products_model->get_product_translation($sku, $language_code);
         
         $this->output
         ->set_content_type('application/json')

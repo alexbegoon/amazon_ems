@@ -122,7 +122,7 @@
                 }
             ?>
             <tr title="Last updated: <?php echo $product->updated_on;?>">
-                <td><a href="javascript:voind(0);" class="edit" onclick="AJAX_edit('<?php echo base_url().'index.php/products/edit';?>', <?php echo $product->id;?>, '<?php echo $product->sku;?>');return false;"></a></td>
+                <td><a href="javascript:void(0);" class="edit" onclick="AJAX_edit('<?php echo base_url().'index.php/products/edit';?>', <?php echo $product->id;?>, '<?php echo $product->sku;?>');return false;"></a></td>
                 <td class="bold"><?php echo $product->sku;?></td>
                 <td><?php echo htmlentities($product->product_name);?></td>
                 <td><?php echo number_format($product->price,2);?>&euro;</td>
