@@ -146,23 +146,38 @@ $inputs = array(
             return false;
         });
         
-        
-        
+    };
+    
+    Amazoni.get_tinymce = function(){
+        tinyMCE.execCommand('mceRemoveEditor', true, "product_desc");
+        tinyMCE.init({
+            language : 'es',
+            selector: "#product_desc"
+         });
     };
     
     $(function(){
-        
-        
+                
+        Amazoni.get_tinymce();
+                
         $('textarea').change(function(){
+            tinyMCE.triggerSave();
+            Amazoni.save_translation();
+        });
+        
+        tinymce.activeEditor.on('blur', function(e) {
+            tinyMCE.triggerSave();
             Amazoni.save_translation();
         });
         
         $('#edit-save').click(function(){
-            $("#all_saved").show().delay(5000).fadeOut();
+            $("#all_saved").show().delay(2000).fadeOut();
         });
         
         $('#translation_languages').combobox({
             select: function( event, ui ){
+                
+                tinyMCE.remove();
                 
                 // setup some local variables
                 var $form = $("#edit_product");
@@ -198,6 +213,7 @@ $inputs = array(
                 request.always(function () {
                     // reenable the inputs
                     $inputs.prop("disabled", false);
+                    Amazoni.get_tinymce();
                 });
             }
                 

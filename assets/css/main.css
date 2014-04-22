@@ -936,6 +936,16 @@ span.green {
     color: green;
 }
 
+form#edit_product textarea {
+    border:1px solid #999999;
+    width:100%;
+    margin:5px 0;
+    padding:3px;
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
 /*************** Tracking *****************/
 div.tracking_wrapper{
     overflow: hidden;
