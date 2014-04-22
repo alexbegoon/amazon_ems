@@ -148,7 +148,6 @@ $inputs = array(
     
     Amazoni.get_tinymce = function(){
             
-        tinymce.remove('product_desc');
         tinymce.init({
             mode : 'exact',
             language : 'es',
@@ -162,6 +161,7 @@ $inputs = array(
             ],
             toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media",            
             image_advtab: true,
+            browser_spellcheck : true,
             height: 250,
             setup: function(editor) {
                 editor.on('blur', function(e) {
@@ -173,9 +173,7 @@ $inputs = array(
     };
     
     Amazoni.update_product_translations = function(){
-        
-                tinymce.remove();
-                
+                        
                 // setup some local variables
                 var $form = $("#edit_product");
                 // let's select and cache all the fields

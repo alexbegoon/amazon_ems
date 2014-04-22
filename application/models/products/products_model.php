@@ -1503,6 +1503,11 @@ class Products_model extends CI_Model
     
     public function get_product_translation($sku, $language_code)
     {
+        if ( $this->is_translation_locked($sku, $language_code) !== false )
+        {
+            return false;
+        }
+        
         if(strlen($language_code) < 5)
         {
             $language_code = 'de-DE';

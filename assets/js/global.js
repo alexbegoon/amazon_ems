@@ -723,6 +723,7 @@ function AJAX_edit(url,id,sku){
     buttons: null,
     close: function( event, ui ) {
         $( "#modal_window" ).empty();
+        $( "#modal_window" ).dialog( "destroy" );
     },
     open: function(event, ui) { 
 
