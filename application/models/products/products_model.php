@@ -1512,11 +1512,18 @@ class Products_model extends CI_Model
                           ->where('language_code', $language_code)
                           ->get('products_translation');
         
+        $this->lock_translation($sku, $language_code);
+        
         return $query->row_array();
     }
     
     public function save_translation($data)
     {        
+        if ( $this->is_translation_locked($data['sku'], $data['language_code']) !== false )
+        {
+            return false;
+        }
+        
         if( count($this->get_product_translation($data['sku'], $data['language_code'])) <= 0 )
         {
             $data['created_on'] = $data['updated_on'] = date('Y-m-d H:i:s',time());
@@ -1531,6 +1538,80 @@ class Products_model extends CI_Model
             $this->db->where('language_code', $data['language_code']);
             $this->db->update('products_translation', $data); 
         }
+        
+        $this->lock_translation($data['sku'], $data['language_code']);
+    }
+    
+    /**
+     * Check translation for a lock by another user
+     * Return false if not locked. Or return user id who locked.
+     * @param type $sku
+     * @param type $language_code
+     * @return boolean
+     */
+    public function is_translation_locked($sku, $language_code)
+    {
+        $query = $this->db
+                 ->select('id, locked_by')
+                 ->from('products_translation')
+                 ->where('sku',$sku)
+                 ->where('language_code', $language_code)
+                 ->where('locked_by != ', 0)
+                 ->get();
+        
+        if($query->num_rows() > 0)
+        {
+            if( (int)$query->row()->locked_by === (int)$this->ion_auth->get_user_id() )
+            {
+                return false;
+            }
+            
+            if( !$this->is_translation_lock_expired($query->row()->id) )
+            {
+                return (int)$query->row()->locked_by;
+            }
+        }
+        
+        return false;
+    }
+    
+    private function is_translation_lock_expired($id)
+    {
+        $query = $this->db
+                 ->select('id')
+                 ->from('products_translation')
+                 ->where('id',$id)
+                 ->where( 'locked_on < ', date('Y-m-d H:i:s', time() - 3600) )
+                 ->get();
+        
+        if($query->num_rows() > 0)
+        {
+            $data = array(
+                'locked_on' => null,
+                'locked_by' => 0
+            );
+            
+            $this->db
+                    ->where('id',$id)
+                    ->update('products_translation', $data);
+            
+            return true;
+        }
+        
+        return false;
+    }
+    
+    private function lock_translation($sku, $language_code)
+    {
+        $data = array(
+            'locked_on' => date('Y-m-d H:i:s', time()),
+            'locked_by' => (int)$this->ion_auth->get_user_id()
+        );
+        
+        $this->db
+        ->where('sku',$sku)
+        ->where('language_code', $language_code)
+        ->update('products_translation', $data);
     }
 
 }

@@ -148,18 +148,20 @@ $inputs = array(
     
     Amazoni.get_tinymce = function(){
             
-        tinymce.remove();
+        tinymce.remove('product_desc');
         tinymce.init({
-            mode : 'exact', 
+            mode : 'exact',
             language : 'es',
             selector: "textarea#product_desc",
             theme: "modern",
             plugins: [
-                            "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
-                            "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
-                            "save table contextmenu directionality emoticons template paste textcolor"
-                     ],
-            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons",
+                "advlist autolink lists link image charmap print preview hr anchor pagebreak",
+                "searchreplace visualblocks visualchars code fullscreen",
+                "insertdatetime media nonbreaking save table contextmenu directionality",
+                "template paste"
+            ],
+            toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media",            
+            image_advtab: true,
             height: 250,
             setup: function(editor) {
                 editor.on('blur', function(e) {

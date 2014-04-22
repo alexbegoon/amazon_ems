@@ -3,7 +3,7 @@
 //
 // Prevent jQuery UI dialog from blocking focusin
 $(document).on('focusin', function(e) {
-    if ($(event.target).closest(".mce-window").length) {
+    if ($(e.target).closest(".mce-window").length) {
                 e.stopImmediatePropagation();
         }
 });

@@ -80,22 +80,38 @@ class Products extends CI_Controller
         
         $product = $this->products_model->get_product_by_id($id);
         
-        $data['product_name']   = '';
-        $data['product_desc']   = '';
-        $data['product_s_desc'] = '';
-        $data['meta_desc']      = '';
-        $data['meta_keywords']  = '';
-        $data['custom_title']   = '';
-        $data['slug']           = '';
-        $data['provider_product_name'] = $product->product_name;
-        $data['sku'] = $product->sku;
-        $data['translation_languages_dropdown'] = $this->products_model->get_translation_languages_dropdown();
+        $translation_locked_by = $this->products_model->is_translation_locked($product->sku, $language_code);
+        
+        if($translation_locked_by !== false)
+        {
+            $data['errors'][] = 'Translation locked by ' . 
+                    
+            $this->ion_auth->user($translation_locked_by)->row()->first_name .
+            ' '.
+            $this->ion_auth->user($translation_locked_by)->row()->last_name .
+            ' ';
+            
+            $data['errors'][] = 'Email: ' . $this->ion_auth->user($translation_locked_by)->row()->email;
+            
+            $this->load->view('products/error', $data);
+        }
+        else
+        {
+            $data['product_name']   = '';
+            $data['product_desc']   = '';
+            $data['product_s_desc'] = '';
+            $data['meta_desc']      = '';
+            $data['meta_keywords']  = '';
+            $data['custom_title']   = '';
+            $data['slug']           = '';
+            $data['provider_product_name'] = $product->product_name;
+            $data['sku'] = $product->sku;
+            $data['translation_languages_dropdown'] = $this->products_model->get_translation_languages_dropdown();
 
-        $data = array_merge($data, $this->products_model->get_product_translation($product->sku, $language_code));
-        
-//        var_dump($data);die;
-        
-        $this->load->view('products/edit_translation', $data);
+            $data = array_merge($data, $this->products_model->get_product_translation($product->sku, $language_code));
+
+            $this->load->view('products/edit_translation', $data);
+        }
     }
     
     function save()
