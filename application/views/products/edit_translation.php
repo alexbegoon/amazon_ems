@@ -21,7 +21,6 @@ $inputs = array(
         'name'      => 'product_desc',
         'value'     => $product_desc,
         'title'     => 'Product description',
-        'maxlength' => '30000',
         'cols'      => '80',
     ),
     
@@ -30,7 +29,6 @@ $inputs = array(
         'name'      => 'product_s_desc',
         'value'     => $product_s_desc,
         'title'     => 'Product short description',
-        'maxlength' => '30000',
         'cols'      => '80',
     ),
     
@@ -149,26 +147,38 @@ $inputs = array(
     };
     
     Amazoni.get_tinymce = function(){
-        tinyMCE.execCommand('mceRemoveEditor', true, "product_desc");
-        tinyMCE.init({
+            
+        tinymce.remove();
+        tinymce.init({
+            mode : 'textareas',
             language : 'es',
-            selector: "#product_desc"
+            selector: "textarea#product_desc",
+            theme: "modern",
+            plugins: [
+                            "advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
+                            "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
+                            "save table contextmenu directionality emoticons template paste textcolor"
+                      ],
+            toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media fullpage | forecolor backcolor emoticons",
+            height: 250,
+            setup: function(editor) {
+                editor.on('blur', function(e) {
+                    tinymce.triggerSave();
+                    Amazoni.save_translation();
+                });
+            }
          });
     };
     
     $(function(){
-                
-        Amazoni.get_tinymce();
-                
-        $('textarea').change(function(){
-            tinyMCE.triggerSave();
-            Amazoni.save_translation();
-        });
         
-        tinymce.activeEditor.on('blur', function(e) {
-            tinyMCE.triggerSave();
+        Amazoni.get_tinymce();
+        
+        $('textarea').change(function(){
+            tinymce.triggerSave();
             Amazoni.save_translation();
-        });
+        });       
+        
         
         $('#edit-save').click(function(){
             $("#all_saved").show().delay(2000).fadeOut();
@@ -177,7 +187,7 @@ $inputs = array(
         $('#translation_languages').combobox({
             select: function( event, ui ){
                 
-                tinyMCE.remove();
+                tinymce.remove();
                 
                 // setup some local variables
                 var $form = $("#edit_product");
@@ -218,7 +228,5 @@ $inputs = array(
             }
                 
         });
-    
-        
     });
 </script>
