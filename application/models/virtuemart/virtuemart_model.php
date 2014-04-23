@@ -33,7 +33,7 @@ class Virtuemart_model extends CI_Model
         }
         $site = $this->web_field_model->get_web_field($web);
         
-        if($site && !empty($site->hostname) && strlen($site->hostname) > 12 )
+        if($site && !empty($site->hostname) && strlen($site->hostname) > 12 && (int)$site->sync_enabled !== 0)
         {
             $active_record = TRUE;
             
@@ -439,16 +439,114 @@ class Virtuemart_model extends CI_Model
     {
         $db = $this->create_db_connection($web);
         
-        $virtuemart_version = $this->check_version($web);
+        if($db === false)
+        {
+            return false;
+        }
+        
+        $site = $this->web_field_model->get_web_field($web);
         $lang_suffix = strtolower(str_replace('-', '_', $language_code));
+        
+        // Check installed language
+        if(strpos($site->installed_languages, $lang_suffix) === false)
+        {
+            return false;
+        }
+        
+        $virtuemart_version = $this->check_version($web);
         
         if($virtuemart_version == '2.0.0.0')
         {
+            // Get product id
+            $query = $db
+                    ->select('p.virtuemart_product_id')
+                    ->from('virtuemart_products_'.$lang_suffix.' as meta')
+                    ->join('virtuemart_products as p','p.virtuemart_product_id = meta.virtuemart_product_id', 'inner')
+                    ->like('p.product_sku',$sku)
+                    ->limit(1)
+                    ->get();
             
+            if($query->num_rows() !== 1)
+            {
+                return false;
+            }
+            else 
+            {
+                $d['virtuemart_product_id'] = $query->row()->virtuemart_product_id;
+            }
+            
+            if(!empty($data['product_name']))
+            {
+                $d['product_name'] = $data['product_name'];
+            }
+            if(!empty($data['product_desc']))
+            {
+                $d['product_desc'] = $data['product_desc'];
+            }
+            if(!empty($data['product_s_desc']))
+            {
+                $d['product_s_desc'] = $data['product_s_desc'];
+            }
+            if(!empty($data['meta_desc']))
+            {
+                $d['metadesc'] = $data['meta_desc'];
+            }
+            if(!empty($data['meta_keywords']))
+            {
+                $d['metakey'] = $data['meta_keywords'];
+            }
+            if(!empty($data['custom_title']))
+            {
+                $d['customtitle'] = $data['custom_title'];
+            }
+            if(!empty($data['slug']))
+            {
+                $d['slug'] = $data['slug'];
+            }
+            
+            if(count($d) > 1)
+            {
+                $db->where('virtuemart_product_id', $d['virtuemart_product_id']);
+                $db->update('virtuemart_products_'.$lang_suffix, $d);
+            }
         }
         elseif($virtuemart_version == '1.0.0.0')
         {
+            // Get product id
+            $query = $db
+                    ->select('product_id')
+                    ->from('vm_product')
+                    ->like('product_sku',$sku)
+                    ->limit(1)
+                    ->get();
             
+            if($query->num_rows() !== 1)
+            {
+                return false;
+            }
+            else 
+            {
+                $d['product_id'] = $query->row()->product_id;
+            }
+            
+            if(!empty($data['product_name']))
+            {
+                $d['product_name'] = $data['product_name'];
+            }
+            if(!empty($data['product_desc']))
+            {
+                $d['product_desc'] = $data['product_desc'];
+            }
+            if(!empty($data['product_s_desc']))
+            {
+                $d['product_s_desc'] = $data['product_s_desc'];
+            }
+            
+            if(count($d) > 1)
+            {
+                $db->where('product_id', $d['product_id']);
+                $db->update('vm_product', $d);
+            }
         }
     }
 }

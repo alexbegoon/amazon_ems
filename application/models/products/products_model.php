@@ -1675,10 +1675,45 @@ class Products_model extends CI_Model
         
         redirect('/products/import_products_meta/'.++$iteration, 'refresh');
     }
-    
-    public function export_product_meta($sku, $language_code)
-    {
         
+    public function export_product_meta($sku)
+    {
+        if( empty($sku) )
+        {
+            return false;
+        }
+        
+        $webs = $this->web_field_model->get_all_web_fields();
+        
+        // Get all translations for this sku
+        $query = $this->db
+                ->select('language_code, sku, product_name, product_desc, '
+                        .'product_s_desc, meta_desc, meta_keywords, custom_title, '
+                        .'slug')
+                ->from('products_translation')
+                ->where('sku', $sku)
+                ->get();
+        
+        foreach($query->result_array() as $translation)
+        {
+            foreach($webs as $web)
+            {
+                $this->virtuemart_model->update_product_meta($web, $translation['language_code'], $sku, $translation);
+            }
+        }
+        
+        $this->unlock_translation($sku);
     }
-
+    
+    private function unlock_translation($sku)
+    {
+        $data = array(
+            'locked_by' => 0,
+            'locked_on' => null
+        );
+        
+        $this->db
+                ->where('sku',$sku)
+                ->update('products_translation', $data);
+    }
 }
