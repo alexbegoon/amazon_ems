@@ -55,7 +55,7 @@ class Sync_general
         $this->_config->start_time           = $web->start_time;
         $this->_config->web                  = $web->web;
         
-        if(!empty($web->installed_languages))
+        if( !empty($web->installed_languages) && $this->_config->virtuemart_version === '2.0.0.0' )
         {
             $this->_config->languages = array_flip(array_map( 'trim', explode(',', $web->installed_languages)));
         }

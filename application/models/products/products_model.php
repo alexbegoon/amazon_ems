@@ -22,11 +22,14 @@ class Products_model extends CI_Model
         $this->load->model('incomes/web_field_model');
         $this->load->model('incomes/exchange_rates_model');
         $this->load->model('incomes/taxes_model');
+        $this->load->model('virtuemart/virtuemart_model');
         $this->load->model('stokoni/stokoni_model');
         
         // Load  libraries
         $this->load->library('email');
         $this->load->library('table');
+        
+//        $this->import_products_meta();
     }
     
     public function get_products($page)
@@ -1522,11 +1525,14 @@ class Products_model extends CI_Model
         return $query->row_array();
     }
     
-    public function save_translation($data)
+    public function save_translation($data, $safe_mode = true)
     {        
-        if ( $this->is_translation_locked($data['sku'], $data['language_code']) !== false )
+        if($safe_mode)
         {
-            return false;
+            if ( $this->is_translation_locked($data['sku'], $data['language_code']) !== false )
+            {
+                return false;
+            }
         }
         
         if( count($this->get_product_translation($data['sku'], $data['language_code'])) <= 0 )
@@ -1544,7 +1550,10 @@ class Products_model extends CI_Model
             $this->db->update('products_translation', $data); 
         }
         
-        $this->lock_translation($data['sku'], $data['language_code']);
+        if($safe_mode)
+        {
+            $this->lock_translation($data['sku'], $data['language_code']);
+        }
     }
     
     /**
@@ -1617,6 +1626,53 @@ class Products_model extends CI_Model
         ->where('sku',$sku)
         ->where('language_code', $language_code)
         ->update('products_translation', $data);
+    }
+    
+    public function import_products_meta()
+    {
+        $rules = array(
+            'de-DE' => 'KOSMETIK',
+            'en-AU' => 'COSMETICS',
+            'en-GB' => 'COSMETICS',
+            'en-US' => 'COSMETICS',
+            'es-ES' => 'BUYIN',
+            'fr-FR' => 'COSMETIQUES',
+            'it-IT' => 'COSMETICIONE',
+            'nl-NL' => 'BUYIN',
+            'nn-NO' => 'BUYIN',
+            'pt-PT' => 'BUYIN',
+            'sv-SE' => 'BUYIN',
+        );
+        
+        // Get unique sku's
+        $skus = array();
+        
+        $query = $this->db
+                ->select('DISTINCT sku')
+                ->from('providers_products')
+                ->where('provider_name','PINTERNACIONAL')
+                ->or_where('provider_name','COQUETEO')
+                ->or_where('provider_name','ENGELSA')
+                ->or_where('provider_name','EUCERIN')
+                ->or_where('provider_name','MIRAFARMA')
+                ->get();
+        
+        if($query->num_rows() > 0)
+        {
+            foreach ($query->result() as $row)
+            {
+                $skus[] = $row->sku;
+            }
+        }
+        
+        foreach ($rules as $key => $value) 
+        {
+            $data = $this->virtuemart_model->extract_products_metainfo($value, $key, $skus);
+            foreach ($data as $t)
+            {
+                $this->save_translation($t, false);
+            }
+        }
     }
 
 }

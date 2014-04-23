@@ -372,4 +372,66 @@ class Virtuemart_model extends CI_Model
                 
         return false;
     }
+    
+    public function extract_products_metainfo($web, $language_code, $skus)
+    {
+        $db = $this->create_db_connection($web);
+        
+        $data = array();
+        
+        if(!$db || !is_array($skus))
+        {
+            return false;
+        }
+        
+        $virtuemart_version = $this->check_version($web);
+        $lang_suffix = strtolower(str_replace('-', '_', $language_code));
+        
+        if($virtuemart_version == '2.0.0.0')
+        {
+            foreach ($skus as $sku)
+            {
+                $query = $db
+                ->select('meta.product_s_desc, meta.product_desc, '
+                        .'meta.product_name, meta.metadesc as meta_desc, '
+                        .'meta.metakey as meta_keywords, '
+                        .'meta.customtitle as custom_title, meta.slug')
+                ->from('virtuemart_products_'.$lang_suffix.' as meta')
+                ->join('virtuemart_products as p','p.virtuemart_product_id = meta.virtuemart_product_id', 'inner')
+                ->like('p.product_sku',$sku)
+                ->limit(1)
+                ->get();
+                
+                if($query->num_rows() === 1)
+                {
+                    $result = $query->row_array();
+                    $result['sku'] = $sku;
+                    $result['language_code'] = $language_code;
+                    $data[] = $result;
+                }
+            }
+        }
+        elseif($virtuemart_version == '1.0.0.0')
+        {
+            foreach ($skus as $sku)
+            {
+                $query = $db
+                ->select('product_s_desc, product_desc, product_name')
+                ->from('vm_product')
+                ->like('product_sku',$sku)
+                ->limit(1)
+                ->get();
+                
+                if($query->num_rows() === 1)
+                {
+                    $result = $query->row_array();
+                    $result['sku'] = $sku;
+                    $result['language_code'] = $language_code;
+                    $data[] = $result;
+                }
+            }
+        }
+        
+        return $data;
+    }
 }

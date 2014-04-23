@@ -117,6 +117,8 @@ class Products extends CI_Controller
     function save()
     {
         $data = $this->input->post();
+        // Single hack. CI XSS filter removed styles.
+        $data['product_desc'] = $_REQUEST['product_desc'];
         
         unset($data['provider_product_name']);
         

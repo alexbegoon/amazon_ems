@@ -155,16 +155,19 @@ $inputs = array(
         
         tinymce.init({
             mode : 'exact',
+            schema: "html5",
             language : 'es',
+            extended_valid_elements: "span[class|align|style],p[class|align|style]",
+            entity_encoding: "raw",
             selector: "textarea#product_desc_<?php echo $sku;?>",
             theme: "modern",
             plugins: [
                 "advlist autolink lists link image charmap print preview hr anchor pagebreak",
                 "searchreplace visualblocks visualchars code fullscreen",
                 "insertdatetime media nonbreaking save table contextmenu directionality",
-                "template paste"
+                "template paste textcolor"
             ],
-            toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media",            
+            toolbar1: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor",            
             image_advtab: true,
             browser_spellcheck : true,
             height: 250,
@@ -213,8 +216,6 @@ $inputs = array(
                 request.always(function () {
                     // reenable the inputs
                     $inputs.prop("disabled", false);
-//                    Amazoni.get_tinymce();
-                    console.log(tinymce.editors);
                     tinymce.get('product_desc_'+"<?php echo $sku?>").setContent($('textarea#product_desc_'+"<?php echo $sku?>").val()); 
                 });
     };

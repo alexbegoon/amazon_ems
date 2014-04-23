@@ -54,3 +54,20 @@ ADD COLUMN `locked_by` INT NULL DEFAULT 0 AFTER `locked_on`;
 ALTER TABLE `amazoni`.`amazoni4_products_translation` 
 ADD COLUMN `locked_on` DATETIME NULL DEFAULT NULL AFTER `updated_on`,
 ADD COLUMN `locked_by` INT NULL DEFAULT 0 AFTER `locked_on`;
+
+
+ALTER TABLE `amazoni`.`amazoni4_translation_languages` 
+CHANGE COLUMN `language_name` `language_name` VARCHAR(100) NOT NULL ,
+ADD COLUMN `duplicate` CHAR(5) NULL DEFAULT NULL AFTER `language_name`;
+
+UPDATE `amazoni`.`amazoni4_translation_languages` SET `duplicate`='en-GB' WHERE `language_code`='en-AU';
+UPDATE `amazoni`.`amazoni4_translation_languages` SET `duplicate`='en-GB' WHERE `language_code`='en-US';
+
+
+UPDATE `amazoni`.`amazoni4_web_field` SET `installed_languages`='en_gb' WHERE `web`='COSMETICS';
+UPDATE `amazoni`.`amazoni4_web_field` SET `installed_languages`='fr_fr' WHERE `web`='COSMETIQUES';
+UPDATE `amazoni`.`amazoni4_web_field` SET `installed_languages`='de_de' WHERE `web`='KOSMETIK';
+UPDATE `amazoni`.`amazoni4_web_field` SET `installed_languages`='es_es' WHERE `web`='SEXSHOPIN';
+UPDATE `amazoni`.`amazoni4_web_field` SET `installed_languages`='it_it' WHERE `web`='COSMETICIONE';
+UPDATE `amazoni`.`amazoni4_web_field` SET `installed_languages`='es_es' WHERE `web`='COSMETICAONLINE';
+UPDATE `amazoni`.`amazoni4_web_field` SET `installed_languages`='fr_fr' WHERE `web`='PRIXPARFUM';
