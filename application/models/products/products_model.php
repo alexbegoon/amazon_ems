@@ -28,8 +28,6 @@ class Products_model extends CI_Model
         // Load  libraries
         $this->load->library('email');
         $this->load->library('table');
-        
-//        $this->import_products_meta();
     }
     
     public function get_products($page)
@@ -1628,7 +1626,7 @@ class Products_model extends CI_Model
         ->update('products_translation', $data);
     }
     
-    public function import_products_meta()
+    public function import_products_meta($iteration)
     {
         $rules = array(
             'de-DE' => 'KOSMETIK',
@@ -1653,8 +1651,9 @@ class Products_model extends CI_Model
                 ->where('provider_name','PINTERNACIONAL')
                 ->or_where('provider_name','COQUETEO')
                 ->or_where('provider_name','ENGELSA')
-                ->or_where('provider_name','EUCERIN')
-                ->or_where('provider_name','MIRAFARMA')
+//                ->or_where('provider_name','EUCERIN')
+//                ->or_where('provider_name','MIRAFARMA')
+                ->limit(10, 10*$iteration)
                 ->get();
         
         if($query->num_rows() > 0)
@@ -1673,6 +1672,13 @@ class Products_model extends CI_Model
                 $this->save_translation($t, false);
             }
         }
+        
+        redirect('/products/import_products_meta/'.++$iteration, 'refresh');
+    }
+    
+    public function export_product_meta($sku, $language_code)
+    {
+        
     }
 
 }

@@ -136,4 +136,9 @@ class Products extends CI_Controller
         ->set_content_type('application/json')
         ->set_output(json_encode($data));
     }
+    
+    function import_products_meta($iteration = 0)
+    {
+        $this->products_model->import_products_meta($iteration);
+    }
 }
