@@ -141,4 +141,10 @@ class Products extends CI_Controller
     {
         $this->products_model->import_products_meta($iteration);
     }
+    
+    function export_products_meta()
+    {
+        $sku = $this->input->post('sku');
+        $this->products_model->export_product_meta($sku);
+    }
 }

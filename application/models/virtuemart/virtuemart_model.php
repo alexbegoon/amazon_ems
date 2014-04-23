@@ -27,6 +27,11 @@ class Virtuemart_model extends CI_Model
      */
     private function create_db_connection($web)
     {
+        if(empty($web) || !is_string($web))
+        {
+            return false;
+        }
+        
         if(isset($this->_db_connections[$web]))
         {
             return $this->_db_connections[$web];
@@ -56,6 +61,8 @@ class Virtuemart_model extends CI_Model
             $this->_db_connections[$web] = $this->load->database($config, TRUE, $active_record);
             return $this->_db_connections[$web];
         }
+        
+        $this->_db_connections[$web] = null;
         
         return FALSE;
         

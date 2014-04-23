@@ -761,6 +761,12 @@ b.warning_icon{
     background-repeat: no-repeat!important;
     background-position: center center!important;
 }
+#ajax-loader-2 {
+    background-image: url(../imgs/36-1.gif)!important;
+    display: none;
+    width: 128px;
+    height: 15px;
+}
 .small-ajax-loader input
 {
     opacity: 0.2!important;

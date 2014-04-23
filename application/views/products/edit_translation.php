@@ -95,15 +95,16 @@ $inputs = array(
         <?php endforeach;?>
         
         <input type="hidden" name="sku" value="<?php echo $sku?>" />
-        
+        <div id="ajax-loader-2"></div>
         <div class="edit-buttons">
             <div>
-                <span id="all_saved" class="green" style="display: none!important;">All changes saved.</span>
+                <span id="all_saved" class="green" style="display: none!important;">Success. Data exported.</span>
             </div>
-            <input type="button" id="edit-save" value="Save" />
+            <input type="button" id="edit-save" value="Export to all shops" />
             &nbsp;&nbsp;&nbsp;&nbsp;
             <input type="button" id="edit-close" value="Cancel" />
         </div>
+        
     </div>
     <?php echo form_close();?>
 </div>
@@ -231,7 +232,23 @@ $inputs = array(
         
         
         $('#edit-save').click(function(){
-            $("#all_saved").show().delay(2000).fadeOut();
+                $("#ajax-loader-2").show();
+                request = $.ajax({
+                    url: url_before_index + "index.php/products/export_products_meta",
+                    type: "post",
+                    data: {sku:'<?php echo $sku?>'}
+                });
+                
+                request.done(function (response, textStatus, jqXHR){
+                    $("#ajax-loader-2").hide();
+                    $("#all_saved").show().delay(2000).fadeOut();
+                });
+                
+                // callback handler that will be called on failure
+                request.fail(function (jqXHR, textStatus, errorThrown){
+                    console.log(textStatus + ': '+ errorThrown);
+                });
+            
         });
         
         $('#translation_languages').combobox({

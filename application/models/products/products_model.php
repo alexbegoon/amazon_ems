@@ -1698,7 +1698,7 @@ class Products_model extends CI_Model
         {
             foreach($webs as $web)
             {
-                $this->virtuemart_model->update_product_meta($web, $translation['language_code'], $sku, $translation);
+                $this->virtuemart_model->update_product_meta($web->web, $translation['language_code'], $sku, $translation);
             }
         }
         
