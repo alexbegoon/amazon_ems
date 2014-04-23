@@ -19,7 +19,7 @@
   <script type="text/javascript" src="<?php echo base_url().'assets/js/jquery-ui-1.10.4.min.js'; ?>"></script>
   <script type="text/javascript" src="<?php echo base_url().'assets/js/global.js'; ?>"></script>
   <script type="text/javascript" src="<?php echo base_url().'assets/js/Chart.js'; ?>"></script>
-  <script type="text/javascript" src="<?php echo base_url().'assets/js/tinymce/js/tinymce/tinymce.full.js'; ?>"></script>
+  <script type="text/javascript" src="<?php echo base_url().'assets/js/tinymce/js/tinymce/tinymce.min.js'; ?>"></script>
   
   <script>
   <?php

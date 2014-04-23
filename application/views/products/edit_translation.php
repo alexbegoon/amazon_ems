@@ -7,8 +7,8 @@
 
 $inputs = array(
     
-    'product_name' => array(
-        'id'        => 'product_name',
+    'product_name_'.$sku => array(
+        'id'        => 'product_name_'.$sku,
         'name'      => 'product_name',
         'value'     => $product_name,
         'title'     => 'Product name',
@@ -16,24 +16,24 @@ $inputs = array(
         'cols'      => '80',
     ),
     
-    'product_desc' => array(
-        'id'        => 'product_desc',
+    'product_desc_'.$sku => array(
+        'id'        => 'product_desc_'.$sku,
         'name'      => 'product_desc',
         'value'     => $product_desc,
         'title'     => 'Product description',
         'cols'      => '80',
     ),
     
-    'product_s_desc' => array(
-        'id'        => 'product_s_desc',
+    'product_s_desc_'.$sku => array(
+        'id'        => 'product_s_desc_'.$sku,
         'name'      => 'product_s_desc',
         'value'     => $product_s_desc,
         'title'     => 'Product short description',
         'cols'      => '80',
     ),
     
-    'meta_desc' => array(
-        'id'        => 'meta_desc',
+    'meta_desc_'.$sku => array(
+        'id'        => 'meta_desc_'.$sku,
         'name'      => 'meta_desc',
         'value'     => $meta_desc,
         'title'     => 'Meta description',
@@ -41,8 +41,8 @@ $inputs = array(
         'cols'      => '80',
     ),
     
-    'meta_keywords' => array(
-        'id'        => 'meta_keywords',
+    'meta_keywords_'.$sku => array(
+        'id'        => 'meta_keywords_'.$sku,
         'name'      => 'meta_keywords',
         'value'     => $meta_keywords,
         'title'     => 'Meta keywords',
@@ -50,8 +50,8 @@ $inputs = array(
         'cols'      => '80',
     ),
     
-    'custom_title' => array(
-        'id'        => 'custom_title',
+    'custom_title_'.$sku => array(
+        'id'        => 'custom_title_'.$sku,
         'name'      => 'custom_title',
         'value'     => $custom_title,
         'title'     => 'Custom page title',
@@ -59,8 +59,8 @@ $inputs = array(
         'cols'      => '80',
     ),
     
-    'slug' => array(
-        'id'        => 'slug',
+    'slug_'.$sku => array(
+        'id'        => 'slug_'.$sku,
         'name'      => 'slug',
         'value'     => $slug,
         'title'     => 'Slug',
@@ -147,11 +147,16 @@ $inputs = array(
     };
     
     Amazoni.get_tinymce = function(){
-            
+        
+        if(tinymce.editors['product_desc_<?php echo $sku;?>'])
+        {
+            return false;
+        }
+        
         tinymce.init({
             mode : 'exact',
             language : 'es',
-            selector: "textarea#product_desc",
+            selector: "textarea#product_desc_<?php echo $sku;?>",
             theme: "modern",
             plugins: [
                 "advlist autolink lists link image charmap print preview hr anchor pagebreak",
@@ -169,7 +174,7 @@ $inputs = array(
                     Amazoni.save_translation();
                 });
             }
-         });
+        });
     };
     
     Amazoni.update_product_translations = function(){
@@ -193,7 +198,7 @@ $inputs = array(
                     $.each(response, function(key, val) {
                         if(key && val)
                         {
-                            $("#edit_product #"+key).val(val);
+                            $("form#edit_product textarea#"+key+"_<?php echo $sku;?>").val(val);
                         }
                     });
                 });
@@ -208,7 +213,9 @@ $inputs = array(
                 request.always(function () {
                     // reenable the inputs
                     $inputs.prop("disabled", false);
-                    Amazoni.get_tinymce();
+//                    Amazoni.get_tinymce();
+                    console.log(tinymce.editors);
+                    tinymce.get('product_desc_'+"<?php echo $sku?>").setContent($('textarea#product_desc_'+"<?php echo $sku?>").val()); 
                 });
     };
         
@@ -234,6 +241,12 @@ $inputs = array(
                 Amazoni.update_product_translations();
             }
                 
+        });
+        
+        $( "#modal_window" ).dialog({
+            close: function( event, ui ) {
+                tinymce.remove('#product_desc_<?php echo $sku;?>');
+            }
         });
         
     });
