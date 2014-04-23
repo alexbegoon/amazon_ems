@@ -1651,9 +1651,9 @@ class Products_model extends CI_Model
                 ->where('provider_name','PINTERNACIONAL')
                 ->or_where('provider_name','COQUETEO')
                 ->or_where('provider_name','ENGELSA')
-//                ->or_where('provider_name','EUCERIN')
-//                ->or_where('provider_name','MIRAFARMA')
-                ->limit(10, 10*$iteration)
+                ->or_where('provider_name','EUCERIN')
+                ->or_where('provider_name','MIRAFARMA')
+                ->limit(50, 50*$iteration)
                 ->get();
         
         if($query->num_rows() > 0)
