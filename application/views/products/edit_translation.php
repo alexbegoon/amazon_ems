@@ -79,11 +79,8 @@ $inputs = array(
             <br>
             <?php echo $translation_languages_dropdown;?>
         </div>
-        <br>
-        <label for="provider_product_name">Provider product name (read only)</label>
-        <br>
-        <input size="105" name="provider_product_name" id="provider_product_name" readonly="true" value="<?php echo htmlentities($provider_product_name);?>" />
-        <br>
+        <input type="hidden" name="provider_product_name" id="provider_product_name" value="<?php echo htmlentities($provider_product_name);?>" />
+        
         <br>
         <?php foreach ($inputs as $key => $value) : ?>
         <div>
