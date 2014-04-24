@@ -124,7 +124,7 @@
                         ?>
                         <?php } ?>
                     <tr>
-                        <td colspan="5"></td>
+                        <td colspan="8"></td>
                     </tr>
                     <tr class="total">
                         <td>Total:</td>
