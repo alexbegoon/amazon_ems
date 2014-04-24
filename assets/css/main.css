@@ -562,7 +562,7 @@ table.thin_table td input[type=number]
     -webkit-box-shadow: none;
     box-shadow: none;
     height: 20px;
-    width: 50px;
+    width: 70px;
     outline: none;
 }
 table.thin_table td input[type=text]:focus,

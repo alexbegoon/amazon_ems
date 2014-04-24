@@ -67,37 +67,30 @@
         </div>
     </div>
     <form id="incomes-form" method="post" action="<?php echo base_url().'index.php/incomes/page/';?>">
-        <?php $filter = $this->input->post("filter");?>
+        <?php $date_from = $this->input->post("date_from") ? $this->input->post("date_from") : date('Y-m-01', time());
+              $date_to   = $this->input->post("date_to") ? $this->input->post("date_to") : date('Y-m-d', time());
+        ?>
         <div class="filters">
-            <div class="ui-widget">
-                <h3>Current month: <?php echo $current_month;?></h3>
-                <label for="combobox">Select Month: </label>
-                <select id="combobox" name="filter[month]">
-                    <?php echo $month_options; ?>
-                </select>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <label for="combobox2">Select Year: </label>
-                <select id="combobox2" name="filter[year]">
-                    <?php echo $year_options; ?>
-                </select>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <label for="combobox3">Incomes Summary: </label>
-                <select id="combobox3" name="filter[incomes_summary_year]">
-                    <?php echo $incomes_summary_year_options; ?>
-                </select>
-                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                <input type="submit" value="Process" />
-            </div>
+            <h3>Current month: <?php echo $current_month;?></h3>
+            <label for="date_picker">Date from: </label>
+            <input type="text" name="date_from" value="<?php echo $date_from;?>" id="date_picker">
+            <label for="date_picker_2">Date to: </label>
+            <input type="text" name="date_to" value="<?php echo $date_to;?>" id="date_picker_2">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="submit" value="Process" />
         </div>
         <div class="incomes_wrapper">
             <div class="incomes_summary">
                 <table class="thin_table">
                     <?php if (!empty($summary)) { ?>
                     <?php 
-                    $total_orders   = 0;
-                    $total_ingresos = 0;
-                    $total_gasto    = 0;
-                    $total_profit   = 0;
+                    $total_orders       = 0;
+                    $total_ingresos     = 0;
+                    $total_gasto        = 0;
+                    $total_profit       = 0;
+                    $total_taxes        = 0;
+                    $total_net_profit   = 0;
+                    $total_percentage   = 0;
                     ?>
                     <tr>
                         <th>Web</th>
@@ -105,6 +98,9 @@
                         <th>Ingreso</th>
                         <th>Gasto</th>
                         <th>Profit</th>
+                        <th>Taxes</th>
+                        <th>Net Profit</th>
+                        <th>Percentage</th>
                     </tr>
                         <?php foreach ($summary as $web) { ?>
                     <tr>
@@ -113,12 +109,18 @@
                         <td class="ingreso"><?php echo $web->ingresos ?>&euro;</td>
                         <td class="gasto"><?php echo $web->gasto ?>&euro;</td>
                         <td><?php echo $web->profit; ?>&euro;</td>
+                        <td><?php echo $web->taxes; ?>&euro;</td>
+                        <td><?php echo $web->net_profit; ?>&euro;</td>
+                        <td><?php echo $web->percentage; ?>&percnt;</td>
                     </tr>
                         <?php 
-                        $total_orders += $web->total_orders;
-                        $total_ingresos += $web->ingresos;
-                        $total_gasto += $web->gasto;
-                        $total_profit += $web->profit;
+                        $total_orders           += $web->total_orders;
+                        $total_ingresos         += $web->ingresos;
+                        $total_gasto            += $web->gasto;
+                        $total_profit           += $web->profit;
+                        $total_taxes            += $web->taxes;
+                        $total_net_profit       += $web->net_profit;
+                        $total_percentage       += $web->percentage;
                         ?>
                         <?php } ?>
                     <tr>
@@ -129,21 +131,25 @@
                         <td><?php echo $total_orders;?></td>
                         <td class="ingreso"><?php echo $total_ingresos;?>&euro;</td>
                         <td class="gasto"><?php echo $total_gasto;?>&euro;</td>
-                        <td><?php echo $total_profit + $other_costs->sales_rappel - $other_costs->advertisement_cost;?>&euro;</td>
+                        <td><?php echo $total_profit;?>&euro;</td>
+                        <td><?php echo $total_taxes;?></td>
+                        <td><?php echo $total_net_profit;?></td>
+                        <input type="hidden" id="total_net_profit_" name="total_net_profit" value="<?php echo $total_net_profit;?>" />
+                        <td><?php echo $total_percentage;?></td>
                     </tr>
                     <?php } ?>
                 </table>
                 <br>
                 <div>
                     <table class="thin_table">
-                        <tr>
-                            <td>Advertisement cost:</td>
-                            <td><input type="text" name="advertisement_cost" value="<?php echo $other_costs->advertisement_cost;?>"/></td>
+                        <?php foreach($other_costs as $cost):?>
+                        <tr title="<?php echo $cost->description;?>">
+                            <td><?php echo $cost->name;?></td>
+                            <td>
+                                <input id="<?php echo $cost->code;?>_other" <?php if((int)$cost->read_only === 1){echo 'readonly="true"';}?> type="text" name="<?php echo $cost->code;?>" value="<?php echo $cost->price;?>"/>
+                            </td>
                         </tr>
-                        <tr>
-                            <td>Sales rappel:</td>
-                            <td><input type="text" name="sales_rappel" value="<?php echo $other_costs->sales_rappel;?>"/></td>
-                        </tr>
+                        <?php endforeach;?>
                     </table>
                 </div>
             </div>
@@ -215,3 +221,70 @@
 </div>
 <div id="dialog-confirm" title="">
 </div>
+<script>
+    $(function(){
+        // Datepicker
+            $('#date_picker, #date_picker_2').datepicker({
+                dateFormat: 'yy-mm-dd',
+                onSelect: function(  ) {
+                    var dateFrom = $('#date_picker').datepicker("getDate");
+                    var dateTo   = $('#date_picker_2').datepicker("getDate");
+                    var rMin = new Date(dateFrom); 
+                    var rMax = new Date(dateTo);
+                    if(this.id == 'date_picker')
+                    {
+                        $('#date_picker_2').datepicker("option","minDate",new Date(rMin.getTime() + 86400000));
+                        $('#date_picker').datepicker("option","maxDate",rMin);
+                    }
+                    else
+                    {
+                        $('#date_picker_2').datepicker("option","minDate",rMax);
+                        $('#date_picker').datepicker("option","maxDate",new Date(rMax.getTime() - 86400000));
+                    }
+                    
+                    $('#date_picker, #date_picker_2').attr('required','required');
+                },
+                onClose: function(){
+                    
+                    $('#date_picker, #date_picker_2').attr('required','required');
+                                        
+                    if( $('#date_picker').val() == '' && $('#date_picker').val() == '' )
+                    {
+                        $('#date_picker, #date_picker_2').removeAttr('required');
+                    }
+                    
+                }
+            });
+            
+        // Other costs
+        
+        Amazoni.paypal_total_fees = <?php echo $paypal_total_fees;?>;
+        Amazoni.sagepay_total_fees = <?php echo $sagepay_total_fees;?>;
+        Amazoni.tpv_total_fees = <?php echo $tpv_total_fees;?>;
+        
+        $('#sagepay_other').val(Amazoni.sagepay_total_fees);
+        $('#tpv_other').val(Amazoni.tpv_total_fees);
+        $('#paypal_other').val(Amazoni.paypal_total_fees);
+        
+        
+        
+        Amazoni.calculator_process = function(){
+            
+            Amazoni.oper_profit_other = parseFloat($('#total_net_profit_').val());
+            
+            Amazoni.oper_profit_other -= parseFloat($('#advertisement_other').val());
+            Amazoni.oper_profit_other += parseFloat($('#rappel_other').val());
+            Amazoni.oper_profit_other -= parseFloat($('#sagepay_other').val());
+            Amazoni.oper_profit_other -= parseFloat($('#tpv_other').val());
+            Amazoni.oper_profit_other -= parseFloat($('#paypal_other').val());
+            Amazoni.oper_profit_other -= parseFloat($('#operating_cost_other').val());
+            
+            $('#oper_profit_other').val(Amazoni.oper_profit_other.toFixed(2));
+        };
+        $('.incomes_summary input').change(function(){
+            Amazoni.calculator_process();
+        });
+        Amazoni.calculator_process();
+        
+    });
+</script>

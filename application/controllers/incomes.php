@@ -73,6 +73,8 @@ class Incomes extends CI_Controller {
         
         $data['other_costs'] = $this->incomes_model->get_other_costs();
         
+        $data = array_merge($data, $this->incomes_model->get_payment_fees());
+        
         // Pagination
         
         $config['base_url'] = base_url().'index.php/incomes/page/';
