@@ -30,10 +30,14 @@ class Incomes_model extends CI_Model {
                           ROUND(SUM(`p`.`gasto`),2) AS `gasto`, 
                                 CASE
                                     WHEN `p`.`web` = \'AMAZON-USA\' 
-                                        THEN ROUND((SUM(`p`.`ingresos`) - SUM( `p`.`gasto` ) / (1 + ('.$this->_taxes['IVA_tax'].' / 100))),2)
+                                        THEN ROUND((SUM(`p`.`ingresos`) - SUM( `p`.`gasto` ) / (1 + ('.$this->_taxes['IVA_tax'].' / 100)))/(1 + ('.$this->_taxes['IVA_tax'].' / 100)),2)
                                     ELSE ROUND((SUM(`p`.`ingresos` - `p`.`gasto`) / (1 + ('.$this->_taxes['IVA_tax'].' / 100))),2)
                                 END `net_profit`,
-                                ROUND((SUM(`p`.`ingresos`) - SUM(`p`.`gasto`)),2) as `profit`,
+                                CASE
+                                    WHEN `p`.`web` = \'AMAZON-USA\' 
+                                        THEN ROUND((SUM(`p`.`ingresos`) - SUM(`p`.`gasto`)/(1 + ('.$this->_taxes['IVA_tax'].' / 100))),2)
+                                    ELSE ROUND((SUM(`p`.`ingresos`) - SUM(`p`.`gasto`)),2) 
+                                END `profit`,
                                 ROUND(SUM(`p`.`ingresos`) * ('.$this->_taxes['IVA_tax'].' / 100) ,2) as taxes,
                                 CASE
                                     WHEN `p`.`web` = \'AMAZON-USA\' 
