@@ -71,6 +71,20 @@ class Incomes_model extends CI_Model {
         $where = ' WHERE ( `p`.`fechaentrada` >= \''.$start_date.'\' AND `p`.`fechaentrada` <= \''.$end_date.'\') ';
         $where .= ' AND ( `p`.`procesado` LIKE \'ENVIADO%\'  ) ';
         
+        $search = $this->input->post("search");
+        
+        if(!empty($search))
+        {
+            $where .= ' AND ( `p`.`pedido` COLLATE UTF8_GENERAL_CI LIKE \'%'.$search.'%\' '
+                    . ' OR  `p`.`nombre` COLLATE UTF8_GENERAL_CI LIKE \'%'.$search.'%\' '
+                    . ' OR  `p`.`direccion` COLLATE UTF8_GENERAL_CI LIKE \'%'.$search.'%\' '
+                    . ' OR  `p`.`correo` LIKE \'%'.$search.'%\' '
+                    . ' OR  `p`.`id` LIKE \'%'.$search.'%\' '
+                    . ' OR  `p`.`web` LIKE \'%'.$search.'%\' '
+                    . ' OR  `p`.`fechaentrada` LIKE \'%'.$search.'%\' '
+                    . ' ) ';
+        }
+        
         if ($page) {
             $limit = (int)$page.', 50';
         } else {

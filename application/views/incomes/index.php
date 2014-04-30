@@ -81,6 +81,9 @@
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <label for="to_excel" title="Export filtered data to Excel list">To Excel: </label>
             <button id="to_excel"><span class="excel_icon"></span></button>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="text" value="<?php echo $this->input->post('search');?>" name="search" id="search">
+            <input type="submit" value="Buscar">
         </div>
         <div class="incomes_wrapper">
             <div class="incomes_summary">
