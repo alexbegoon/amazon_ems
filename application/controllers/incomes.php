@@ -38,36 +38,17 @@ class Incomes extends CI_Controller {
     }
     
     public function page($page = null)
-    {
-        
+    {   
         // Post data
-        $filter = $this->input->post("filter");
+        $post_data = $this->input->post();
         
         // Load data 
         $data['title'] = ucfirst($this->router->class);
         $data['current_month'] = date('F Y', time());
+                
+        $data['summary'] = $this->incomes_model->getSummary();
         
-        if (!empty($filter['month'])) {
-           $data['month_options'] = getMonthsOptions($filter['month']); 
-        } else {
-           $data['month_options'] = getMonthsOptions(date('m', time()));  
-        }
-        
-        if (!empty($filter['year'])) {
-           $data['year_options'] = getYearsOptions($filter['year']);
-        } else {
-           $data['year_options'] = getYearsOptions(date('Y', time()));  
-        }
-        
-        if (!empty($filter['incomes_summary_year'])) {
-           $data['incomes_summary_year_options'] = getYearsOptions($filter['incomes_summary_year']);
-        } else {
-           $data['incomes_summary_year_options'] = getYearsOptions(date('Y', time()));  
-        }
-        
-        $data['summary'] = $this->incomes_model->getSummary($filter['month'], $filter['incomes_summary_year']);
-        
-        $data['orders']  = $this->incomes_model->getOrders($page, $filter['month'], $filter['incomes_summary_year']);
+        $data['orders']  = $this->incomes_model->getOrders($page);
         
         $data['total_rows'] = $this->incomes_model->countOrders();
         
@@ -84,6 +65,11 @@ class Incomes extends CI_Controller {
         $this->pagination->initialize($config); 
         $data['pagination'] = $this->pagination->create_links();
                 
+        if((int)$post_data["to_excel"] === 1)
+        {
+            $file = $this->incomes_model->get_excel_file($post_data);
+            force_download($file->name, $file->data);
+        }
         // Load view 
         $this->load->template('incomes/index', $data);
         

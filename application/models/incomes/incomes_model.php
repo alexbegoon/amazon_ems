@@ -14,6 +14,9 @@ class Incomes_model extends CI_Model {
         parent::__construct();
         $this->load->database();
         $this->getTaxes();
+        
+        
+        $this->load->helper('download');
     }
     
     public function getSummary() 
@@ -286,6 +289,81 @@ class Incomes_model extends CI_Model {
         }
         $this->db->cache_off();
         return $data;
+    }
+    
+    public function get_excel_file($post_data)
+    {
+        $file = new stdClass();
+        
+        $this->load->library('excel');
+        
+        $start_date = $post_data["date_from"] ? $post_data["date_from"] : date('Y-m-01', time());
+        $end_date   = $post_data["date_to"]   ? $post_data["date_to"]   : date('Y-m-d', time());
+        
+        $objPHPExcel = new PHPExcel();
+        
+        $objPHPExcel->getProperties()->setCreator("Amazoni4");
+        $objPHPExcel->getProperties()->setLastModifiedBy("Amazoni4");
+        $objPHPExcel->getProperties()->setTitle("Incomes report. Date from ".$start_date." to ".$end_date);
+        $objPHPExcel->getProperties()->setSubject("Incomes report. Date from ".$start_date." to ".$end_date);
+        $objPHPExcel->getProperties()->setDescription("Incomes report. Date from ".$start_date." to ".$end_date);
+        
+        $objPHPExcel->setActiveSheetIndex(0);
+        
+        $objPHPExcel->getActiveSheet()->setTitle("Incomes report");
+        
+        // Prepare data
+                
+        $header = array(
+            'WEB',
+            'Orders Shipped',
+            'Ingreso',
+            'Gasto',
+            'Profit',
+            'Taxes',
+            'Net Profit',
+            'Percentage'
+        );
+        
+        $i = 0;
+        foreach ($header as $cell)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 1)->getFill()
+            ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'startcolor' => array('rgb' => 'ededed')
+            ));
+            $i++;
+        }
+        
+        $data = $this->getSummary();
+        
+        $i = 2;
+        foreach ($data as $row)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $row->web, PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $row->total_orders, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $row->ingresos, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $row->gasto, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(4, $i, $row->profit, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(5, $i, $row->taxes, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(6, $i, $row->net_profit, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(7, $i, $row->percentage, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $i++;
+        }
+        
+        // Write a file
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        
+        $filename = FCPATH .'upload/incomes_report__'.date('Y_m_d', time()).'xls';
+        
+        $objWriter->save($filename);
+        
+        $file->name = 'incomes_report__'.date('Y_m_d', time()).'.xls';
+        $file->data = read_file($filename);
+                
+        return $file;
     }
     
 }

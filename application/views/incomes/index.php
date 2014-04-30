@@ -78,6 +78,9 @@
             <input type="text" name="date_to" value="<?php echo $date_to;?>" id="date_picker_2">
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <input type="submit" value="Process" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <label for="to_excel" title="Export filtered data to Excel list">To Excel: </label>
+            <button id="to_excel"><span class="excel_icon"></span></button>
         </div>
         <div class="incomes_wrapper">
             <div class="incomes_summary">
@@ -212,6 +215,7 @@
                 <?php } ?>
             </div>
         </div>
+        <input type="hidden" id="excel_toggle" name="to_excel" value="0" />
     </form>    
 </article>
 <div id="dialog-modal" title="Basic modal dialog">
@@ -223,6 +227,15 @@
 </div>
 <script>
     $(function(){
+        
+        $('form input, form a').click(function(){
+            $('#excel_toggle').val('0');
+        });
+
+        $('#to_excel').click(function(){
+            $('#excel_toggle').val('1');
+        });
+
         // Datepicker
             $('#date_picker, #date_picker_2').datepicker({
                 dateFormat: 'yy-mm-dd',
