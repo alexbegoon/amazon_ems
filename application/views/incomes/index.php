@@ -274,9 +274,9 @@
             
         // Other costs
         
-        Amazoni.paypal_total_fees = <?php echo $paypal_total_fees;?>;
-        Amazoni.sagepay_total_fees = <?php echo $sagepay_total_fees;?>;
-        Amazoni.tpv_total_fees = <?php echo $tpv_total_fees;?>;
+        Amazoni.paypal_total_fees = <?php echo $paypal_total_fees ? $paypal_total_fees : 0;?>;
+        Amazoni.sagepay_total_fees = <?php echo $sagepay_total_fees ? $sagepay_total_fees : 0;?>;
+        Amazoni.tpv_total_fees = <?php echo $tpv_total_fees ? $tpv_total_fees : 0;?>;
         
         $('#sagepay_other').val(Amazoni.sagepay_total_fees);
         $('#tpv_other').val(Amazoni.tpv_total_fees);
