@@ -521,6 +521,7 @@ function IsEmail(email) {
     $( "#combobox" ).combobox();
     $( "#combobox2" ).combobox();
     $( "#combobox3" ).combobox();
+    $( "#combobox4" ).combobox();
     $( "#toggle" ).click(function() {
       $( "#combobox" ).toggle();
     });

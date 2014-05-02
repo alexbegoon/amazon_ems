@@ -16,6 +16,9 @@
                     <?php getStatusOptions($filter['procesado']); ?>
                 </select>
                 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                <label for="combobox4">Provider: </label>
+                <?php echo $providers_list; ?>
+                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                 <input type="submit" value="Buscar" />
                 <label for="combobox3">Cambiar a: </label>
                 <select id="combobox3" name="filter[change_to]">

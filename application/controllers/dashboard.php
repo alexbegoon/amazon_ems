@@ -40,6 +40,7 @@ class Dashboard extends CI_Controller {
         $data['orders'] = $this->dashboard_model->getOrders($page);
         $data['total_orders'] = $this->dashboard_model->countOrders();
         $data['web_fields_list'] = $this->web_field_model->get_web_fields_list($post_data['filter']['web'], 'filter[web]', 'id="combobox"');
+        $data['providers_list'] = $this->providers_model->get_providers_list($post_data['provider'], false, true, 'id="combobox4"');
         
         // Pagination
         

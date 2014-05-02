@@ -22,6 +22,7 @@ class Dashboard_model extends CI_Model {
     public function getOrders($page) {
         
         $filter     = $this->input->post("filter");
+        $post_data  = $this->input->post();
         $orders_ids = $this->input->post("orders_ids");
         
         if (!empty($filter['change_to']))
@@ -62,6 +63,16 @@ class Dashboard_model extends CI_Model {
                 $where .= ' WHERE `a`.`procesado` = \''.$filter['procesado'].'\' ';
             }
         }
+        
+        if(!empty($post_data['provider']))
+        {
+            $ids = $this->get_orders_ids_by_provider((int)$post_data['provider']);
+            if (!empty($where)) {
+                $where .= ' AND `a`.`id` IN('.  implode(',', $ids).') ';
+            } else {
+                $where .= ' WHERE `a`.`id` IN('.  implode(',', $ids).') ';
+            }
+        }
                 
         if ($page) {
             $limit = (int)$page.', 50';
@@ -98,6 +109,26 @@ class Dashboard_model extends CI_Model {
         
         
         return $this->_orders;
+    }
+    
+    private function get_orders_ids_by_provider($provider_id)
+    {
+        $ids = array();
+        $this->db->cache_on();
+        $query = $this->db->select('order_id')
+                          ->from('products_sales_history')
+                          ->where('provider_id', $provider_id)
+                          ->get();
+        
+        if($query->num_rows() > 0)
+        {
+            foreach ($query->result() as $row)
+            {
+                $ids[] = (int)$row->order_id;
+            }
+        }
+        $this->db->cache_off();
+        return $ids;
     }
     
     public function countOrders() {
