@@ -13,7 +13,8 @@ class Sync_products_pinternacional extends Sync_products
     {
         parent::__construct();
         
-        $this->_url_service = 'http://www.perfumeriainternacional.infor-tel.com/pinter/tarifas.txt';
+//        $this->_url_service = 'http://www.perfumeriainternacional.infor-tel.com/pinter/tarifas.txt';
+        $this->_uri_service = 'http://88.12.29.141:8101/SOAP';
         $this->_provider_name = 'PINTERNACIONAL';
         
         // Test mode toggle
@@ -28,7 +29,7 @@ class Sync_products_pinternacional extends Sync_products
     
     protected function extract_products() 
     {        
-        $data_file = file_get_contents($this->_url_service);
+        $data_file = $this->get_data_from_service();
         
         if(!$data_file)
         {
@@ -109,5 +110,19 @@ class Sync_products_pinternacional extends Sync_products
         $this->_eans_to_exclude = $eans_to_exclude;
         
         return TRUE;
+    }
+    
+    private function get_data_from_service()
+    {
+        $client = new SoapClient($this->_uri_service);
+        
+        $test = $client->__soapCall('ExecuteMapping', array(
+                                            '',
+                                            '',
+                                            '',
+                                            '',
+                                                    
+                                        ) );
+        var_dump($test);die;
     }
 }
