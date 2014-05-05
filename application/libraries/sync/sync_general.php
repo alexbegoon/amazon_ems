@@ -42,6 +42,7 @@ class Sync_general
         $this->_CI->load->model('incomes/web_field_model');
         $this->_CI->load->model('products/products_model');
         $this->_CI->load->model('dashboard/dashboard_model');
+        $this->_CI->load->model('virtuemart/virtuemart_model');
         $this->_CI->load->library('currency');
         
         $web = $this->_CI->web_field_model->get_web_field($this->_config->web);
@@ -54,7 +55,7 @@ class Sync_general
         $this->_config->virtuemart_version   = $web->virtuemart_version;
         $this->_config->start_time           = $web->start_time;
         $this->_config->web                  = $web->web;
-        
+                
         if( !empty($web->installed_languages) && $this->_config->virtuemart_version === '2.0.0.0' )
         {
             $this->_config->languages = array_flip(array_map( 'trim', explode(',', $web->installed_languages)));
@@ -67,6 +68,11 @@ class Sync_general
             $this->storeOrders();
         } else {
             $this->showOrders();
+        }
+        
+        if (!$this->_config->test_mode) 
+        {
+            $this->update_statuses();
         }
     }
     
@@ -361,5 +367,44 @@ class Sync_general
         }
         
         return $order;
+    }
+    
+    private function update_statuses()
+    {
+        // Get orders that require the refresh
+        
+        $statuses = array(
+                            'NO'
+            );
+        $this->_CI->db->select('id, pedido, web, procesado');
+        $dbprefix = $this->_CI->db->dbprefix;
+        $this->_CI->db->set_dbprefix(null);
+        $this->_CI->db->from('pedidos');
+        $this->_CI->db->set_dbprefix($dbprefix);
+        $this->_CI->db->where_in('procesado', $statuses);
+        $this->_CI->db->where('fechaentrada >=', date('Y-m-d', time() - 7 * SECONDS_PER_DAY));
+        $this->_CI->db->order_by('id', 'desc');
+        $query = $this->_CI->db->get();
+        
+        if($query->num_rows() > 0)
+        {
+            foreach ($query->result() as $order) 
+            {
+                $vm_order = $this->_CI->virtuemart_model->get_order($order->web, $order->pedido);
+                
+                if(count($vm_order) > 0)
+                {
+                    switch ($vm_order[0]->order_status)
+                    {
+                        case 'P' : 
+                            $this->_CI->dashboard_model->set_status((int)$order->id, 'PAGADO');
+                            break;
+                        case 'X' :
+                            $this->_CI->dashboard_model->cancel_order((int)$order->id);
+                            break;
+                    }
+                }
+            }
+        }
     }
 }
