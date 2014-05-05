@@ -396,7 +396,7 @@ class Sync_general
                 {
                     switch ($vm_order[0]->order_status)
                     {
-                        case 'P' : 
+                        case 'C' : 
                             $this->_CI->dashboard_model->set_status((int)$order->id, 'PAGADO');
                             break;
                         case 'X' :
