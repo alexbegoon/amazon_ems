@@ -63,7 +63,7 @@ class Incomes_model extends CI_Model {
         
     }
     
-    public function getOrders($page) 
+    public function getOrders($page, $all = false) 
     {
         $start_date = $this->input->post("date_from") ? $this->input->post("date_from") : date('Y-m-01', time());
         $end_date   = $this->input->post("date_to") ? $this->input->post("date_to") : date('Y-m-d', time());        
@@ -86,9 +86,14 @@ class Incomes_model extends CI_Model {
         }
         
         if ($page) {
-            $limit = (int)$page.', 50';
+            $limit = ' LIMIT '.(int)$page.', 50';
         } else {
-            $limit      = '0, 50';
+            $limit      = ' LIMIT  0, 50 ';
+        }
+        
+        if ($all)
+        {
+            $limit = '';
         }
         
         $order_by = 'ORDER BY `p`.`fechaentrada` DESC ';
@@ -103,7 +108,7 @@ class Incomes_model extends CI_Model {
                    FROM `pedidos` AS `p` 
                    '.$where.' 
                    '.$order_by.'     
-                   LIMIT '.$limit.' 
+                   '.$limit.' 
         ';
         
         $result = $this->db->query($query);
@@ -329,14 +334,14 @@ class Incomes_model extends CI_Model {
         // Prepare data
                 
         $header = array(
+            'ID',
+            'Pedido',
+            'Procesado',
+            'Date',
             'WEB',
-            'Orders Shipped',
             'Ingreso',
             'Gasto',
             'Profit',
-            'Taxes',
-            'Net Profit',
-            'Percentage'
         );
         
         $i = 0;
@@ -345,25 +350,25 @@ class Incomes_model extends CI_Model {
             $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
             $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 1)->getFill()
             ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
-            'startcolor' => array('rgb' => 'ededed')
-            ));
+            'startcolor' => array('rgb' => 'ededed'
+            )));
             $i++;
         }
         
-        $data = $this->getSummary();
+        $data = $this->getOrders(0,true);
         
         $i = 2;
         foreach ($data as $row)
         {
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $row->web, PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $row->id, PHPExcel_Cell_DataType::TYPE_STRING);
             $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFont()->setBold(true);
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $row->total_orders, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $row->ingresos, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $row->gasto, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(4, $i, $row->profit, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(5, $i, $row->taxes, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(6, $i, $row->net_profit, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(7, $i, $row->percentage, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $row->pedido, PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $row->procesado, PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $row->fechaentrada, PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(4, $i, $row->web, PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(5, $i, $row->ingresos, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(6, $i, $row->gasto, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(7, $i, $row->profit, PHPExcel_Cell_DataType::TYPE_NUMERIC);
             $i++;
         }
         
