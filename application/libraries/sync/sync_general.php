@@ -374,7 +374,9 @@ class Sync_general
         // Get orders that require the refresh
         
         $statuses = array(
-                            'NO'
+                            'NO',
+                            'PAYPAL',
+                            'PTE_PAGO'
             );
         $this->_CI->db->select('id, pedido, web, procesado');
         $dbprefix = $this->_CI->db->dbprefix;
@@ -400,7 +402,10 @@ class Sync_general
                             $this->_CI->dashboard_model->set_status((int)$order->id, 'PAGADO');
                             break;
                         case 'X' :
-                            $this->_CI->dashboard_model->cancel_order((int)$order->id);
+                            if($order->procesado !== 'PTE_PAGO')
+                            {
+                                $this->_CI->dashboard_model->cancel_order((int)$order->id);
+                            }
                             break;
                     }
                 }
