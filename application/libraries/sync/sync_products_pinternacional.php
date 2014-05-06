@@ -116,7 +116,7 @@ class Sync_products_pinternacional extends Sync_products
     {
         $client = new SoapClient($this->_uri_service);
         
-        $test = $client->__soapCall('ExecuteMapping', array(
+        $request = $client->__soapCall('ExecuteMapping', array(
                                             'ICGDATAEXCHANGE.EXE 6 SERVICE   -PARAMVALUE CLIENTE=3645 -PARAMVALUE MARCA=TODAS -PARAMVALUE CODBARRAS=TODOS',
                                             '',
                                             '',
@@ -124,12 +124,22 @@ class Sync_products_pinternacional extends Sync_products
                                                     
                                         ) );
         
-        if (!empty($test['MsgError']))
+        if(is_soap_fault($request))
         {
-            log_message('ERROR', $test['MsgError']);
-            log_message('INFO', $test['Info']);
+            log_message('ERROR', "SOAP Fault: (faultcode: {$request->faultcode}, faultstring: {$request->faultstring})");
         }
         
-        return $test['Datos'];
+        if (!empty($request['MsgError']))
+        {
+            log_message('ERROR', $request['MsgError']);
+            log_message('INFO', $request['Info']);
+        }
+        
+        if(isset($request['Datos']))
+        {
+            return $request['Datos'];
+        }
+        
+        return false;
     }
 }
