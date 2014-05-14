@@ -17,6 +17,22 @@
                 <td>Description:</td>
                 <td><input id="description" type="text" name="description" value="" maxlength="255" /></td>
             </tr>
+            <tr>
+                <td>Email:</td>
+                <td><textarea id="emails_list" name="emails_list"></textarea></td>
+            </tr>
+            <tr>
+                <td>Subject:</td>
+                <td><textarea id="email_subject" name="email_subject"></textarea></td>
+            </tr>
+            <tr>
+                <td>Content:</td>
+                <td><textarea id="email_content" name="email_content"></textarea></td>
+            </tr>
+            <tr>
+                <td>Email Copy:</td>
+                <td><textarea id="cc_emails_list" name="cc_emails_list"></textarea></td>
+            </tr>
         </table>
         <br>
         <div class="edit-buttons">

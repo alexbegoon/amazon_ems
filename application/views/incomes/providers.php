@@ -14,6 +14,10 @@
                 <th>Provider name</th>
                 <th>Provider website</th>
                 <th>Provider description</th>
+                <th>Email</th>
+                <th>Subject</th>
+                <th>Content</th>
+                <th>Email Copy</th>
             </tr>
             <?php foreach ($providers as $provider) {
                 ?>
@@ -27,6 +31,10 @@
                 <td><?php echo $provider->name;?></td>
                 <td><?php echo anchor($provider->website, $provider->website, array('target' => '_blank'));?></td>
                 <td><?php echo $provider->description;?></td>
+                <td><?php echo $provider->emails_list;?></td>
+                <td><?php echo $provider->email_subject;?></td>
+                <td><?php echo $provider->email_content;?></td>
+                <td><?php echo $provider->cc_emails_list;?></td>
             </tr>
                 <?php
             }?>
