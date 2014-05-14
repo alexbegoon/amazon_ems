@@ -79,10 +79,29 @@ class Upload_model extends CI_Model {
                     $data = utf8_encode($data);
                     $row_data = explode("\t", $data);
                     
+                    $direccion = '';
+                    
+                    if(!empty($row_data[16]))
+                    {
+                        $direccion .= 'recipient-name: "' . trim($row_data[16]) . "\"; \r\n";
+                    }
+                    if(!empty($row_data[17]))
+                    {
+                        $direccion .= 'shipping-address-1: "' . trim($row_data[17]) . "\"; \r\n";
+                    }
+                    if(!empty($row_data[18]))
+                    {
+                        $direccion .= 'shipping-address-2: "' . trim($row_data[18]) . "\"; \r\n";
+                    }
+                    if(!empty($row_data[19]))
+                    {
+                        $direccion .= 'shipping-address-3: "' . trim($row_data[19]) . "\"; \r\n";
+                    }
+                    
                     $info[$row]['pedido']         = $row_data[0];
                     $info[$row]['nombre']         = $row_data[5];
                     $info[$row]['fechaentrada']   = date('Y-m-d', time());
-                    $info[$row]['direccion']      = trim($row_data[17] . ' ' . $row_data[18]);
+                    $info[$row]['direccion']      = $direccion;
                     $info[$row]['telefono']       = str_replace(' ', '', $row_data[6]);
                     $info[$row]['codigopostal']   = str_replace(' ', '', $row_data[22]);
                     $info[$row]['pais']           = $row_data[23];
