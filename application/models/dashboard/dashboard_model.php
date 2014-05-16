@@ -350,6 +350,59 @@ class Dashboard_model extends CI_Model {
         return false;
     }
     
+    public function update_status_of_orders()
+    {
+        $statuses = array(
+            'PREPARACION_ENGELSA_FEDEX',
+            'PREPARACION_ENGELSA_GLS',
+            'PREPARACION_ENGELSA_PACK', 
+            'PREPARACION_ENGELSA_TOURLINE', 
+        );
+        
+        $dbprefix = $this->db->dbprefix;
+        
+        $this->db->select('p.id, p.procesado');
+        $this->db->set_dbprefix(null);
+        $this->db->from('pedidos as p');
+        $this->db->set_dbprefix($dbprefix);
+        $this->db->where_in('p.procesado', $statuses);
+        $query = $this->db->get();
+        
+        if($query->num_rows() <= 0)
+        {
+            return FALSE;
+        }
+        
+        foreach ($query->result() as $order) 
+        {
+            $query_2 = $this->db->select('id')
+                                ->from('products_sales_history')
+                                ->where('csv_exported',0)
+                                ->where('order_id',$order->id)
+                                ->get();
+            
+            if($query_2->num_rows() === 0)
+            {
+                if($order->procesado == 'PREPARACION_ENGELSA_FEDEX')
+                {
+                    $this->set_status((int)$order->id, 'PEDIDO_ENGELSA_FEDEX');
+                }
+                elseif($order->procesado == 'PREPARACION_ENGELSA_GLS')
+                {
+                    $this->set_status((int)$order->id, 'PEDIDO_ENGELSA_GLS');
+                }
+                elseif($order->procesado == 'PREPARACION_ENGELSA_PACK')
+                {
+                    $this->set_status((int)$order->id, 'PEDIDO_ENGELSA_PACK');
+                }
+                elseif($order->procesado == 'PREPARACION_ENGELSA_TOURLINE')
+                {
+                    $this->set_status((int)$order->id, 'PEDIDO_ENGELSA_TOURLINE');
+                }
+            }
+        }
+    }
+    
     /**
      * Get order by pedido field
      * @param string $pedido Pedido of order

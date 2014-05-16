@@ -81,7 +81,13 @@
                         <span>Generar &#8711;</span>
                         <ul class="dropdown generar_menu">
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_engelsa_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_pinternacional_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Pinternacional</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_coqueteo_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Coqueteo</a>
                             </li>
                             <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar GLS</a>
@@ -163,7 +169,13 @@
                         <span>Generar &#8711;</span>
                         <ul class="dropdown generar_menu">
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/fedex_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_engelsa_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_pinternacional_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Pinternacional</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_coqueteo_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Coqueteo</a>
                             </li>
                             <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar GLS</a>

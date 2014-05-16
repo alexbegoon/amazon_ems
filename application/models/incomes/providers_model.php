@@ -296,4 +296,141 @@ class Providers_model extends CI_Model
         
         return false;
     }
+    
+    public function create_provider_order($provider_name)
+    {
+        $provider_id = $this->get_provider_id_by_name($provider_name);
+        
+        if($provider_id === false)
+        {
+            return false;
+        }
+        
+        // Get order items which ready for provider order
+        $order_items = $this->_get_order_items($provider_id);
+        
+        if($order_items === false || count($order_items) <= 0)
+        {
+            return false;
+        }
+        
+        $this->db->trans_begin();
+        
+        $insert_data = array(
+            
+            'provider_id' => $provider_id,
+            'provider_name' => $provider_name,
+            'created_on' => date('Y-m-d H:i:s'),
+            'created_by' => (int)$this->ion_auth->get_user_id(),
+            
+        );
+        
+        $this->db->insert('provider_orders', $insert_data);
+        
+        $provider_order_id = $this->db->insert_id();
+        $insert_data = array();
+        
+        foreach ($order_items as $item) 
+        {
+            $insert_data[] = array(
+                'provider_order_id'     => $provider_order_id,
+                'order_item_id'         => $item->id,
+                'provider_price'        => $item->latest_provider_price,
+                'quantity'              => $item->quantity,
+                'created_on'            => date('Y-m-d H:i:s'),
+                'created_by'            => (int)$this->ion_auth->get_user_id(),
+            );
+            
+            $update_data = array(
+                'csv_exported' => 1,
+                'csv_export_date' => date('Y-m-d H:i:s'),
+            );
+            
+            $this->db->where('id', $item->id);
+            $this->db->update('products_sales_history', $update_data);
+        }
+        
+        $this->db->insert_batch('provider_order_items', $insert_data);
+                
+        $this->dashboard_model->update_status_of_orders();
+//        $this->db->trans_rollback();
+        
+        $this->db->trans_commit();
+        
+        return $provider_order_id;
+        
+    }
+    
+    public function get_provider_order_items_ids($provider_order_id)
+    {
+        $query = $this->db->select('order_item_id')
+                 ->from('provider_order_items')
+                 ->where('provider_order_id',$provider_order_id)
+                 ->get();
+        
+        if($query->num_rows() === 0)
+        {
+            return FALSE;
+        }
+        
+        $data = array();
+        
+        foreach ($query->result() as $row)
+        {
+            $data[] = $row->order_item_id;
+        }
+        
+        return $data;
+    }
+    
+    public function get_provider_name_by_order_id($provider_order_id)
+    {
+        $query = $this->db->select('provider_name')
+                 ->from('provider_orders')
+                 ->where('id',$provider_order_id)
+                 ->get();
+        
+        if($query->num_rows() === 1)
+        {
+            return $query->row()->provider_name;
+        }
+        
+        return '';
+    }
+    
+    private function _get_order_items($provider_id)
+    {
+        $statuses = array(
+            'PREPARACION_ENGELSA_FEDEX',
+            'PREPARACION_ENGELSA_GLS',
+            'PREPARACION_ENGELSA_PACK', 
+            'PREPARACION_ENGELSA_TOURLINE', 
+        );
+        
+        $dbprefix = $this->db->dbprefix;
+        
+        $this->db->select(
+                '   h.id, '
+                . ' h.quantity, '
+                . ' prod.price as latest_provider_price'
+                );
+        $this->db->set_dbprefix(null);
+        $this->db->from('pedidos as p');
+        $this->db->set_dbprefix($dbprefix);
+        $this->db->join('products_sales_history as h', 'p.id = h.order_id', 'left');
+        $this->db->join('providers_products as prod', 'prod.id = h.provider_product_id', 'left');
+        $this->db->where_in('p.procesado', $statuses);
+        $this->db->where('h.canceled', 0);
+        $this->db->where('h.out_of_stock', 0);
+        $this->db->where('h.csv_exported', 0);
+        $this->db->where('h.provider_id', $provider_id);
+        $query = $this->db->get();
+        
+        if ($query->num_rows() > 0) 
+        {
+            return $query->result();
+        }
+        
+        return false;
+    }
 }
