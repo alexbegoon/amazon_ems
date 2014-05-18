@@ -81,21 +81,21 @@ class Upload_model extends CI_Model {
                     
                     $direccion = '';
                     
-                    if(!empty($row_data[16]))
-                    {
-                        $direccion .= 'recipient-name: "' . trim($row_data[16]) . "\"; \r\n";
-                    }
+//                    if(!empty($row_data[16]))
+//                    {
+//                        $direccion .= 'recipient-name: "' . trim($row_data[16]) . "\"; \r\n";
+//                    }
                     if(!empty($row_data[17]))
                     {
-                        $direccion .= 'shipping-address-1: "' . trim($row_data[17]) . "\"; \r\n";
+                        $direccion .= trim($row_data[17]) . " ";
                     }
                     if(!empty($row_data[18]))
                     {
-                        $direccion .= 'shipping-address-2: "' . trim($row_data[18]) . "\"; \r\n";
+                        $direccion .= trim($row_data[18]) . " ";
                     }
                     if(!empty($row_data[19]))
                     {
-                        $direccion .= 'shipping-address-3: "' . trim($row_data[19]) . "\"; \r\n";
+                        $direccion .= trim($row_data[19]) . " ";
                     }
                     
                     $info[$row]['pedido']         = $row_data[0];
