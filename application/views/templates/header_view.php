@@ -125,7 +125,7 @@
                         <a href="<?php echo base_url().'index.php/amazon/price_rules/';?>">Price Rules</a>
                     </li>
                     <li>
-                        <a href="<?php echo base_url().'index.php/amazon/sales_rank/';?>">Sales Rank</a>
+                        <a href="<?php echo base_url().'index.php/providers/orders/';?>">Provider Orders</a>
                     </li>
                 </ul>
                 <div class="welcome-user">
@@ -219,7 +219,7 @@
                         <a href="<?php echo base_url().'index.php/amazon/price_rules/';?>">Price Rules</a>
                     </li>
                     <li>
-                        <a href="<?php echo base_url().'index.php/amazon/sales_rank/';?>">Sales Rank</a>
+                        <a href="<?php echo base_url().'index.php/providers/orders/';?>">Provider Orders</a>
                     </li>
                 </ul>
                 <div class="welcome-user">

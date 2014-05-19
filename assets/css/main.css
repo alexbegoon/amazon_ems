@@ -75,6 +75,18 @@ th a {
     height: 16px;
     background: url(../imgs/icon_excel.png);
 }
+.invoice_icon
+{
+    display: inline-block;
+    /*float: left;*/
+    width: 24px;
+    height: 24px;
+    background: url(../imgs/invoice-icon.png);
+}
+.pointer_cursor
+{
+    cursor: pointer!important;
+}
 .a_up, .a_down
 {
     display: inline-block;

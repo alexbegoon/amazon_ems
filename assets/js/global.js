@@ -131,6 +131,40 @@ Amazoni.order_link = function(a){
     
 };
 
+Amazoni.get_provider_order = function(id)
+{
+    if ($( "#modal_window" ).length === 0)
+    {
+        $('body').append('<div id="modal_window"></div>');
+    }
+    
+    $( "#modal_window" ).empty();
+    $( "#modal_window" ).dialog({
+    minHeight: 600,    
+    minWidth: 1200,
+    width: 1250,
+    modal: true,
+    title: 'Provider order ID: '+id,
+    resizable: true,
+    buttons: null,
+    close: function( event, ui ) {
+        $( "#modal_window" ).empty();
+    },
+    open: function(event, ui) { 
+        
+        $( "#modal_window" ).append('<div id="ajax-loader" style="display: block;"></div>');
+        $("#ajax-loader").css('display', 'block');
+        $.ajax({
+                type: "POST",
+                url: url_before_index + "index.php/providers/get_order/" + id
+              }).success(function( response ) {
+                $("#ajax-loader").css('display', 'none');  
+                $( "#modal_window" ).append(response);
+              });
+        }
+    });
+}
+
 $(function() {
     /* For zebra striping */
     $("table tr:nth-child(odd)").addClass("odd-row");

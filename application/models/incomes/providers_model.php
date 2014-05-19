@@ -433,4 +433,23 @@ class Providers_model extends CI_Model
         
         return false;
     }
+    
+    public function get_provider_orders($page) 
+    {
+        $post_data = $this->input->post();
+        
+        
+        $query = $this->db->get('provider_orders',50,$page);
+        
+        return $query->result();
+    }
+    
+    public function count_all_providers_orders()
+    {
+        $query = $this->db->select('COUNT(*) as total')
+                ->from('provider_orders')
+                ->get();
+        
+        return $query->row()->total;
+    }
 }
