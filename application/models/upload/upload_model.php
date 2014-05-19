@@ -18,6 +18,7 @@ class Upload_model extends CI_Model {
         $this->load->model('incomes/shipping_costs_model');
         $this->load->model('incomes/taxes_model');
         $this->load->model('products/products_model');
+        $this->output->enable_profiler(TRUE);
     }
     
     public function getOrders($file_path, $service) {
@@ -156,45 +157,34 @@ class Upload_model extends CI_Model {
     private function storeData($data)
     {
         if (!empty($data))
-        {
-            $query = ' INSERT INTO `'.$this->db->dbprefix('pedidos_temp').'` 
-                       (pedido, nombre, fechaentrada, direccion, telefono, 
-                        codigopostal, pais, estado, procesado, web, sku1, 
-                        precio1, cantidad1, ingresos, in_stokoni) 
-                       VALUES 
-                       (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ';
-            
+        {            
             $params = array(); 
+            
+            $insert_data = array();
             
             foreach ($data as $order)
             {
-                $params[] = $order['pedido'];
-                $params[] = $order['nombre'];
-                $params[] = $order['fechaentrada'];
-                $params[] = $order['direccion'];
-                $params[] = $order['telefono'];
-                $params[] = $order['codigopostal'];
-                $params[] = $order['pais'];
-                $params[] = $order['estado'];
-                $params[] = $order['procesado'];
-                $params[] = $order['web'];
-                $params[] = $order['sku'];
-                $params[] = $order['price'];
-                $params[] = (int)$order['quantity'];
-                $params[] = $this->get_ingresos($order['price'],$order['shipping_price'],$order['quantity']);
-                $params[] = $order['in_stokoni'];
-                       
-                try
-                {
-                    $this->db->query($query, $params);
-                }
-                catch (PDOException $e)
-                {
-                    echo $e->getMessage();  
-                }       
-                $params = array();
+                $params['pedido'] = $order['pedido'];
+                $params['nombre'] = $order['nombre'];
+                $params['fechaentrada'] = $order['fechaentrada'];
+                $params['direccion'] = $order['direccion'];
+                $params['telefono'] = $order['telefono'];
+                $params['codigopostal'] = $order['codigopostal'];
+                $params['pais'] = $order['pais'];
+                $params['estado'] = $order['estado'];
+                $params['procesado'] = $order['procesado'];
+                $params['web'] = $order['web'];
+                $params['sku1'] = $order['sku'];
+                $params['precio1'] = $order['price'];
+                $params['cantidad1'] = (int)$order['quantity'];
+                $params['ingresos'] = $this->get_ingresos($order['price'],$order['shipping_price'],$order['quantity']);
+                $params['in_stokoni'] = $order['in_stokoni'];
+                
+                $insert_data[] = $params;
             }
+            $this->db->trans_begin();
+            $this->db->insert_batch('pedidos_temp', $insert_data);
+            $this->db->trans_commit();
         } 
         else 
         {
