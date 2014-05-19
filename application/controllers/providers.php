@@ -26,9 +26,7 @@ class Providers extends CI_Controller
         $data['title'] = humanize($this->router->class . ' ' .$this->router->method);
         $data['orders'] = $this->providers_model->get_provider_orders($page);
         $data['total_orders'] = $this->providers_model->count_all_providers_orders();
-        
-        
-        
+                
         // Pagination
         
         $config['base_url'] = base_url().'index.php/providers/orders/';
@@ -40,5 +38,14 @@ class Providers extends CI_Controller
         
         // Load view  
         $this->load->template('providers/orders', $data);
+    }
+    
+    public function get_order ($id) 
+    {
+        $data['order'] = $this->providers_model->get_provider_order((int)$id);
+        $data['id'] = (int)$id;
+        
+        // Load view  
+        $this->load->view('providers/order', $data);
     }
 }

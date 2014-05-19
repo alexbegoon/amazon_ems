@@ -62,7 +62,6 @@ th a {
 }
 .ok_icon {
     display: inline-block;
-    /*float: left;*/
     width: 16px;
     height: 16px;
     background: url(../imgs/Ok-icon.png);
@@ -70,7 +69,6 @@ th a {
 .excel_icon
 {
     display: inline-block;
-    /*float: left;*/
     width: 16px;
     height: 16px;
     background: url(../imgs/icon_excel.png);
@@ -78,10 +76,16 @@ th a {
 .invoice_icon
 {
     display: inline-block;
-    /*float: left;*/
     width: 24px;
     height: 24px;
     background: url(../imgs/invoice-icon.png);
+}
+.email_send_icon
+{
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    background: url(../imgs/email-send-icon.png);
 }
 .pointer_cursor
 {

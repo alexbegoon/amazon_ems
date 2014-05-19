@@ -130,20 +130,7 @@ class Export_csv_model extends CI_Model
     {
         // Prepare data
         
-        $query = $this->db->select('h.product_name, h.sku, ROUND((i.provider_price * SUM(i.quantity)),2) as price, SUM(i.quantity) as quantity')
-                 ->from('products_sales_history as h')
-                 ->join('provider_order_items as i','i.order_item_id = h.id','inner')
-                 ->where('i.provider_order_id',$provider_order_id)
-                 ->group_by('h.sku')
-                 ->order_by('quantity','desc')
-                 ->get();
-        
-        if($query->num_rows() === 0)
-        {
-            return FALSE;
-        }
-        
-        $products = $query->result();
+        $products = $this->providers_model->get_provider_order($provider_order_id);
         
         $provider_name = $this->providers_model->get_provider_name_by_order_id($provider_order_id);
         

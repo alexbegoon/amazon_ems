@@ -452,4 +452,22 @@ class Providers_model extends CI_Model
         
         return $query->row()->total;
     }
+    
+    public function get_provider_order($id)
+    {
+        $query = $this->db->select('h.product_name, h.sku, ROUND((i.provider_price * SUM(i.quantity)),2) as price, SUM(i.quantity) as quantity')
+                 ->from('products_sales_history as h')
+                 ->join('provider_order_items as i','i.order_item_id = h.id','inner')
+                 ->where('i.provider_order_id',(int)$id)
+                 ->group_by('h.sku')
+                 ->order_by('quantity','desc')
+                 ->get();
+        
+        if($query->num_rows() === 0)
+        {
+            return FALSE;
+        }
+        
+        return $query->result();
+    }
 }
