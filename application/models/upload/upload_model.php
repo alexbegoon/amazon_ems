@@ -597,11 +597,7 @@ class Upload_model extends CI_Model {
          if ($result)
          {
              $orders = $result->result('array');
-             
-             $query = ' UPDATE `'.$this->db->dbprefix('pedidos_temp').'` 
-                        SET `procesado` = ?  
-                        WHERE `id` = ?  
-            ';
+             $update_data = array();
              
              foreach ($orders as $order)
              {
@@ -616,8 +612,13 @@ class Upload_model extends CI_Model {
                  {
                      $procesado = 'NO';
                  }   
-                 $this->db->query($query, array($procesado, $order['id']));
+                 
+                 $update_data[] = array('procesado' => $procesado,
+                                        'id' => $order['id']);
              }
+             $this->db->trans_begin();
+             $this->db->update_batch('pedidos_temp', $update_data, 'id');
+             $this->db->trans_commit();
          }
          else
          {
