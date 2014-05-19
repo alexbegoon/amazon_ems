@@ -18,7 +18,6 @@ class Upload_model extends CI_Model {
         $this->load->model('incomes/shipping_costs_model');
         $this->load->model('incomes/taxes_model');
         $this->load->model('products/products_model');
-        $this->output->enable_profiler(TRUE);
     }
     
     public function getOrders($file_path, $service) {
@@ -222,7 +221,7 @@ class Upload_model extends CI_Model {
                 ';
                 
                 $duplicate_orders = $this->db->query($query);
-                
+                $this->db->trans_begin();
                 if ($duplicate_orders)
                 {
                     $duplicate_orders = $duplicate_orders->result();
@@ -333,6 +332,7 @@ class Upload_model extends CI_Model {
                 {
                     return false;
                 }
+                $this->db->trans_commit();
             }
         }
         else
@@ -569,12 +569,13 @@ class Upload_model extends CI_Model {
                         SET `gasto` = ?  
                         WHERE `id` = ?  
             ';
-             
+             $this->db->trans_begin();
              foreach ($orders as $order)
              {
                  $gasto = $this->getGasto($order, true);
                  $this->db->query($query, array($gasto, $order['id']));
              }
+             $this->db->trans_commit();
          }
          else
          {
