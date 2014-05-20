@@ -152,7 +152,6 @@ class Export_csv_model extends CI_Model
             'NOMBRE',
             'EAN DEL PRODUCTO',
             'CANTIDAD',
-            'PRECIO',
             
         );
         
@@ -177,14 +176,8 @@ class Export_csv_model extends CI_Model
             $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $product->sku, PHPExcel_Cell_DataType::TYPE_STRING);
             $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(1, $i)->getFont()->setBold(true);
             $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $product->quantity, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $product->price, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-            $total_cost += (float)$product->price;
             $i++;
         }
-        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, 'TOTAL COST', PHPExcel_Cell_DataType::TYPE_STRING);
-        $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(2, $i)->getFont()->setBold(true);
-        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $total_cost, PHPExcel_Cell_DataType::TYPE_NUMERIC);
-        $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(3, $i)->getFont()->setBold(true);
         
         
         // Write a file
