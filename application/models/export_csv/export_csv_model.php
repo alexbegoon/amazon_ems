@@ -10,6 +10,7 @@ class Export_csv_model extends CI_Model
     
     private $_filename_template = 'CSV_export_?';
     private $_file_extension    = '.csv';
+    private $_file_header       = "Pedido Número: E34387 -- Dirección: Buyin Comercio Web SL Baza S/N Edif. ICR 2H Pol. Ind. Juncaril cp:18220 Albolote Granada Teléfono: 958490405 \r\n";
     private $_IVA_tax = 0;
     private $_orders_statuses = array();
 
@@ -24,10 +25,12 @@ class Export_csv_model extends CI_Model
         $this->load->model('incomes/taxes_model');
         $this->load->model('products/products_model');
         $this->load->model('stokoni/stokoni_model');
+        $this->load->library('excel');
         
         $this->_IVA_tax = $this->taxes_model->getIVAtax();
         
         $this->load->helper('my_string_helper');
+        $this->load->helper('file');
     }
     
     public function prepare_file($service)
@@ -82,6 +85,30 @@ class Export_csv_model extends CI_Model
 
             return $name . '.xls';
         }
+        if($service == 'export_engelsa')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'engelsa_products_order_'.$date;
+
+            return $name . '.xls';
+        }
+        if($service == 'export_pinternacional')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'pinternacional_products_order_'.$date;
+
+            return $name . '.xls';
+        }
+        if($service == 'export_coqueteo')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'coqueteo_products_order_'.$date;
+
+            return $name . '.xls';
+        }
         
         $date = date('j-n-Y', time());
         
@@ -100,477 +127,126 @@ class Export_csv_model extends CI_Model
         return false;        
     }
     
-    private function get_file_data_fedex_gls()
+    private function _get_provider_order_xls($provider_order_id)
     {
-        $header = "Pedido Número: E34387 -- Dirección: Buyin Comercio Web SL Baza S/N Edif. ICR 2H Pol. Ind. Juncaril cp:18220 Albolote Granada Teléfono: 958490405;;"."\r\n";
-                
-        $query = 'SELECT * FROM `pedidos` 
-                  WHERE `procesado` = \'PREPARACION_ENGELSA_FEDEX\' 
-                     OR `procesado` = \'PREPARACION_ENGELSA_GLS\' 
-                     OR `procesado` = \'PREPARACION_ENGELSA_PACK\' 
-                     OR `procesado` = \'PREPARACION_ENGELSA_TOURLINE\' 
-        ';
+        // Prepare data
         
-        $result = $this->db->query($query);
+        $products = $this->providers_model->get_provider_order($provider_order_id);
         
-        if ($result)
+        $provider_name = $this->providers_model->get_provider_name_by_order_id($provider_order_id);
+        
+        $objPHPExcel = new PHPExcel();
+        
+        $objPHPExcel->getProperties()->setCreator("Amazoni4");
+        $objPHPExcel->getProperties()->setLastModifiedBy("Amazoni4");
+        $objPHPExcel->getProperties()->setTitle($provider_name." products order. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setSubject($provider_name." products order. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setDescription($provider_name." products order. Date: ".date('r', time()));
+        
+        $objPHPExcel->setActiveSheetIndex(0);
+        
+        $objPHPExcel->getActiveSheet()->setTitle(humanize($provider_name)." order");
+        
+        $header = array(
+            
+            'NOMBRE',
+            'EAN DEL PRODUCTO',
+            'CANTIDAD',
+            'PRECIO',
+            
+        );
+        
+        $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, $this->_file_header);
+        
+        $i = 0;
+        foreach ($header as $cell)
         {
-            
-            $orders = $result->result('array');
-            
-            $data = array();
-            
-            // This report only should content products from ENGELSA and PINTERNACIONAL, also from WAREHOUSE
-            
-            $data['ENGELSA']            = array();
-            $data['PINTERNACIONAL']     = array();
-            $data['COQUETEO']           = array();
-            $data['WAREHOUSE']          = array();
-            
-            $data['ENGELSA']['products']        = array();
-            $data['PINTERNACIONAL']['products'] = array();
-            $data['WAREHOUSE']['products']      = array();
-            $data['COQUETEO']['products']       = array();
-            $engelsa_products                   = null;
-            $coqueteo_products                  = null;
-            $pinternacional_products            = null;
-            $warehouse_products                 = null;
-            
-            
-            $data['ENGELSA']['meta'] = array(
-                
-                'pos_1' => 'ENGELSA PROVIDER',
-                'pos_2' => 'NOMBRE',
-                'pos_3' => 'EAN DEL PRODUCTO',
-                'pos_4' => 'CANTIDAD',
-                'pos_5' => 'PRECIO',
-                'pos_6' => 'TOTAL COST'               
-                
-            );
-            
-            $data['COQUETEO']['meta'] = array(
-                
-                'pos_1' => 'COQUETEO PROVIDER',
-                'pos_2' => 'NOMBRE',
-                'pos_3' => 'EAN DEL PRODUCTO',
-                'pos_4' => 'CANTIDAD',
-                'pos_5' => 'PRECIO',
-                'pos_6' => 'TOTAL COST'               
-                
-            );
-            
-            $data['PINTERNACIONAL']['meta'] = array(
-                
-                'pos_1' => 'PINTERNACIONAL PROVIDER',
-                'pos_2' => 'NOMBRE',
-                'pos_3' => 'EAN DEL PRODUCTO',
-                'pos_4' => 'CANTIDAD',
-                'pos_5' => 'PRECIO',
-                'pos_6' => 'TOTAL COST'               
-                
-            );
-            
-            $data['WAREHOUSE']['meta'] = array(
-                
-                'pos_1' => 'OUR WAREHOUSE',
-                'pos_2' => 'NAME',
-                'pos_3' => 'EAN',
-                'pos_4' => 'CANTIDAD',
-                'pos_5' => 'PRECIO',
-                'pos_6' => 'TOTAL COST'               
-                
-            );
-            
-            foreach ($orders as $order)
-            {
-                $this->db->where('order_id =',$order['id']);
-                $this->db->where('canceled =',0);
-                $query = $this->db->get('products_sales_history');
-                
-                if($query->num_rows() > 0)
-                {
-                    $order_products = $query->result();
-                    
-                    foreach ($order_products as $order_product)
-                    {   
-                        if(!empty($order_product->provider_name))
-                        {
-                            if($order_product->provider_name == 'ENGELSA' && !preg_match('/^#/', $order_product->sku))
-                            {
-                                $data[$order_product->provider_name]['products']['#'.$order_product->sku][] = $order_product;
-                            }
-                            else 
-                            {
-                                $data[$order_product->provider_name]['products'][$order_product->sku][] = $order_product;
-                            }
-                        }
-                    }
-                }
-                                
-                $update_data = array(
-                    'csv_exported' => 1,
-                    'csv_export_date' => date('Y-m-d H:i:s', time())
-                            );
-
-                $this->db->where('order_id', $order['id']);
-                $this->db->update('products_sales_history', $update_data); 
-                
-                if($order['procesado'] == 'PREPARACION_ENGELSA_FEDEX')
-                {
-                    $this->_orders_statuses[] = array(
-                        'id' => (int)$order['id'],
-                        'status' => 'PEDIDO_ENGELSA_FEDEX'
-                    );
-                }
-                elseif($order['procesado'] == 'PREPARACION_ENGELSA_GLS')
-                {
-                    $this->_orders_statuses[] = array(
-                        'id' => (int)$order['id'],
-                        'status' => 'PEDIDO_ENGELSA_GLS'
-                    );
-                }
-                elseif($order['procesado'] == 'PREPARACION_ENGELSA_PACK')
-                {
-                    $this->_orders_statuses[] = array(
-                        'id' => (int)$order['id'],
-                        'status' => 'PEDIDO_ENGELSA_PACK'
-                    );
-                }
-                elseif($order['procesado'] == 'PREPARACION_ENGELSA_TOURLINE')
-                {
-                    $this->_orders_statuses[] = array(
-                        'id' => (int)$order['id'],
-                        'status' => 'PEDIDO_ENGELSA_TOURLINE'
-                    );
-                }
-            }
-            
-            $file_body = '';
-            
-            $file_body .= utf8_decode($header)."\r\n";
-            
-            $data_rows = array();
-            
-            $data_rows[] = array('','','','','','','','');
-            $data_rows[] = array('','','','','','','','');
-            
-            // ENGELSA header
-            $data_rows[] = array(
-                $data['ENGELSA']['meta']['pos_1'],
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                ''                
-            );
-            $data_rows[] = array(
-                $data['ENGELSA']['meta']['pos_2'],
-                $data['ENGELSA']['meta']['pos_3'],
-                $data['ENGELSA']['meta']['pos_4'],
-                $data['ENGELSA']['meta']['pos_5'],
-                '',
-                '',
-                '',
-                ''                
-            );
-            $total_engelsa = 0;
-            if(isset($data['ENGELSA']['products']))
-            {
-                foreach ($data['ENGELSA']['products'] as $product_sku => $product)
-                {
-                    $total_count = 0;
-                    $subtotal_price = 0;
-                    foreach ($product as $v)
-                    {
-                        $total_count += $v->quantity;
-                        
-                        $current_provider_price = $this->products_model->get_product_by_id((int)$v->provider_product_id)->price;
-                        
-                        $subtotal_price += $current_provider_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
-                    }
-                    $engelsa_products[] = array(
-                            preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
-                            '"'.$product_sku.'"',
-                            $total_count,
-                            number_format($subtotal_price, 2). " ".chr(128),
-                            '',
-                            '',
-                            '',
-                            ''                
-                                    );
-                    $total_engelsa += $subtotal_price; 
-                }
-                
-                // Sort products
-                if(is_array($engelsa_products))
-                {
-                    usort($engelsa_products, array("Export_csv_model", "cmp"));
-                
-                    foreach($engelsa_products as $row)
-                    {
-                        $data_rows[] = $row;
-                    }
-                }
-            }
-            
-            
-            // ENGELSA footer
-            $data_rows[] = array(
-                '',
-                '',
-                $data['ENGELSA']['meta']['pos_6'],
-                number_format($total_engelsa, 2). " ".chr(128),
-                '',
-                '',
-                '',    
-                ''                
-            );
-            $data_rows[] = array('','','','','','','','');
-            $data_rows[] = array('','','','','','','','');
-            $data_rows[] = array('','','','','','','','');
-            
-            // PINTERNACIONAL header
-            $data_rows[] = array(
-                $data['PINTERNACIONAL']['meta']['pos_1'],
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                ''                
-            );
-            $data_rows[] = array(
-                $data['PINTERNACIONAL']['meta']['pos_2'],
-                $data['PINTERNACIONAL']['meta']['pos_3'],
-                $data['PINTERNACIONAL']['meta']['pos_4'],
-                $data['PINTERNACIONAL']['meta']['pos_5'],
-                '',
-                '',
-                '',
-                ''                
-            );
-            $total_pinternacional = 0;
-            if(isset($data['PINTERNACIONAL']['products']))
-            {
-                foreach ($data['PINTERNACIONAL']['products'] as $product)
-                {
-                    $total_count = 0;
-                    $subtotal_price = 0;
-                    foreach ($product as $v)
-                    {
-                        $total_count += $v->quantity;
-                            
-                        $current_provider_price = $this->products_model->get_product_by_id((int)$v->provider_product_id)->price;
-                        
-                        $subtotal_price += $current_provider_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
-                    }
-                    $pinternacional_products[] = array(
-                            preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
-                            '"#'.$product[0]->sku.'"',
-                            $total_count,
-                            number_format($subtotal_price, 2). " ".chr(128),
-                            '',
-                            '',
-                            '',
-                            ''                
-                                    );
-                    $total_pinternacional += $subtotal_price; 
-                }
-                
-                // Sort products
-                if(is_array($pinternacional_products))
-                {
-                    usort($pinternacional_products, array("Export_csv_model", "cmp"));
-                
-                    foreach($pinternacional_products as $row)
-                    {
-                        $data_rows[] = $row;
-                    }
-                }
-            }
-            
-            
-            // PINTERNACIONAL footer
-            $data_rows[] = array(
-                '',
-                '',
-                $data['PINTERNACIONAL']['meta']['pos_6'],
-                number_format($total_pinternacional, 2). " ".chr(128),
-                '',
-                '',
-                '',    
-                ''                
-            );
-            $data_rows[] = array('','','','','','','','');
-            $data_rows[] = array('','','','','','','','');
-            $data_rows[] = array('','','','','','','','');
-            
-            // COQUETEO header
-            $data_rows[] = array(
-                $data['COQUETEO']['meta']['pos_1'],
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                ''                
-            );
-            $data_rows[] = array(
-                $data['COQUETEO']['meta']['pos_2'],
-                $data['COQUETEO']['meta']['pos_3'],
-                $data['COQUETEO']['meta']['pos_4'],
-                $data['COQUETEO']['meta']['pos_5'],
-                '',
-                '',
-                '',
-                ''                
-            );
-            $total_coqueteo = 0;
-            if(isset($data['COQUETEO']['products']))
-            {
-                foreach ($data['COQUETEO']['products'] as $product)
-                {
-                    $total_count = 0;
-                    $subtotal_price = 0;
-                    foreach ($product as $v)
-                    {
-                        $total_count += $v->quantity;
-                            
-                        $current_provider_price = $this->products_model->get_product_by_id((int)$v->provider_product_id)->price;
-                        
-                        $subtotal_price += $current_provider_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
-                    }
-                    $coqueteo_products[] = array(
-                            preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
-                            '"#'.$product[0]->sku.'"',
-                            $total_count,
-                            number_format($subtotal_price, 2). " ".chr(128),
-                            '',
-                            '',
-                            '',
-                            ''                
-                                    );
-                    $total_coqueteo += $subtotal_price; 
-                }
-                
-                // Sort products
-                if(is_array($coqueteo_products))
-                {
-                    usort($coqueteo_products, array("Export_csv_model", "cmp"));
-                
-                    foreach($coqueteo_products as $row)
-                    {
-                        $data_rows[] = $row;
-                    }
-                }
-            }
-            
-            
-            // COQUETEO footer
-            $data_rows[] = array(
-                '',
-                '',
-                $data['COQUETEO']['meta']['pos_6'],
-                number_format($total_coqueteo, 2). " ".chr(128),
-                '',
-                '',
-                '',    
-                ''                
-            );
-            $data_rows[] = array('','','','','','','','');
-            $data_rows[] = array('','','','','','','','');
-            $data_rows[] = array('','','','','','','','');
-            
-            // WAREHOUSE header
-            $data_rows[] = array(
-                $data['WAREHOUSE']['meta']['pos_1'],
-                '',
-                '',
-                '',
-                '',
-                '',
-                '',
-                ''                
-            );
-            $data_rows[] = array(
-                $data['WAREHOUSE']['meta']['pos_2'],
-                $data['WAREHOUSE']['meta']['pos_3'],
-                $data['WAREHOUSE']['meta']['pos_4'],
-                $data['WAREHOUSE']['meta']['pos_5'],
-                '',
-                '',
-                '',
-                ''                
-            );
-            $total_warehouse = 0;
-            if(isset($data['_WAREHOUSE']['products']))
-            {
-                foreach ($data['_WAREHOUSE']['products'] as $product)
-                {
-                    $total_count = 0;
-                    $subtotal_price = 0;
-                    foreach ($product as $v)
-                    {
-                        $total_count += $v->quantity;
-                        
-                        $current_warehouse_price = $this->stokoni_model->getProduct((int)$v->warehouse_product_id)->price;
-                        
-                        $subtotal_price += $current_warehouse_price * $v->quantity * (1 + ($this->_IVA_tax / 100));
-                    }
-                    $warehouse_products[] = array(
-                            preg_replace('/^\"+|^\'+|\"+$|\'+$/', '', trim(utf8_decode($product[0]->product_name))),
-                            '"#'.$product[0]->sku.'"',
-                            $total_count,
-                            number_format($subtotal_price, 2). " ".chr(128),
-                            '',
-                            '',
-                            '',
-                            ''                
-                                    );
-                    $total_warehouse += $subtotal_price; 
-                }
-                
-                // Sort products
-                if(is_array($warehouse_products))
-                {
-                    usort($warehouse_products, array("Export_csv_model", "cmp"));
-                
-                    foreach($warehouse_products as $row)
-                    {
-                        $data_rows[] = $row;
-                    }
-                }
-            }
-            
-            // WAREHOUSE footer
-            $data_rows[] = array(
-                '',
-                '',
-                $data['WAREHOUSE']['meta']['pos_6'],
-                number_format($total_warehouse, 2). " ".chr(128),
-                '',
-                '',
-                '',    
-                ''                
-            );
-            $data_rows[] = array('','','','','','','','');
-            $data_rows[] = array('','','','','','','','');
-            $data_rows[] = array('','','','','','','','');
-            
-            foreach ($data_rows as $row)
-            {
-                $file_body .= implode(";", $row)."\r\n";
-            }
-            
-            
-            return $file_body;
+            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 2, $cell);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 2)->getFill()
+            ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'startcolor' => array('rgb' => 'ededed')
+            ));
+            $i++;
         }
         
-        return false;
+        $i = 3;
+        $total_cost = 0;
+        foreach ($products as $product)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $product->product_name, PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $product->sku, PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(1, $i)->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $product->quantity, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $product->price, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $total_cost += (float)$product->price;
+            $i++;
+        }
+        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, 'TOTAL COST', PHPExcel_Cell_DataType::TYPE_STRING);
+        $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(2, $i)->getFont()->setBold(true);
+        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $total_cost, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+        $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(3, $i)->getFont()->setBold(true);
+        
+        
+        // Write a file
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        
+        $filename = FCPATH .'upload/'.  $this->construct_file_name('export_'. strtolower($provider_name));
+        
+        $file = $objWriter->save($filename);
+                
+        return read_file($filename);
+    }
+    
+    public function download_provider_order($id)
+    {
+        $file = new stdClass();
+        
+        $provider_name = $this->providers_model->get_provider_name_by_order_id($id);
+        
+        $file->data = $this->_get_provider_order_xls($id);
+        $file->name = $this->construct_file_name('export_'. strtolower($provider_name));
+        
+        if(!empty($file->data))
+        {
+            return $file;
+        }
+        return FALSE;
+    }
+    
+    private function get_file_data_export_engelsa()
+    {
+        $provider_order_id = $this->providers_model->create_provider_order('ENGELSA');
+        
+        if($provider_order_id === false)
+        {
+            return FALSE;
+        }
+        
+        return $this->_get_provider_order_xls($provider_order_id);
+    }
+    
+    private function get_file_data_export_pinternacional()
+    {
+        $provider_order_id = $this->providers_model->create_provider_order('PINTERNACIONAL');
+        
+        if($provider_order_id === false)
+        {
+            return FALSE;
+        }
+        
+        return $this->_get_provider_order_xls($provider_order_id);
+    }
+    
+    private function get_file_data_export_coqueteo()
+    {
+        $provider_order_id = $this->providers_model->create_provider_order('COQUETEO');
+        
+        if($provider_order_id === false)
+        {
+            return FALSE;
+        }
+        
+        return $this->_get_provider_order_xls($provider_order_id);
     }
     
     public function batch_update_orders_statuses()
@@ -787,7 +463,11 @@ class Export_csv_model extends CI_Model
             ';
         }
         
-        if($service == 'fedex_gls_summary')
+        if(  $service == 'fedex_gls_summary' 
+             || $service == 'export_engelsa_summary'
+             || $service == 'export_pinternacional_summary'
+             || $service == 'export_coqueteo_summary'
+        )
         {
             $query = ' SELECT * FROM `pedidos` 
                        WHERE `procesado` = \'PREPARACION_ENGELSA_FEDEX\' 
@@ -926,7 +606,7 @@ class Export_csv_model extends CI_Model
     
     private function get_file_data_generar_new_products_coqueteo()
     {
-        $this->load->library('excel');
+        
         
         $file = null;
         

@@ -160,6 +160,7 @@
                     <th>Provider</th>
                     <th>Message</th>
                     <th>Time</th>
+                    <th title="Means that product has been ordered to provider">Ordered</th>
                 </tr>
                 
                 
@@ -187,6 +188,17 @@
                         $msg = 'Canceled';
                         $attr = 'class="highlight"';
                     }
+                    
+                    if($row->csv_exported == 1)
+                    {
+                        $ordered = 'Yes';
+                        $ordered_class = 'green';
+                    }
+                    else
+                    {
+                        $ordered = 'No';
+                        $ordered_class = 'red';
+                    }
                 ?>
                 
                 
@@ -196,6 +208,7 @@
                     <td><?php echo $row->provider_name;?></td>
                     <td><?php echo $msg;?></td>
                     <td><?php echo $row->timestamp;?></td>
+                    <td title="Means that product has been ordered to provider" class="<?php echo $ordered_class;?>"><?php echo $ordered;?></td>
                 </tr>
                 
                 
