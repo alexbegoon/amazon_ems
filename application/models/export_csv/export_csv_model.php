@@ -30,6 +30,7 @@ class Export_csv_model extends CI_Model
         $this->_IVA_tax = $this->taxes_model->getIVAtax();
         
         $this->load->helper('my_string_helper');
+        $this->load->helper('file');
     }
     
     public function prepare_file($service)
@@ -194,6 +195,22 @@ class Export_csv_model extends CI_Model
         $file = $objWriter->save($filename);
                 
         return read_file($filename);
+    }
+    
+    public function download_provider_order($id)
+    {
+        $file = new stdClass();
+        
+        $provider_name = $this->providers_model->get_provider_name_by_order_id($id);
+        
+        $file->data = $this->_get_provider_order_xls($id);
+        $file->name = $this->construct_file_name('export_'. strtolower($provider_name));
+        
+        if(!empty($file->data))
+        {
+            return $file;
+        }
+        return FALSE;
     }
     
     private function get_file_data_export_engelsa()

@@ -438,6 +438,18 @@ class Providers_model extends CI_Model
     {
         $post_data = $this->input->post();
         
+        if(!empty($post_data['provider']))
+        {
+            $this->db->where('provider_id',$post_data['provider']);
+        }
+        if(!empty($post_data['date_from']))
+        {
+            $this->db->where('created_on >=',$post_data['date_from']);
+        }
+        if(!empty($post_data['date_to']))
+        {
+            $this->db->where('created_on <=',$post_data['date_to']);
+        }
         
         $query = $this->db->get('provider_orders',50,$page);
         
@@ -446,9 +458,24 @@ class Providers_model extends CI_Model
     
     public function count_all_providers_orders()
     {
-        $query = $this->db->select('COUNT(*) as total')
-                ->from('provider_orders')
-                ->get();
+        $post_data = $this->input->post();
+        
+        if(!empty($post_data['provider']))
+        {
+            $this->db->where('provider_id',$post_data['provider']);
+        }
+        if(!empty($post_data['date_from']))
+        {
+            $this->db->where('created_on >=',$post_data['date_from']);
+        }
+        if(!empty($post_data['date_to']))
+        {
+            $this->db->where('created_on <=',$post_data['date_to']);
+        }
+        
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('provider_orders');
+        $query = $this->db->get();
         
         return $query->row()->total;
     }
@@ -469,5 +496,50 @@ class Providers_model extends CI_Model
         }
         
         return $query->result();
+    }
+    
+    public function send_order ($id)
+    {
+        $query = $this->db->select('provider_id')
+                ->from('provider_orders')
+                ->where('id', $id)
+                ->get();
+        
+        $provider_id = $query->row()->provider_id;
+        
+        $provider = $this->getProvider((int)$provider_id);
+        
+        $this->load->library('email');
+        
+        $config['validate'] = TRUE;
+        $this->email->initialize($config);
+        
+        $this->email->from('info@buyin.es', 'BuyIn Compras');
+        $this->email->reply_to('info@buyin.es');
+        $this->email->to($provider->emails_list); 
+        $this->email->cc($provider->cc_emails_list); 
+        $this->email->subject($provider->email_subject);
+        $this->email->message($provider->email_content);
+        
+        $file = $this->export_csv_model->download_provider_order($id);
+        
+        $this->email->attach(FCPATH .'upload/'.$file->name);
+        
+        if(!$this->email->send())
+        {
+            log_message('ERROR', $this->email->print_debugger());
+        }
+        else
+        {
+            $this->mark_order_as_sent($id);
+        }
+        
+        return TRUE;
+    }
+    
+    private function mark_order_as_sent($id)
+    {
+        $this->db->where('id',$id);
+        $this->db->update('provider_orders', array('sent_to_provider' => 1, 'sending_date'=>date('Y-m-d H:i:s')));
     }
 }

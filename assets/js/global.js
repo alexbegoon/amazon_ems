@@ -165,6 +165,38 @@ Amazoni.get_provider_order = function(id)
     });
 }
 
+Amazoni.confirm_order_sending = function(a)
+{
+    if ($( "#modal_window_confirm" ).length === 0)
+        {
+            $('body').append('<div id="modal_window_confirm"></div>');
+        }
+    
+    $( "#modal_window_confirm" ).empty();
+
+    $( "#modal_window_confirm" ).append('<p>Are you really want to send order to provider?</p>');
+
+    $( "#modal_window_confirm" ).dialog({
+        resizable: false,
+        height:250,
+        modal: true,
+        title: 'Please confirm',
+        buttons: {
+          "Continue": function() {
+            $( this ).dialog( "close" );
+            window.location.href = a.getAttribute("href");
+          },
+          Cancel: function() {
+            $( this ).dialog( "close" );
+            $( "#modal_window_confirm" ).empty();
+            return false;
+          }
+        }
+      });
+
+      return false;
+}
+
 $(function() {
     /* For zebra striping */
     $("table tr:nth-child(odd)").addClass("odd-row");

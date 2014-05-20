@@ -19,13 +19,21 @@ class Providers extends CI_Controller
         
         // Load model
         $this->load->model('incomes/providers_model');
+        $this->load->model('export_csv/export_csv_model');
+        
+        // Load helpers
+        $this->load->helper('download');
     }
     
     public function orders($page = 0)
     {
+        $post_data = $this->input->post();
+        
+        $data['post_data'] = $post_data;
         $data['title'] = humanize($this->router->class . ' ' .$this->router->method);
         $data['orders'] = $this->providers_model->get_provider_orders($page);
         $data['total_orders'] = $this->providers_model->count_all_providers_orders();
+        $data['providers_dropdown'] = $this->providers_model->get_providers_list($post_data['provider'], false, true);
                 
         // Pagination
         
@@ -47,5 +55,22 @@ class Providers extends CI_Controller
         
         // Load view  
         $this->load->view('providers/order', $data);
+    }
+    
+    public function download_order ($id)
+    {
+        $file = $this->export_csv_model->download_provider_order($id);
+        
+        if($file)
+        {
+            force_download($file->name, $file->data);
+        }
+    }
+    
+    public function send_order ($id, $return_url)
+    {
+        $this->providers_model->send_order($id);
+        
+        redirect(base64_url_decode($return_url), 'refresh');
     }
 }
