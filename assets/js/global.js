@@ -131,7 +131,7 @@ Amazoni.order_link = function(a){
     
 };
 
-Amazoni.get_provider_order = function(id)
+Amazoni.get_provider_order = function(id, return_url)
 {
     if ($( "#modal_window" ).length === 0)
     {
@@ -156,7 +156,7 @@ Amazoni.get_provider_order = function(id)
         $("#ajax-loader").css('display', 'block');
         $.ajax({
                 type: "POST",
-                url: url_before_index + "index.php/providers/get_order/" + id
+                url: url_before_index + "index.php/providers/get_order/" + id + "/" + return_url
               }).success(function( response ) {
                 $("#ajax-loader").css('display', 'none');  
                 $( "#modal_window" ).append(response);

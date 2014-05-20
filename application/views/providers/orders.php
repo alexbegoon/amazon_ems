@@ -42,7 +42,7 @@
             $this->ion_auth->user($order->created_by)->row()->last_name;?></td>
             <td><?php echo $order->sent_to_provider == 0 ? '<span class="red">No</span>' : $order->sending_date ;?></td>
             <td title="Send order to provider"><a href="<?php echo base_url('index.php/providers/send_order/'.$order->id.'/'.base64_url_encode(current_url()));?>" onclick="Amazoni.confirm_order_sending(this);return false;" ><span class="email_send_icon pointer_cursor"></span></a></td>
-            <td title="View order"><span onclick="Amazoni.get_provider_order('<?php echo $order->id;?>')" class="invoice_icon pointer_cursor"></span></td>
+            <td title="View order"><span onclick="Amazoni.get_provider_order('<?php echo $order->id;?>', '<?php echo base64_url_encode(current_url());?>')" class="invoice_icon pointer_cursor"></span></td>
             <td title="Download order in Excel format"><a href="<?php echo base_url('index.php/providers/download_order/'.$order->id);?>"><span class="excel_icon pointer_cursor"></span></a></td>
         </tr>
         <?php endforeach;?>

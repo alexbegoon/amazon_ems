@@ -29,5 +29,11 @@
             <td class="bold">Total:</td>
             <td class="bold"><?php echo $total;?> &euro;</td>
         </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td><a title="Send order to provider" href="<?php echo base_url('index.php/providers/send_order/'.$id."/".$return_url);?>" onclick="Amazoni.confirm_order_sending(this);return false;" ><span class="email_send_icon pointer_cursor"></span></a></td>
+            <td><a title="Download order in Excel format" href="<?php echo base_url('index.php/providers/download_order/'.$id);?>"><span class="excel_icon pointer_cursor"></span></a></td>
+        </tr>
     </table>
 </div>

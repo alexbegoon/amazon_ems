@@ -48,10 +48,11 @@ class Providers extends CI_Controller
         $this->load->template('providers/orders', $data);
     }
     
-    public function get_order ($id) 
+    public function get_order ($id, $return_url) 
     {
         $data['order'] = $this->providers_model->get_provider_order((int)$id);
         $data['id'] = (int)$id;
+        $data['return_url'] = $return_url;
         
         // Load view  
         $this->load->view('providers/order', $data);
@@ -67,10 +68,18 @@ class Providers extends CI_Controller
         }
     }
     
-    public function send_order ($id, $return_url)
+    public function send_order ($id, $return_url = null)
     {
         $this->providers_model->send_order($id);
         
-        redirect(base64_url_decode($return_url), 'refresh');
+        if(!empty($return_url))
+        {
+            redirect(base64_url_decode($return_url), 'refresh');
+        }
+        else
+        {
+            redirect('providers/orders');
+        }
+        
     }
 }

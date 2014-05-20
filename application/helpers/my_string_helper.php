@@ -27,7 +27,7 @@ if ( ! function_exists('base64_url_encode'))
 {
     function base64_url_encode($input) 
     {
-        return strtr(base64_encode($input), '+/=', '-_,');
+        return rtrim(strtr(base64_encode($input), '+/', '-_'), '='); 
     }
 }
 
@@ -35,6 +35,6 @@ if ( ! function_exists('base64_url_decode'))
 {
     function base64_url_decode($input) 
     {
-        return base64_decode(strtr($input, '-_,', '+/='));
+        return base64_decode(str_pad(strtr($input, '-_', '+/'), strlen($input) % 4, '=', STR_PAD_RIGHT));
     }
 }
