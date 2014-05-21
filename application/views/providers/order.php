@@ -27,7 +27,7 @@
             <td></td>
             <td></td>
             <td class="bold">Total:</td>
-            <td class="bold"><?php echo $total;?> &euro;</td>
+            <td class="bold"><?php echo number_format($total,2);?> &euro;</td>
         </tr>
         <tr>
             <td></td>
