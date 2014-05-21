@@ -60,6 +60,10 @@ h2 {
 th a {
     white-space: nowrap!important;
 }
+.ui-dialog
+{
+    z-index: 10000!important;
+}
 .ok_icon {
     display: inline-block;
     width: 16px;

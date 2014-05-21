@@ -1148,9 +1148,9 @@ $(function() {
     
    //Main menu effects
    
-    $('body header').on('click', 'li', function(){
+    $('body header').on('click', 'li', function(e){
         
-        var ul = $('header ul.'+$(this).attr('class'));
+        var ul = $(e.currentTarget).children('ul');
         var options = {};
         ul.toggle( 'slide', options, 100 );
             
