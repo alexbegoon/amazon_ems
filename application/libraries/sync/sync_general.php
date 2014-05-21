@@ -394,7 +394,7 @@ class Sync_general
             {
                 $vm_order = $this->_CI->virtuemart_model->get_order($order->web, $order->pedido);
                 
-                if(count($vm_order) > 0)
+                if($vm_order && isset($vm_order[0]->order_status))
                 {
                     switch ($vm_order[0]->order_status)
                     {
