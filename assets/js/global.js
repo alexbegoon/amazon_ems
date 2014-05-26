@@ -39,6 +39,31 @@ Amazoni.new_message_notification = function(){
     
 };
 
+Amazoni.update_stock = function(url, provider_name){
+    
+    var loader = $('#loader_'+provider_name);
+    
+    $.ajax({
+        type: "post",
+        url: url,
+        beforeSend: function(jqXHR){
+            loader.show();
+        },
+        complete: function(){
+            loader.hide();
+        },
+        success: function(response, code){
+            if(response === 'Done')
+            {
+                alert(provider_name+' stock updated');
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown ){
+            alert(errorThrown);
+        }
+    });
+}
+
 Amazoni.show_provider_statistic = function(provider)
 {
     if ($( "#modal_window" ).length === 0)

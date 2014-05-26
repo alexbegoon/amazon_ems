@@ -227,4 +227,40 @@ class Sync_process extends CI_Controller
         
         $this->output->set_output('Done');
     }
+    
+    public function update_stock($provider = null)
+    {
+        // Authorization check
+        if (!$this->ion_auth->logged_in())
+        {
+           redirect('auth/login');
+        }
+
+        // Only admin have access
+        if (!$this->ion_auth->is_admin()) 
+        {
+            show_404();
+            die;
+        }
+        
+        $data = array();
+        $data['title'] = humanize($this->router->method);
+        
+        $data['providers'] = array(
+            
+            'COQUETEO' => array(
+                'url' => base_url().'index.php/sync_process/sync_coqueteo_products'
+            ),
+            'PINTERNACIONAL' => array(
+                'url' => base_url().'index.php/sync_process/sync_pinternacional_products'
+            ),
+            'ENGELSA' => array(
+                'url' => base_url().'index.php/sync_process/sync_engelsa_products'
+            ),
+            
+        );
+        
+        // Load view 
+        $this->load->template('sync_process/update_stock', $data);
+    }
 }

@@ -131,7 +131,7 @@
                         <span>Exportar Preparacion &#8711;</span>
                         <ul class="dropdown generar_menu">
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/export_engelsa_summary';?>" >Update Stock</a>
+                                <a href="<?php echo base_url().'index.php/sync_process/update_stock';?>" >Update Stock</a>
                             </li>
                             <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/export_engelsa_summary';?>" >Verify Products</a>
