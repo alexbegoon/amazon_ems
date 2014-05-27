@@ -181,6 +181,10 @@ class Top_sales_model extends CI_Model
                         OR `p`.`procesado` = \'ENVIADO_GLS\' 
                         OR `p`.`procesado` = \'ENVIADO_FEDEX\' 
                     ) 
+                    AND 
+                    `h`.`canceled` = 0 
+                    AND 
+                    `h`.`out_of_stock` = 0 
                    
                    GROUP BY `h`.`sku` 
                    ORDER BY '.$order_by.'

@@ -64,6 +64,12 @@ th a {
 {
     z-index: 10000!important;
 }
+.error{
+    color:red!important;
+}
+.success{
+    color: green!important;
+}
 .ok_icon {
     display: inline-block;
     width: 16px;

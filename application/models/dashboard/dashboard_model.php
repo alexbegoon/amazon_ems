@@ -17,6 +17,7 @@ class Dashboard_model extends CI_Model {
         
         $this->load->model('incomes/shipping_costs_model');
         $this->load->model('products/products_model');
+        $this->load->model('stokoni/stokoni_model');
     }
     
     public function getOrders($page) {
@@ -771,5 +772,148 @@ class Dashboard_model extends CI_Model {
         }
         
         return false;
+    }
+    
+    public function verify_order($order_id)
+    {
+        // get order items
+        
+        $query = $this->db->select('id, sku_in_order as sku, quantity, order_price, order_date, order_id, order_name, shipping_price, web, warehouse_product_id')
+                ->from('products_sales_history')
+                ->where('canceled', 0)
+                ->where('csv_exported', 0)
+                ->where('order_id', $order_id)
+                ->get();
+        
+        if($query->num_rows() <= 0)
+        {
+            return 'Error. Order have no items';
+        }
+        
+        $order_products = array();
+        $i = 0;
+        
+        $update_data = array(
+            'canceled' => 1
+        );
+        
+        // check every item in order
+        foreach ($query->result() as $item)
+        {
+            $order_products[$i]['sku'] = $item->sku;
+            $order_products[$i]['quantity'] = $item->quantity;
+            $order_products[$i]['price'] = $item->order_price;
+            $order_products[$i]['order_id'] = $item->order_name;
+            
+            $shipping_cost = $item->shipping_price;
+            $web           = $item->web;
+            $order_pedido  = $item->order_name;
+            $order_date    = $item->order_date;
+            
+            $i++;
+            
+            if( !empty($item->warehouse_product_id) )
+            {
+                $this->stokoni_model->return_product($item->warehouse_product_id, $item->quantity);
+            }
+            
+            $this->db->where('id', $item->id);
+            $this->db->update('products_sales_history', $update_data);
+        }
+        
+        $gasto = $this->products_model->calculate_gasto($order_products, $shipping_cost, $web, false);
+        
+        $this->products_model->store_history($web,$order_pedido,(int)$order_id,$this->getOrder((int)$order_id)->procesado,$order_date);
+        
+        if($gasto > 0)
+        {
+            $this->save(array(
+                'id' => (int)$order_id,
+                'gasto' => $gasto,
+                'procesado' => $this->getOrder((int)$order_id)->procesado
+            ));
+            
+            return 'Done';
+        }
+        else 
+        {
+            $this->save(array(
+                'id' => (int)$order_id,
+                'gasto' => 0,
+                'procesado' => $this->getOrder((int)$order_id)->procesado
+            ));
+            
+            $query = $this->db->select('id')
+                ->from('products_sales_history')
+                ->where('canceled', 0)
+                ->where('out_of_stock', 1)
+                ->where('order_id', $order_id)
+                ->get();
+            
+            if($query->num_rows() > 0)
+            {
+                $this->set_status((int)$order_id, 'ROTURASTOCK');
+                
+                $out_of_stock_orders = $this->session->userdata('out_of_stock_orders');
+                
+                $out_of_stock_order = array(
+                    'order_id' => (int)$order_id,
+                    'order_name' => $this->getOrder((int)$order_id)->pedido,
+                    'date_when_out_of_stock' => date('Y-m-d H:i:s'),
+                    'order_status' => 'ROTURASTOCK',
+                    'created_on' => date('Y-m-d H:i:s'),
+                    'created_by' => (int)$this->ion_auth->get_user_id(),
+                );
+                
+                $out_of_stock_orders[] = $out_of_stock_order;
+                
+                $this->session->set_userdata($out_of_stock_orders);
+                $this->db->insert('roturastock_report', $out_of_stock_order);
+                
+                return 'Out of stock';
+            }
+            
+            return 'Unsuccess';
+        }
+        
+        return 'Error';
+    }
+    
+    public function get_roturastock_orders($page)
+    {
+        $this->db->select('rep.date_when_out_of_stock, rep.order_id, rep.order_name, p.procesado as order_status');
+        $this->db->from('roturastock_report as rep');
+        $dbprefix = $this->db->dbprefix;
+        $this->db->set_dbprefix(null);
+        $this->db->join('pedidos as p','p.id = rep.order_id');
+        $this->db->set_dbprefix($dbprefix);
+        $this->db->limit(50,$page);
+        $this->db->order_by('rep.order_id','desc');
+        $query  = $this->db->get();
+        
+        if($query->num_rows() <= 0)
+        {
+            return array();
+        }
+        
+        return $query->result();
+    }
+    
+    public function get_roturastock_orders_count()
+    {
+        $this->db->select('COUNT(*) as total');
+        $this->db->from('roturastock_report as rep');
+        $dbprefix = $this->db->dbprefix;
+        $this->db->set_dbprefix(null);
+        $this->db->join('pedidos as p','p.id = rep.order_id');
+        $this->db->set_dbprefix($dbprefix);
+        $query  = $this->db->get();
+        
+        if($query->num_rows() <= 0)
+        {
+            return false;
+        }
+        
+        return (int)$query->row()->total;
     }
 }

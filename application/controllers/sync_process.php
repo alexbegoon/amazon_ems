@@ -207,6 +207,8 @@ class Sync_process extends CI_Controller
     {
         $this->sync_product_list_with_engelsa_and_grutinet();
         
+        $this->session->unset_userdata('verify_products_accepted');
+        
         $this->output->set_output('Done');
     }
     
@@ -215,6 +217,8 @@ class Sync_process extends CI_Controller
         require_once FCPATH . $this->_path_to_sync_library . 'sync_products_coqueteo.php';
         
         new Sync_products_coqueteo();
+        
+        $this->session->unset_userdata('verify_products_accepted');
         
         $this->output->set_output('Done');
     }
@@ -225,10 +229,12 @@ class Sync_process extends CI_Controller
         
         new Sync_products_pinternacional();
         
+        $this->session->unset_userdata('verify_products_accepted');
+        
         $this->output->set_output('Done');
     }
     
-    public function update_stock($provider = null)
+    public function update_stock()
     {
         // Authorization check
         if (!$this->ion_auth->logged_in())
@@ -262,5 +268,36 @@ class Sync_process extends CI_Controller
         
         // Load view 
         $this->load->template('sync_process/update_stock', $data);
+    }
+    
+    public function verify_products()
+    {
+        // Authorization check
+        if (!$this->ion_auth->logged_in())
+        {
+           redirect('auth/login');
+        }
+
+        // Only admin have access
+        if (!$this->ion_auth->is_admin()) 
+        {
+            show_404();
+            die;
+        }
+        
+        // Load models
+        $this->load->model('export_csv/export_csv_model');
+        
+        $data = array();
+        $data['title'] = humanize($this->router->method);
+        
+        $data['orders'] = $this->export_csv_model->get_summary('fedex_gls_summary');
+        $data['verified_orders'] = $verified_orders = $this->session->userdata('verified_orders');
+        
+        
+        
+        
+        // Load view 
+        $this->load->template('sync_process/verify_products', $data);
     }
 }

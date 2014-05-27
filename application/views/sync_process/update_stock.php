@@ -11,7 +11,8 @@
     <div class="filters">
         <?php foreach ($providers as $provider => $data):?>
         <p>Update <?php echo humanize($provider);?> stock:</p>
-        <button typy="button" id="update_<?php echo humanize($provider);?>" onclick="Amazoni.update_stock('<?php echo $data['url'];?>','<?php echo humanize($provider);?>');">Update <?php echo humanize($provider);?></button>
+        <input type="button" id="update_<?php echo humanize($provider);?>" onclick="Amazoni.update_stock('<?php echo $data['url'];?>','<?php echo humanize($provider);?>');" value="Update <?php echo humanize($provider);?>" />
+        <br>
         <div class="ajax-loader-2" id="loader_<?php echo humanize($provider);?>"></div>
         <br>
         <?php endforeach;?>

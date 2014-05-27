@@ -271,6 +271,11 @@ jQuery(function($){
 function edit (id) {    
     $.id_edit = id;
     
+    if ($( "#dialog-modal" ).length === 0)
+    {
+        $('body').append('<div id="dialog-modal"></div>');
+    }
+    
     $( "#dialog-modal" ).empty();
     $( "#dialog-modal" ).append('<div id="ajax-loader"></div>');
     $( "#dialog-modal" ).append('<div id="success-icon"></div>');

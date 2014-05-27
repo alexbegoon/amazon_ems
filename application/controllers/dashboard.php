@@ -198,5 +198,50 @@ class Dashboard extends CI_Controller {
         
         var_dump($this->cache->memcached->cache_info());
     }
+    
+    public function verify_order($order_id)
+    {
+        // Only admin have access
+        if (!$this->ion_auth->is_admin()) 
+        {
+            show_404();
+            die;
+        }
+        
+        $this->session->set_userdata('verify_products_accepted', 'false');
+        
+        $verified_orders = $this->session->userdata('verified_orders');
+        
+        $response = $this->dashboard_model->verify_order($order_id);
+        
+        $verified_orders[] = array('order_id'=>(int)$order_id,'status'=>$response,'date'=>date('Y-m-d H:i:s'));
+        
+        $this->session->set_userdata('verified_orders', $verified_orders);
+        
+        $this->output
+        ->set_output($response);
+    }
+    
+    public function roturastock_report($page = null)
+    {
+        $data = array();
+        $data['title'] = humanize($this->router->method);
+        $data['post_data'] = $this->input->post();
+        
+        $data['orders'] = $this->dashboard_model->get_roturastock_orders($page);
+        $data['total_orders'] = $this->dashboard_model->get_roturastock_orders_count();
+        
+        // Pagination
+        
+        $config['base_url'] = base_url().'index.php/dashboard/roturastock_report/';
+        $config['total_rows'] = $data['total_orders'];
+        $config['per_page'] = 50; 
+
+        $this->pagination->initialize($config); 
+        $data['pagination'] = $this->pagination->create_links();
+        
+        // Load view  
+        $this->load->template('dashboard/roturastock_report', $data);
+    }
 }
 
