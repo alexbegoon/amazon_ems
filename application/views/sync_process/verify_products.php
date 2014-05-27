@@ -41,7 +41,7 @@
 <script type="text/javascript">
 $(function(){
     Amazoni.order_loader = null;
-    var verify_products_accepted = <?php echo !empty($this->session->userdata('verify_products_accepted')) ? 'false' : 'true' ;?>;
+    var verify_products_accepted = <?php echo $this->session->userdata('verify_products_accepted') ? 'false' : 'true' ;?>;
     var verifying_started = false;
     var orders = [];
     
