@@ -467,7 +467,7 @@ class Export_csv_model extends CI_Model
                        OR `procesado` = \'PREPARACION_ENGELSA_GLS\' 
                        OR `procesado` = \'PREPARACION_ENGELSA_PACK\' 
                        OR `procesado` = \'PREPARACION_ENGELSA_TOURLINE\' 
-                       ORDER BY `id` DESC 
+                       ORDER BY `id` ASC 
             ';
         }
         
