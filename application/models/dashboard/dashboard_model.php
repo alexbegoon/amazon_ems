@@ -814,7 +814,7 @@ class Dashboard_model extends CI_Model {
             
             if( !empty($item->warehouse_product_id) )
             {
-                $this->stokoni_model->return_product($item->warehouse_product_id, $item->quantity);
+                $this->stokoni_model->return_product((int)$item->warehouse_product_id, (int)$item->quantity);
             }
             
             $this->db->where('id', $item->id);
