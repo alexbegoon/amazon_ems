@@ -60,6 +60,16 @@ h2 {
 th a {
     white-space: nowrap!important;
 }
+.ui-dialog
+{
+    z-index: 10000!important;
+}
+.error{
+    color:red!important;
+}
+.success{
+    color: green!important;
+}
 .ok_icon {
     display: inline-block;
     width: 16px;
@@ -772,12 +782,20 @@ b.warning_icon{
 }
 .small-ajax-loader
 {
+    display:none;
     opacity: 1!important;
+    width:16px;
+    height:16px;
     background-image: url(../imgs/small-ajax-loader.gif)!important;
     background-repeat: no-repeat!important;
-    background-position: center center!important;
 }
 #ajax-loader-2 {
+    background-image: url(../imgs/36-1.gif)!important;
+    display: none;
+    width: 128px;
+    height: 15px;
+}
+.ajax-loader-2 {
     background-image: url(../imgs/36-1.gif)!important;
     display: none;
     width: 128px;

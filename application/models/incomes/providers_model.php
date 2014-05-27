@@ -450,7 +450,7 @@ class Providers_model extends CI_Model
         {
             $this->db->where('created_on <=',$post_data['date_to']);
         }
-        
+        $this->db->order_by('id', 'desc');
         $query = $this->db->get('provider_orders',50,$page);
         
         return $query->result();

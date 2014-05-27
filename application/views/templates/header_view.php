@@ -81,15 +81,6 @@
                         <span>Generar &#8711;</span>
                         <ul class="dropdown generar_menu">
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/export_engelsa_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
-                            </li>
-                            <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/export_pinternacional_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Pinternacional</a>
-                            </li>
-                            <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/export_coqueteo_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Coqueteo</a>
-                            </li>
-                            <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar GLS</a>
                             </li>
                             <li>
@@ -126,6 +117,35 @@
                     </li>
                     <li>
                         <a href="<?php echo base_url().'index.php/providers/orders/';?>">Provider Orders</a>
+                    </li>
+                    <li class="generar_menu">
+                        <span>Exportar Preparacion &#8711;</span>
+                        <ul class="dropdown generar_menu">
+                            <li>
+                                <a href="<?php echo base_url().'index.php/sync_process/update_stock';?>" >Update Stock</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/sync_process/verify_products';?>" >Verify Products</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/dashboard/roturastock_report/';?>" >RoturaStock Report</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_engelsa_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_pinternacional_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Pinternacional</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_coqueteo_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Coqueteo</a>
+                            </li>
+                            <li>
+                                <a href="<?php echo base_url().'index.php/providers/orders/';?>" >Provider Order Report</a>
+                            </li>
+<!--                            <li>
+                                <a href="javascript:void(0);" >Order Modifications</a>
+                            </li>-->
+                        </ul>
                     </li>
                 </ul>
                 <div class="welcome-user">
@@ -169,15 +189,6 @@
                         <span>Generar &#8711;</span>
                         <ul class="dropdown generar_menu">
                             <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/export_engelsa_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
-                            </li>
-                            <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/export_pinternacional_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Pinternacional</a>
-                            </li>
-                            <li>
-                                <a href="<?php echo base_url().'index.php/export_csv/export_coqueteo_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Coqueteo</a>
-                            </li>
-                            <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/generar_gls_summary';?>" onclick="Amazoni.confirm(this);return false;">Generar GLS</a>
                             </li>
                             <li>
@@ -220,6 +231,9 @@
                     </li>
                     <li>
                         <a href="<?php echo base_url().'index.php/providers/orders/';?>">Provider Orders</a>
+                    </li>
+                    <li>
+                        <a href="<?php echo base_url().'index.php/dashboard/roturastock_report/';?>" >RoturaStock Report</a>
                     </li>
                 </ul>
                 <div class="welcome-user">

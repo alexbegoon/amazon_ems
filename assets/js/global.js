@@ -39,6 +39,31 @@ Amazoni.new_message_notification = function(){
     
 };
 
+Amazoni.update_stock = function(url, provider_name){
+    
+    var loader = $('#loader_'+provider_name);
+    
+    $.ajax({
+        type: "post",
+        url: url,
+        beforeSend: function(jqXHR){
+            loader.show();
+        },
+        complete: function(){
+            loader.hide();
+        },
+        success: function(response, code){
+            if(response === 'Done')
+            {
+                alert(provider_name+' stock updated');
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown ){
+            alert(errorThrown);
+        }
+    });
+}
+
 Amazoni.show_provider_statistic = function(provider)
 {
     if ($( "#modal_window" ).length === 0)
@@ -245,6 +270,11 @@ jQuery(function($){
 
 function edit (id) {    
     $.id_edit = id;
+    
+    if ($( "#dialog-modal" ).length === 0)
+    {
+        $('body').append('<div id="dialog-modal"></div>');
+    }
     
     $( "#dialog-modal" ).empty();
     $( "#dialog-modal" ).append('<div id="ajax-loader"></div>');
@@ -1148,9 +1178,9 @@ $(function() {
     
    //Main menu effects
    
-    $('body header').on('click', 'li', function(){
+    $('body header').on('click', 'li', function(e){
         
-        var ul = $('header ul.'+$(this).attr('class'));
+        var ul = $(e.currentTarget).children('ul');
         var options = {};
         ul.toggle( 'slide', options, 100 );
             
