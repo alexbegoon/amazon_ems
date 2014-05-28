@@ -379,6 +379,7 @@ class Dashboard_model extends CI_Model {
             $query_2 = $this->db->select('id')
                                 ->from('products_sales_history')
                                 ->where('csv_exported',0)
+                                ->where('canceled',0)
                                 ->where('order_id',$order->id)
                                 ->get();
             

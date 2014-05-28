@@ -243,5 +243,10 @@ class Dashboard extends CI_Controller {
         // Load view  
         $this->load->template('dashboard/roturastock_report', $data);
     }
+    
+    public function fix_statuses()
+    {
+        $this->dashboard_model->update_status_of_orders();
+    }
 }
 
