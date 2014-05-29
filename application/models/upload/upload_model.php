@@ -17,6 +17,7 @@ class Upload_model extends CI_Model {
         $this->load->model('engelsa/engelsa_model');
         $this->load->model('incomes/shipping_costs_model');
         $this->load->model('incomes/taxes_model');
+        $this->load->model('dashboard/dashboard_model');
         $this->load->model('products/products_model');
     }
     
@@ -495,11 +496,15 @@ class Upload_model extends CI_Model {
                                      $order['formadepago'],
                                      $order['in_stokoni']) );
                     
+                    $lastInId = $this->db->insert_id();
+                    
                     $this->products_model->store_history($order['web'],
                                                          $order['pedido'],
-                                                         $this->db->insert_id(),
+                                                         $lastInId,
                                                          $order['procesado'],
                                                          $order['fechaentrada']);
+                    
+                    $this->dashboard_model->touch_status($lastInId, $order['procesado'], 0);
                 }
             }
             
