@@ -317,12 +317,15 @@ class Dashboard_model extends CI_Model {
         
         $result = $this->db->simple_query($query);
         
-        $order_id = $data['id'];
+        if(isset($data['id']))
+        {
+            $order_id = $data['id'];
+        }
         
         if(empty($data['id']))
         {
-            $this->products_model->store_history($data['web'],$data['pedido'],$this->db->insert_id(),$data['procesado'],$data['fechaentrada']);
             $order_id = $this->db->insert_id();
+            $this->products_model->store_history($data['web'],$data['pedido'],$order_id,$data['procesado'],$data['fechaentrada']);
         }
         
         if(isset($data['procesado']))
