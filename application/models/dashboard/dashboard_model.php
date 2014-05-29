@@ -358,6 +358,7 @@ class Dashboard_model extends CI_Model {
             if(is_integer($ids))
             {
                    $result = $this->db->query($query, array($status,$ids));
+                   $this->touch_status((int)$ids,$status,$this->ion_auth->get_user_id());
                    if($result)
                    {
                        return true;
@@ -375,6 +376,7 @@ class Dashboard_model extends CI_Model {
                         if((int)$id != 0)
                         {
                             $result = $this->db->query($query, array($status,(int)$id));
+                            $this->touch_status((int)$id,$status,$this->ion_auth->get_user_id());
                         }
                         if(!$result)
                         {
@@ -390,6 +392,56 @@ class Dashboard_model extends CI_Model {
         return false;
     }
     
+    /**
+     * Save status changes in the history
+     * @param type $order_id
+     * @param type $status
+     * @param type $user_id
+     */
+    public function touch_status($order_id, $status, $user_id)
+    {
+        $this->db->select('status');
+        $this->db->from('order_status_history');
+        $this->db->where('order_id',$order_id);
+        $this->db->order_by('id','desc');
+        $this->db->limit(1);
+        $query = $this->db->get();
+        
+        if($query->num_rows() === 1)
+        {            
+            if($query->row()->status == $status)
+            {
+                return FALSE;
+            }
+        }
+        
+        $insert_data = array(
+            'order_id' => $order_id,
+            'status' => $status,
+            'user_id' => $user_id,
+            'created_on' => date('Y-m-d H:i:s'),
+        );
+
+        $this->db->insert('order_status_history', $insert_data);
+    }
+    
+    public function get_order_status_history($id) 
+    {
+        $this->db->select('status,user_id,created_on');
+        $this->db->from('order_status_history');
+        $this->db->where('order_id',$id);
+        $this->db->order_by('id','asc');
+        $query = $this->db->get();
+        
+        if($query->num_rows() > 0)
+        {
+            return $query->result();
+        }
+        
+        return FALSE;
+    }
+
+
     public function update_status_of_orders()
     {
         $statuses = array(

@@ -217,6 +217,50 @@
                 <?php endif;?>
             </table>
         </div>
+        <div>
+            <p>Statuses history:</p>
+            <?php if (empty($status_history)) : ?>
+            <p class="highlight">History not stored. Please ask support.</p>
+            <?php endif;?>
+            <table>
+                <?php if (!empty($status_history)) : ?>
+                <tr>
+                    <th>Date</th>
+                    <th>User</th>
+                    <th>Status</th>
+                </tr>
+                
+                
+                <?php foreach($status_history as $row) : ?>
+                
+                <?php 
+                
+                if((int)$row->user_id === 0)
+                {
+                    $history_user = 'Amazoni4 System';
+                }
+                else
+                {
+                    $history_user = $this->ion_auth->user($row->user_id)->row()->first_name .
+                                    ' '.
+                                    $this->ion_auth->user($row->user_id)->row()->last_name;
+                }
+                
+                
+                ?>
+                
+                <tr>
+                    <td><?php echo $row->created_on;?></td>
+                    <td><?php echo $history_user?></td>
+                    <td class="<?php echo strtolower($row->status);?>"><?php echo $row->status;?></td>
+                </tr>
+                
+                
+                <?php endforeach;?>
+                
+                <?php endif;?>
+            </table>
+        </div>
     </div>
     <div class="bottom">
         <div class="edit-buttons">

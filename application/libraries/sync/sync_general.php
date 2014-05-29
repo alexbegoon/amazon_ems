@@ -148,12 +148,20 @@ class Sync_general
                     
                         $stmt->execute($order);
                         
-                        $this->_CI->products_model->store_history($order[41],$order[0],$this->input_dbo->lastInsertId(),$order[9],$order[2]);
+                        $lastInsertId = $this->input_dbo->lastInsertId();
+                        
+                        $this->_CI->products_model->store_history($order[41],$order[0],$lastInsertId,$order[9],$order[2]);
                         
                         if($order[9] == 'CANCELADO')
                         {
-                            $this->_CI->dashboard_model->cancel_order((int)$this->input_dbo->lastInsertId());
+                            $this->_CI->dashboard_model->cancel_order((int)$lastInsertId);
                         }
+                        
+                        if($lastInsertId > 0)
+                        {
+                            $this->_CI->dashboard_model->touch_status($lastInsertId, $order[9], 0);
+                        }
+                        
                         
                     } catch(PDOException $ex) {
                         echo $ex->getMessage();
