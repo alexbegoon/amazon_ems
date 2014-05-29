@@ -108,7 +108,7 @@
     </div>
     <div class="bottom">
         <div>
-            <table>
+            <table id="order_items_list">
                 <?php for ($i=1; $i<=10; $i++) { ?>
                 <?php $k='sku'.$i; ?>
                 <?php if (!empty($order->$k)) { ?>
@@ -226,6 +226,8 @@
         </div>
     </div>
     <input type="hidden" name="id" value="<?php echo (int)$order->id;?>">
+    <input type="hidden" name="pedido" value="<?php echo $order->pedido;?>">
+    <input type="hidden" name="web" value="<?php echo $order->web;?>">
     <input type="hidden" name="fechaentrada" value="<?php echo $order->fechaentrada;?>">
     </form>
     <script>
@@ -242,6 +244,26 @@
                                     .append('<option value="CANCELADO">CANCELADO</option>')
                                     .val('CANCELADO');
             }
+            
+            Amazoni.order_items_modified = false;
+            
+            // Detect order item reorganization
+            $('table#order_items_list input').change(function(){
+                if(!Amazoni.order_items_modified)
+                {
+                    $('#edit-form').append('<input type="hidden" name="items_modified" value="true" />');
+                    Amazoni.order_items_modified = true;
+                }
+            });
+            
+            $('table#order_items_list a.remove').click(function(){
+                if(!Amazoni.order_items_modified)
+                {
+                    $('#edit-form').append('<input type="hidden" name="items_modified" value="true" />');
+                    Amazoni.order_items_modified = true;
+                }
+            });
+            
             
         });
     </script>

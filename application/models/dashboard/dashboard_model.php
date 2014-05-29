@@ -176,26 +176,26 @@ class Dashboard_model extends CI_Model {
             $data = $this->input->post();
         }
         
+        $order_products = array();
+            
+        for($i=1; $i<=10; $i++)
+        {
+            if(!empty($data['sku'.$i]))
+            {
+                $order_products[] = array(
+                        'sku'       => $data['sku'.$i],
+                        'quantity'  => $data['cantidad'.$i],
+                        'price'     => $data['precio'.$i],
+                        'order_id'  => $data['pedido']
+                );
+            }
+        }
+        
         if(empty($data['id']))
         {
             $query = 'INSERT INTO `pedidos` SET ';
             
             $shipping_price = $this->shipping_costs_model->getPrice((int)$data['shipping_cost_id'])->price;
-            
-            $order_products = array();
-            
-            for($i=1; $i<=10; $i++)
-            {
-                if(!empty($data['sku'.$i]))
-                {
-                    $order_products[] = array(
-                            'sku'       => $data['sku'.$i],
-                            'quantity'  => $data['cantidad'.$i],
-                            'price'     => $data['precio'.$i],
-                            'order_id'  => $data['pedido']
-                    );
-                }
-            }
             
             $data['gasto'] = $this->products_model->calculate_gasto($order_products, $shipping_price, $data['web'], false, $data['pedido']);
         } 
@@ -203,6 +203,39 @@ class Dashboard_model extends CI_Model {
         {            
             $data['procesado'] = $this->get_procesado($data);
             $query = 'UPDATE `pedidos` SET ';
+            
+            // If order have modified items
+            if(isset($data['items_modified']) && $data['procesado'] != 'CANCELADO')
+            {
+                // Cancel all past items list
+                $this->cancel_order((int)$data['id']);
+                
+                $shipping_price = $this->shipping_costs_model->get_shipping_price_by_order_id((int)$data['id']);
+                
+                // Recalculate items again
+                $data['gasto'] = $this->products_model->calculate_gasto($order_products, $shipping_price, $data['web'], false, $data['pedido']);
+                $data['ingresos'] = 0;
+                
+                foreach ($order_products as $item)
+                {
+                    $data['ingresos'] += $item['price'] * $item['quantity'];
+                }
+                
+                // Store in history
+                $this->products_model->store_history($data['web'],$data['pedido'],(int)$data['id'],$data['procesado'],$data['fechaentrada']);
+                
+                // Check items stock
+                $this->db->where('csv_exported',0);
+                $this->db->where('canceled',0);
+                $this->db->where('out_of_stock',1);
+                $this->db->where('order_id',(int)$data['id']);
+                $query2 = $this->db->get('products_sales_history');
+                
+                if($query2->num_rows() > 0)
+                {
+                    $data['procesado'] = 'ROTURASTOCK';
+                }
+            }
             
             if(!$this->is_order_canceled((int)$data['id']))
             {
@@ -212,8 +245,6 @@ class Dashboard_model extends CI_Model {
                 }
             }
         }
-        
-        
         
         // Available fields in the pedidos table
         $fields = array(
@@ -286,9 +317,17 @@ class Dashboard_model extends CI_Model {
         
         $result = $this->db->simple_query($query);
         
+        $order_id = $data['id'];
+        
         if(empty($data['id']))
         {
             $this->products_model->store_history($data['web'],$data['pedido'],$this->db->insert_id(),$data['procesado'],$data['fechaentrada']);
+            $order_id = $this->db->insert_id();
+        }
+        
+        if(isset($data['procesado']))
+        {
+            $this->set_status((int)$order_id, $data['procesado']);
         }
         
         if ($result)

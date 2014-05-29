@@ -575,6 +575,23 @@ class Shipping_costs_model extends CI_Model {
         
     }
     
+    public function get_shipping_price_by_order_id($order_id)
+    {
+        $query = $this->db->select('shipping_price')
+                ->from('products_sales_history')
+                ->where('order_id',$order_id)
+                ->limit(1)
+                ->order_by('id','desc')
+                ->get();
+        
+        if($query->num_rows() === 1)
+        {
+            return (float)$query->row()->shipping_price;
+        }
+        
+        return false;
+    }
+    
     /**
      * Get shipping company using key phrase
      * @return mixed Company object or boolean false on unsuccess
