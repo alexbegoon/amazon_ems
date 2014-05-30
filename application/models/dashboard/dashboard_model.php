@@ -680,9 +680,23 @@ class Dashboard_model extends CI_Model {
         
         $order = $this->getOrder((int)$id);
         
-        $order->products = $this->products_model->get_products_of_order((int)$id);
-        $order->country = $this->shipping_costs_model->get_country_name_by_code($order->pais);
-        $order->web_field = $this->web_field_model->get_web_field($order->web);
+        $order->products    = array();
+        
+        $query = $this->db->select('product_name, sku, provider_name, SUM(quantity) as quantity, order_price as price, provider_id')
+                ->from('products_sales_history')
+                ->where('order_id', $id)
+                ->where('csv_exported', 1)
+                ->order_by('id', 'asc')
+                ->group_by('sku')
+                ->get();
+        
+        if($query->num_rows > 0)
+        {
+            $order->products = $query->result();
+        }
+        
+        $order->country     = $this->shipping_costs_model->get_country_name_by_code($order->pais);
+        $order->web_field   = $this->web_field_model->get_web_field($order->web);
                 
         return $order;
     }
