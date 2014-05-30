@@ -299,7 +299,14 @@ class Providers_model extends CI_Model
     
     public function create_provider_order($provider_name)
     {
-        $provider_id = $this->get_provider_id_by_name($provider_name);
+        if($provider_name == '_WAREHOUSE')
+        {
+            $provider_id = 0;
+        }
+        else
+        {
+            $provider_id = $this->get_provider_id_by_name($provider_name);
+        }
         
         if($provider_id === false)
         {
@@ -482,7 +489,13 @@ class Providers_model extends CI_Model
     
     public function get_provider_order($id)
     {
-        $query = $this->db->select('h.product_name, h.sku, ROUND((i.provider_price * SUM(i.quantity)),2) as price, SUM(i.quantity) as quantity')
+        $query = $this->db->select(''
+                . 'h.product_name, h.sku, SUM(i.quantity) as quantity,  '
+                . ' CASE 
+                        WHEN i.provider_price IS NULL THEN ROUND((h.warehouse_price * SUM(i.quantity)),2)
+                        ELSE ROUND((i.provider_price * SUM(i.quantity)),2)
+                    END price '
+                . '')
                  ->from('products_sales_history as h')
                  ->join('provider_order_items as i','i.order_item_id = h.id','inner')
                  ->where('i.provider_order_id',(int)$id)

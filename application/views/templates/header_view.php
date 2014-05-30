@@ -140,6 +140,9 @@
                                 <a href="<?php echo base_url().'index.php/export_csv/export_coqueteo_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Coqueteo</a>
                             </li>
                             <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_warehouse_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Stokoni</a>
+                            </li>
+                            <li>
                                 <a href="<?php echo base_url().'index.php/providers/orders/';?>" >Provider Order Report</a>
                             </li>
 <!--                            <li>
