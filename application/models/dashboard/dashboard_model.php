@@ -1122,6 +1122,16 @@ class Dashboard_model extends CI_Model {
     }
     public function get_order_modifications_count()
     {
+        $post_data = $this->input->post();
         
+        if(isset($post_data['date_from']) && isset($post_data['date_to']))
+        {
+            $this->db->where('created_on >=',$post_data['date_from']);
+            $this->db->where('created_on <=',$post_data['date_to']);
+        }
+        
+        return $this->db->select('COUNT(*) as total')
+                ->from('order_modifications')
+                ->get()->row()->total;
     }
 }

@@ -16,6 +16,7 @@
         <input type="submit" value="Buscar">
     </div>
     <div>
+        <p><?php echo $modifications_list_count;?> modifications found.</p>
         <div class="pagination">
         <?php echo $pagination;?>
         </div>
