@@ -249,5 +249,35 @@ class Dashboard extends CI_Controller {
     {
         $this->dashboard_model->update_status_of_orders();
     }
+    
+    public function order_modifications($page = null)
+    {
+        // Only admin have access
+        if (!$this->ion_auth->is_admin()) 
+        {
+            show_404();
+            die;
+        }
+        
+        $data = array();
+        $data['title'] = humanize($this->router->method);
+        $data['post_data'] = $this->input->post();
+        
+        $data['modifications_list'] = $this->dashboard_model->get_order_modifications($page);
+        
+        $data['modifications_list_count'] = $this->dashboard_model->get_order_modifications_count();
+        
+        // Pagination
+        
+        $config['base_url'] = base_url().'index.php/dashboard/order_modifications/';
+        $config['total_rows'] = $data['modifications_list_count'];
+        $config['per_page'] = 50; 
+
+        $this->pagination->initialize($config); 
+        $data['pagination'] = $this->pagination->create_links();
+        
+        // Load view  
+        $this->load->template('dashboard/order_modifications', $data);
+    }
 }
 

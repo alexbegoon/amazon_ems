@@ -145,9 +145,9 @@
                             <li>
                                 <a href="<?php echo base_url().'index.php/providers/orders/';?>" >Provider Order Report</a>
                             </li>
-<!--                            <li>
-                                <a href="javascript:void(0);" >Order Modifications</a>
-                            </li>-->
+                            <li>
+                                <a href="<?php echo base_url().'index.php/dashboard/order_modifications/';?>" >Order Modifications</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>

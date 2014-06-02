@@ -162,7 +162,34 @@ class Dashboard_model extends CI_Model {
         
         if ($result->num_rows() == 1)
         {
-            return $result->row(); 
+            $order = $result->row();
+            $order_arr = (array)$order;
+            $order_items = array();
+            $order_details = array();
+            
+            for($i=1; $i<=10; $i++)
+            {
+                if(!empty($order_arr['sku'.$i]))
+                {
+                    $order_items[] =  $order_arr['sku'.$i];
+                }
+            }
+            
+            for($i=1; $i<=10; $i++)
+            {
+                if(!empty($order_arr['sku'.$i]))
+                {
+                    $order_details[$order_arr['sku'.$i]] = array(
+                            'quantity'  => $order_arr['cantidad'.$i],
+                            'price'     => $order_arr['precio'.$i]
+                    );
+                }
+            }
+            
+            $this->session->set_flashdata('items_of_order_'.$id, $order_items);
+            $this->session->set_flashdata('details_of_order_'.$id, $order_details);
+            
+            return $order; 
         }
         
         return false;
@@ -235,6 +262,8 @@ class Dashboard_model extends CI_Model {
                 {
                     $data['procesado'] = 'ROTURASTOCK';
                 }
+                
+                $this->save_order_modifications($data);
             }
             
             if(!$this->is_order_canceled((int)$data['id']))
@@ -339,6 +368,49 @@ class Dashboard_model extends CI_Model {
         }
         
         return false;
+    }
+    
+    private function save_order_modifications($data)
+    {
+        $order_products_was = $this->session->flashdata('items_of_order_'.$data['id']);
+        
+        $order_products = array();
+            
+        for($i=1; $i<=10; $i++)
+        {
+            if(!empty($data['sku'.$i]))
+            {
+                $order_products[] = $data['sku'.$i];
+            }
+        }
+        
+        $products_added = array_diff($order_products, $order_products_was);
+        $products_removed = array_diff($order_products_was, $order_products);
+        
+        $insert_data = array();
+        
+        foreach ($products_added as $product) 
+        {
+            $insert_data[] = array(
+                'order_id' => $data['id'],
+                'user_id' => $this->ion_auth->get_user_id(),
+                'product_sku' => $product, 
+                'action' => 1,
+                'created_on' => date('Y-m-d H:i:s'),
+            );
+        }
+        foreach ($products_removed as $product) 
+        {
+            $insert_data[] = array(
+                'order_id' => $data['id'],
+                'user_id' => $this->ion_auth->get_user_id(),
+                'product_sku' => $product, 
+                'action' => -1,
+                'created_on' => date('Y-m-d H:i:s'),
+            );
+        }
+        
+        $this->db->insert_batch('order_modifications', $insert_data);
     }
     
     /**
@@ -1024,5 +1096,32 @@ class Dashboard_model extends CI_Model {
         }
         
         return (int)$query->row()->total;
+    }
+    
+    public function get_order_modifications($page)
+    {
+        $post_data = $this->input->post();
+        $this->db->select('order_id, user_id, product_sku, action, created_on');
+        $this->db->from('order_modifications');
+        
+        if(isset($post_data['date_from']) && isset($post_data['date_to']))
+        {
+            $this->db->where('created_on >=',$post_data['date_from']);
+            $this->db->where('created_on <=',$post_data['date_to']);
+        }
+        
+        $this->db->limit(50, $page);
+        $query = $this->db->get();
+        
+        if($query->num_rows > 0)
+        {
+            return $query->result();
+        }
+        
+        return array();
+    }
+    public function get_order_modifications_count()
+    {
+        
     }
 }
