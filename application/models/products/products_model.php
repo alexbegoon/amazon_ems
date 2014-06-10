@@ -1758,7 +1758,7 @@ class Products_model extends CI_Model
             else 
             {
                 $query = $this->db
-                ->select('sku as product_sku, product_name, product_desc, '
+                ->select('concat("#",sku) as product_sku, product_name, product_desc, '
                         .'product_s_desc,')
                 ->from('products_translation')
                 ->where('language_code', $language)
