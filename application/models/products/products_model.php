@@ -1716,4 +1716,58 @@ class Products_model extends CI_Model
                 ->where('sku',$sku)
                 ->update('products_translation', $data);
     }
+    
+    public function export_all_translations_to_website($web)
+    {
+        $site = $this->web_field_model->get_web_field($web);
+        $languages_list = array();
+        
+        // Get available languages
+        $query = $this->db
+                ->select('DISTINCT language_code')
+                ->from('products_translation')
+                ->get();
+                
+        foreach($query->result() as $row)
+        {
+            $language = strtolower(str_replace('-', '_', $row->language_code));
+            // Check installed language
+            if(strpos($site->installed_languages, $language) !== false)
+            {
+                $languages_list[] = $row->language_code;
+            }
+        }
+        
+        // Get all translations for this website
+        
+        foreach ($languages_list as $language)
+        {
+            $virtuemart_version = $this->virtuemart_model->check_version($web);
+            $lang_suffix = strtolower(str_replace('-', '_', $language));
+            
+            if($virtuemart_version == '2.0.0.0')
+            {
+                $query = $this->db
+                ->select('sku, product_name, product_desc, '
+                        .'product_s_desc, meta_desc as metadesc, meta_keywords as metakey, custom_title as customtitle, '
+                        .'slug')
+                ->from('products_translation')
+                ->where('language_code', $language)
+                ->get();
+            }
+            else 
+            {
+                $query = $this->db
+                ->select('sku as product_sku, product_name, product_desc, '
+                        .'product_s_desc,')
+                ->from('products_translation')
+                ->where('language_code', $language)
+                ->get();
+            }
+            
+            $data = $query->result();
+                    
+            $this->virtuemart_model->update_product_meta_batch($web, $data, $language);
+        }
+    }
 }

@@ -442,6 +442,28 @@ class Virtuemart_model extends CI_Model
         return $data;
     }
     
+    public function update_product_meta_batch($web, $data, $language_code)
+    {
+        $db = $this->create_db_connection($web);
+        
+        if($db === false)
+        {
+            return false;
+        }
+        
+        $virtuemart_version = $this->check_version($web);
+        $lang_suffix = strtolower(str_replace('-', '_', $language_code));
+        
+        if($virtuemart_version == '2.0.0.0')
+        {
+            $db->update_batch('virtuemart_products_'.$lang_suffix,$data,'sku');
+        }
+        else
+        {
+            $db->update_batch('vm_product',$data,'product_sku');
+        }
+    }
+    
     public function update_product_meta($web, $language_code, $sku, $data)
     {
         $db = $this->create_db_connection($web);

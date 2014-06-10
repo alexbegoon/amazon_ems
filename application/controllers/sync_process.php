@@ -300,4 +300,12 @@ class Sync_process extends CI_Controller
         // Load view 
         $this->load->template('sync_process/verify_products', $data);
     }
+    
+    public function export_product_translations_to($web)
+    {
+        // Load models
+        $this->load->model('products/products_model');
+        
+        $this->products_model->export_all_translations_to_website($web);
+    }
 }
