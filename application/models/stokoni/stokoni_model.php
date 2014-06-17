@@ -283,7 +283,7 @@ class Stokoni_model extends CI_Model
                 
         $ean = str_replace('#', '', trim($ean));
         
-        $query = ' SELECT * 
+        $query = ' SELECT * , ean as sku, proveedor as provider_name, coste as price, nombre as product_name
                    FROM `stokoni` 
                    WHERE `ean` = \''.$ean.'\' 
                    ORDER BY `coste` 

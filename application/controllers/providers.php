@@ -82,4 +82,29 @@ class Providers extends CI_Controller
         }
         
     }
+
+    public function report_error($order_id)
+    {
+        $data['order'] = $this->providers_model->get_provider_order((int)$order_id);
+        $data['id'] = (int)$order_id;
+
+        // Load view
+        $this->load->view('providers/report_error', $data);
+    }
+    
+    public function process_error_products() 
+    {
+        $data['title'] = humanize($this->router->method);
+
+        $data['products'] = $this->input->post('products');
+        $data['available_quantity'] = $this->input->post('available_quantity');
+        $data['reasons'] = $this->input->post('reasons');
+        $data['provider_order_id'] = $this->input->post('order_id');
+        $data['provider_name'] = $this->providers_model->get_provider_name_by_order_id((int)$this->input->post('order_id'));
+
+        $data['process_rows'] = $this->providers_model->process_error_products($data);
+
+        // Load view
+        $this->load->template('providers/process_error_products', $data);
+    }
 }

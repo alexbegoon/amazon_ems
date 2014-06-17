@@ -555,4 +555,171 @@ class Providers_model extends CI_Model
         $this->db->where('id',$id);
         $this->db->update('provider_orders', array('sent_to_provider' => 1, 'sending_date'=>date('Y-m-d H:i:s')));
     }
+    
+    public function process_error_products($data)
+    {
+        if(empty($data['products']))
+        {
+            return FALSE;
+        }
+        
+        $products = array_unique($data['products']);
+        
+        $result = array();
+        
+        foreach ($products as $key => $product) 
+        {            
+            if(preg_match('/\d+$/', $product, $product_id) !== 1)
+            {
+                continue;
+            }
+            
+            $status = '';
+            
+            $quantity_need = $this->get_product_quantity_from_order_by_product_id($data['provider_order_id'], $product_id[0]);
+            
+            
+            
+            $result[$key]['product_name'] = $product;
+            $result[$key]['product_available_quantity'] = $data['available_quantity'][$key];
+            $result[$key]['reasons'] = $data['reasons'][$key];
+            $result[$key]['product_quantity_needed'] = $quantity_need;
+            
+            
+            
+            if($result[$key]['product_available_quantity'] >= $result[$key]['product_quantity_needed'])
+            {
+                $status='<span class="green">Provider ('.$data['provider_name'].') has enough products for this order. No actions need.</span>';
+            }
+            elseif($result[$key]['product_available_quantity'] < $result[$key]['product_quantity_needed']
+                    && $quantity_need!==0)
+            {
+                $alternative_offers = $this->get_alternative_offers($product_id[0],$data['provider_name']);
+                
+                if(empty($alternative_offers))
+                {
+                    $status='<span class="error">Product not available in other sources</span>';
+                }
+                $total_alternative_offers_count=0;
+                if(isset($alternative_offers['warehouse']))
+                {
+                    $status = 'Product found in Warehouse: <br>';
+                    $i=1;
+                    foreach ($alternative_offers['warehouse'] as $offer) 
+                    {
+                        $status .= $i++.'. #'.$offer->sku.' - ('.$offer->provider_name.') price: '.$offer->price.', in stock: '.$offer->stock.';<br>';
+                        $total_alternative_offers_count+=$offer->stock;
+                    }
+                }
+                
+                if(isset($alternative_offers['providers']))
+                {
+                    $status = 'Product found in Other Providers stock: <br>';
+                    $i=1;
+                    foreach ($alternative_offers['providers'] as $offer) 
+                    {
+                        $status .= $i++.'. #'.$offer->sku.' - ('.$offer->provider_name.') price: '.$offer->price.', in stock: '.$offer->stock.';<br>';
+                        $total_alternative_offers_count+=$offer->stock;
+                    }
+                }
+                if(!empty($alternative_offers))
+                {
+                    $status .= '<hr>';
+                    $status .= 'Total alternative offers is '.$total_alternative_offers_count.'.';
+
+                    if( $total_alternative_offers_count>=($result[$key]['product_quantity_needed'] - $result[$key]['product_available_quantity']) )
+                    {
+                        $status .= '<br><span class="green">Enough for replacement.</span>';
+                    }
+                    else 
+                    {
+                        $status .= '<br><span class="error">Not enough for replacement.</span>';
+                    }
+                }
+            }
+            
+            if($quantity_need===0)
+            {
+                $status = 'Provider <a href="javascript:void(0);" onclick="Amazoni.get_provider_order('.$data['provider_order_id'].', \''.base64_url_encode(current_url()).'\');">order with ID '.$data['provider_order_id'].'</a>'
+                        . ' have no this product. Check SKU of the product again.';
+            }
+            
+            $result[$key]['status'] = $status;
+            
+            $this->log_provider_order_error($data, $quantity_need, $product_id[0], $data['available_quantity'][$key], $data['reasons'][$key], $status);
+        }
+        
+        return $result;
+    }
+    
+    private function get_product_quantity_from_order_by_product_id($provider_order_id, $product_id)
+    {
+        $query=$this->db->
+                select('SUM(h.quantity) as quantity')->
+                from('products_sales_history as h')->
+                join('provider_order_items as i','h.id = i.order_item_id','inner')->
+                where('h.provider_product_id',$product_id)->
+                where('i.provider_order_id',$provider_order_id)->
+                group_by('h.provider_product_id')->
+                get();
+        
+        if($query->num_rows() === 0)
+        {
+            return 0;
+        }
+        
+        return $query->row()->quantity;
+    }
+    
+    private function get_alternative_offers($product_id, $exclude_provider)
+    {
+        $offers = array();
+        
+        $product = $this->products_model->get_product_by_id($product_id);
+        // Check other providers
+        $query=$this->db->
+                select('sku, provider_name, ROUND(price,2) as price, stock')->
+                from('providers_products')->
+                where('stock >',0)->
+                where('sku',$product->sku)->
+                where('provider_name !=',$exclude_provider)->
+                order_by('price')->
+                get();
+        
+        if($query->num_rows() > 0)
+        {
+            $offers['providers'] = $query->result();
+        }
+        // Check warehouse
+        
+        $warehouse_products = $this->stokoni_model->find_product_by_ean($product->sku);
+        
+        if($warehouse_products)
+        {
+            $offers['warehouse'] = $warehouse_products;
+        }
+        
+        return $offers;
+    }
+    
+    private function log_provider_order_error($data, $quantity_need, $product_id, $available_quantity, $reason,$status)
+    {
+        $product = $this->products_model->get_product_by_id($product_id);
+        
+        $insert_data=array(
+            'provider_order_id'=>$data['provider_order_id'],
+            'product_id'=>$product_id,
+            'product_sku'=>$product->sku,
+            'product_name'=>$product->product_name,
+            'provider_name'=>$product->provider_name,
+            'quantity_needed'=>$quantity_need,
+            'quantity_available'=>$available_quantity,
+            'reason'=>$reason,
+            'system_solution'=>empty($status)?NULL:$status,
+            'created_on'=>date('Y-m-d H:i:s'),
+            'created_by'=>(int)$this->ion_auth->get_user_id(),
+        );
+        
+        $this->db->insert('provider_order_errors', $insert_data);
+    }
 }

@@ -147,4 +147,17 @@ class Products extends CI_Controller
         $sku = $this->input->post('sku');
         $this->products_model->export_product_meta($sku);
     }
+    
+    public function search () 
+    {
+        $data['search'] = $this->input->get('term');
+        
+        $provider_name = $this->providers_model->get_provider_name_by_order_id((int)$this->input->get('orderid'));
+        
+        $data['sku_found'] = $this->products_model->search_sku_by_phrase($data['search'],$provider_name);
+        
+        $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($data['sku_found']));
+    }
 }

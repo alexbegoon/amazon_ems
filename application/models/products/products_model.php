@@ -1770,4 +1770,19 @@ class Products_model extends CI_Model
             $this->virtuemart_model->update_product_meta_batch($web, $data, $language);
         }
     }
+    
+    public function search_sku_by_phrase($phrase, $provider_name)
+    {
+        $query = $this->db->
+                
+                select('CONCAT("#", sku, " -- ", product_name, " ( ", provider_name," )", " id: ",id) as value, CONCAT("#", sku, " -- ", product_name, " ( ", provider_name," )") as label')->
+                from('providers_products')->
+                where('provider_name',$provider_name)->
+                like('sku',$phrase)->
+                order_by('product_name')->
+                limit(50)->
+                get();
+                
+        return $query->result();
+    }
 }

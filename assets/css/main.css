@@ -301,6 +301,11 @@ input[type=button],
   cursor: pointer;
 }
 
+input.autocompleate
+{
+    width:540px!important;
+}
+
 .link_as_button{
     text-decoration: none;
     padding: 7px;
