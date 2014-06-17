@@ -7,3 +7,4 @@ nbproject/*
 *.xls
 *.xlsx
 email_templates/*
+.idea
