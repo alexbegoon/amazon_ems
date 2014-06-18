@@ -107,4 +107,14 @@ class Providers extends CI_Controller
         // Load view
         $this->load->template('providers/process_error_products', $data);
     }
+    
+    public function process_orders()
+    {
+        $data['title'] = humanize($this->router->method);
+        
+        $data['process_rows'] = $this->providers_model->process_customer_orders_after_provider_error($data);
+        
+        // Load view
+        $this->load->template('providers/process_orders', $data);
+    }
 }

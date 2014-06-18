@@ -563,6 +563,8 @@ class Providers_model extends CI_Model
             return FALSE;
         }
         
+        $this->session->unset_userdata('provider_order_error');
+        
         $products = array_unique($data['products']);
         
         $result = array();
@@ -720,6 +722,80 @@ class Providers_model extends CI_Model
             'created_by'=>(int)$this->ion_auth->get_user_id(),
         );
         
+        $provider_order_error = $this->session->userdata('provider_order_error');
+        
+        $provider_order_error[] = $insert_data;
+        
+        $this->session->set_userdata('provider_order_error', $provider_order_error);
+        
         $this->db->insert('provider_order_errors', $insert_data);
+    }
+    
+    public function process_customer_orders_after_provider_error()
+    {
+        $provider_order_error = $this->session->userdata('provider_order_error');
+        
+        if (empty($provider_order_error))
+        {
+            log_message('INFO', 'Trying to process customer orders after provider error with empty errors array');
+            return FALSE;
+        }
+        
+        $result = array();
+        $customer_orders = array();
+        
+        // Get customer orders items that will be modified
+        foreach($provider_order_error as $row)
+        {
+            $query = $this->db->
+                        select('h.id, h.order_status, h.order_id')->
+                        from('products_sales_history as h')->
+                        join('provider_order_items as i','i.order_item_id = h.id','inner')->
+                        where('i.provider_order_id',$row['provider_order_id'])->
+                        where('h.provider_product_id',$row['product_id'])->
+                        where('h.canceled',0)->
+                        order_by('h.id','asc')->
+                        get();
+            
+            if($query->num_rows() === 0)
+            {
+                continue;
+            }
+            
+            foreach ($query->result() as $item)
+            {
+                $update_data[] = array(
+                    'csv_exported'=>0,
+                    'csv_export_date'=>null,
+                    'id'=>$item->id
+                );
+                
+                $this->dashboard_model->set_status((int)$item->order_id,$item->order_status);
+                
+                $customer_orders[] = $item->order_id;
+            }
+            
+            $this->db->where('id',$row['product_id']);
+            $this->db->update('providers_products',array('stock'=>$row['quantity_available']));
+        }
+        
+        // Update items
+        if(!empty($update_data))
+        {
+            $this->db->update_batch('products_sales_history',$update_data,'id');
+        }
+                
+        // Start verifying orders
+        if(!empty($customer_orders))
+        {
+            foreach (array_unique($customer_orders) as $order_id) 
+            {
+                $result['statuses'][$order_id] = $this->dashboard_model->verify_order($order_id);
+
+                $result['orders'][$order_id] = $this->dashboard_model->getOrder($order_id);
+            }
+        }
+        
+        return $result;
     }
 }

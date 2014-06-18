@@ -24,5 +24,9 @@
             </tr>
             <?php endforeach;?>
         </table>
+        <br />
+        <p>
+            <a class="link_as_button" href="<?php echo base_url('index.php/providers/process_orders');?>">Process customer orders</a>
+        </p>
     </div>
 </article>
