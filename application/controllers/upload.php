@@ -27,7 +27,10 @@ class Upload extends CI_Controller {
                 
                 ini_set('upload_max_filesize', '10M');
                 
-		$this->load->helper(array('form', 'url'));
+                // Load helpers
+                $this->load->helper(array('form', 'url'));
+                $this->load->helper('download');
+                $this->load->helper('file');
                 
                 // Load model
                 $this->load->model('upload/upload_model');
@@ -329,6 +332,42 @@ class Upload extends CI_Controller {
                 $data['upload_summary'] = $this->products_model->upload_products($data);
                 
                 $this->load->template('products/upload_success', $data);
+            }
+        }
+        
+        public function compare_new_provider_file()
+        {
+            $config['upload_path']      = $this->_upload_path;
+            $config['allowed_types']    = '*';
+            $config['max_size']         = $this->_max_size;
+            
+            $this->load->library('upload', $config);
+            
+            $data['title'] = 'Providers Compare';
+            
+            //Load model
+            $this->load->model('incomes/providers_model');
+            
+            if ( ! $this->upload->do_upload())
+            {
+                $data['error'] = $this->upload->display_errors();
+
+                $this->load->template('providers/compare', $data);
+            }
+            else 
+            {
+                $data['upload_data'] = $this->upload->data();
+                
+                // Model tasks
+                $data['file'] = $this->providers_model->compare_new_provider_with_exist($data);
+
+                // Export file
+                if(!empty($data['file']))
+                {
+                    force_download($data['file']->name, $data['file']->data);
+                }
+                
+                $this->load->template('providers/compare', $data);
             }
         }
 }

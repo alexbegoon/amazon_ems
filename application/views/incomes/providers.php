@@ -4,6 +4,7 @@
         <div class="filters">
             <input type="button" value="Back" id="incomes_back" />
             <input type="button" id="add-<?php echo strtolower($title);?>" value="Add..." onclick="AJAX_add('<?php echo current_url();?>')" />
+            <a class="link_as_button" href="<?php echo base_url('index.php/providers/compare');?>">Compare new provider</a>
         </div>
         
         <?php if (!empty($providers)) { 

@@ -117,4 +117,14 @@ class Providers extends CI_Controller
         // Load view
         $this->load->template('providers/process_orders', $data);
     }
+    
+    public function compare()
+    {
+        $data['title'] = humanize($this->router->class . ' ' .$this->router->method);
+        
+        // Load view
+        $this->load->template('providers/compare', $data);
+    }
+    
+    
 }

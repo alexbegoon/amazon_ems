@@ -14,6 +14,9 @@ class Providers_model extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        
+        $this->load->helper('file');
+        $this->load->library('excel');
     }
     
     /**
@@ -797,5 +800,318 @@ class Providers_model extends CI_Model
         }
         
         return $result;
+    }
+    
+    public function compare_new_provider_with_exist($data)
+    {
+        $file_path = $data['upload_data']['full_path'];
+        
+        $inputFileType = PHPExcel_IOFactory::identify($file_path);
+        $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+        $objReader->setReadDataOnly(true);
+
+        /**  Load $inputFileName to a PHPExcel Object  **/  
+        $objPHPExcel = $objReader->load($file_path);
+        
+        $sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
+        
+        $products = array();
+        
+        foreach ($sheetData as $row)
+        {
+            if(!isset($row['A']))
+            {
+                continue;
+            }
+            
+            if(empty($row['A']))
+            {
+                continue;
+            }
+            
+            if(preg_match('/^\d+$/', $row['A']) !== 1)
+            {
+                continue;
+            }
+            
+            $sku = '';
+            
+            if(preg_match("/\d{3,12}/", $row['A']) === 1)
+            {
+                $sku = str_pad($row['A'], 13, '0', STR_PAD_LEFT);
+            }
+            
+            if(preg_match("/\d{13}/", $sku) !== 1)
+            {
+                continue;
+            }
+            
+            if(!isset($row['C']))
+            {
+                continue;
+            }
+            
+            if(empty($row['C']))
+            {
+                continue;
+            }
+            
+            $products['eans'][] = $sku;
+            
+            $products['list'][$sku] = array(
+                'sku'=>$sku,
+                'ean'=>$sku,
+                'product_name'=>$row['B']?$row['B']:'No_name__',
+                'price'=>$row['C'],
+                'stock'=>$row['D']?$row['D']:0,
+                'provider_name'=>'__NEW_PROVIDER__',
+            );
+        }
+        
+        if(!isset($products['eans']))
+        {
+            log_message('INFO', 'In uploaded file for provider comparsion, products not exist, or incorrect file format');
+            return FALSE;
+        }
+        
+        if(empty($products['eans']))
+        {
+            log_message('INFO', 'In uploaded file for provider comparsion, products not exist, or incorrect file format');
+            return FALSE;
+        }
+        
+        $products['eans'] = array_unique($products['eans']);
+        
+        // Get data for 1 list. A list of products that this new provider has and the others Providers do not have.
+        
+        $list_1 = array();
+        $our_analogs = array();
+        $query = $this->db->select('sku')->
+                            from('providers_products')->
+                            where_in('sku',$products['eans'])->
+                            get();
+        
+        if($query->num_rows() > 0)
+        {
+            foreach ($query->result() as $row)
+            $our_analogs[] = $row->sku;
+        }
+        
+        $unique_eans = array_diff($products['eans'], $our_analogs);
+        
+        foreach ($unique_eans as $ean)
+        {
+            $list_1[] = $products['list'][$ean];
+        }
+                
+        
+        // Get data for 2 list. A list of products that this new provider has and we have in Products but with stock = 0.
+        
+        $list_2 = array();
+        
+        $query = $this->db->select('sku')->
+                            from('providers_products')->
+                            where_in('sku',$products['eans'])->
+                            group_by('sku')->
+                            having('SUM(stock)',0)->
+                            get();
+        
+        if($query->num_rows() > 0)
+        {
+            foreach ($query->result() as $row)
+            {
+                $list_2[] = $products['list'][$row->sku];
+            }
+        }
+        
+        // Get data for 3 list. A list of products in which this provider has better price that the price that we have now with the other 3 providers that we have in Products. 
+        // This list have to include: EAN, Product name, Our Price in Product, The price of new Provider and the difference.
+        
+        $list_3 = array();
+        
+        $this->db->select('sku, price, provider_name');
+        $this->db->from('providers_products');        
+        $this->db->where_in('sku',$products['eans']);
+        $this->db->order_by('price','desc');
+        $query = $this->db->get();
+        $our_lowest_prices = array();
+        if($query->num_rows() > 0)
+        {
+            $our_products = $query->result();
+            
+            foreach ($our_products as $row) 
+            {
+                $our_price = $row->price;
+                
+                if($row->provider_name == 'ENGELSA')
+                {
+                    $our_price = $row->price / 1.04;
+                }
+                
+                if(isset($our_lowest_prices[$row->sku]))
+                {
+                    if($our_lowest_prices[$row->sku] > $our_price)
+                    {
+                        $our_lowest_prices[$row->sku] = $our_price;
+                    }
+                }
+                else
+                {
+                    $our_lowest_prices[$row->sku]=$our_price;
+                }
+            }
+            
+            foreach ($our_products as $row)
+            {
+                if(!isset($our_lowest_prices[$row->sku]))
+                {
+                    continue;
+                }
+                
+                if($products['list'][$row->sku]['price'] < $our_lowest_prices[$row->sku])
+                {
+                    $list_3[$row->sku] = $products['list'][$row->sku];
+                    $list_3[$row->sku]['our_price'] = $our_lowest_prices[$row->sku];
+                }
+                
+            }
+        }
+        
+        $objPHPExcel = new PHPExcel();
+        
+        $objPHPExcel->getProperties()->setCreator("Amazoni4");
+        $objPHPExcel->getProperties()->setLastModifiedBy("Amazoni4");
+        $objPHPExcel->getProperties()->setTitle("Providers comparison. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setSubject("Providers comparison. Date: ".date('r', time()));
+        $objPHPExcel->getProperties()->setDescription("Providers comparison. Date: ".date('r', time()));
+        
+        $objPHPExcel->setActiveSheetIndex(0);
+        
+        $objPHPExcel->getActiveSheet()->setTitle("Unique items");
+        
+        $header = array(
+            
+            'EAN',
+            'Product name',
+            'Product price',
+            'In Stock',
+            
+        );
+        
+        $i = 0;
+        foreach ($header as $cell)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 1)->getFill()
+            ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'startcolor' => array('rgb' => 'ededed')
+            ));
+            $i++;
+        }
+        
+        $i = 2;
+        
+        foreach ($list_1 as $row)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $row['sku'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $row['product_name'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $row['price'], PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $row['stock'], PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $i++;
+        }
+        $objPHPExcel->createSheet(1);
+        $objPHPExcel->setActiveSheetIndex(1);
+        
+        $objPHPExcel->getActiveSheet()->setTitle("Zero stock alternative");
+        
+        $header = array(
+            
+            'EAN',
+            'Product name',
+            'Product price',
+            'In Stock',
+            
+        );
+        
+        $i = 0;
+        foreach ($header as $cell)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 1)->getFill()
+            ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'startcolor' => array('rgb' => 'ededed')
+            ));
+            $i++;
+        }
+        
+        $i = 2;
+        
+        foreach ($list_2 as $row)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $row['sku'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $row['product_name'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $row['price'], PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $row['stock'], PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $i++;
+        }
+        $objPHPExcel->createSheet(2);
+        $objPHPExcel->setActiveSheetIndex(2);
+        
+        $objPHPExcel->getActiveSheet()->setTitle("Best offer");
+        
+        $header = array(
+            
+            'EAN',
+            'Product name',
+            'In Stock',
+            'Our Lowest Product Price',
+            'New Provider Product Price',
+            'Difference',
+            
+            
+        );
+        
+        $i = 0;
+        foreach ($header as $cell)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($i, 1, $cell);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i, 1)->getFill()
+            ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+            'startcolor' => array('rgb' => 'ededed')
+            ));
+            $i++;
+        }
+        
+        $i = 2;
+        
+        foreach ($list_3 as $row)
+        {
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $row['sku'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFont()->setBold(true);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $row['product_name'], PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $row['stock'], PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, round($row['our_price'],2), PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(4, $i, round($row['price'],2), PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(5, $i, round($row['our_price']-$row['price'],2), PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $i++;
+        }
+        
+        
+        // Write a file
+        $file = new stdClass();
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        
+        $file->name = 'providers_comparsion_'.date('Y_m_d__h_i_s').'.xls';
+        
+        $file->path = FCPATH .'upload/'.$file->name;
+        
+        $objWriter->save($file->path);
+        
+        $file->data = read_file($file->path);
+                
+        return $file;
     }
 }
