@@ -301,15 +301,6 @@ class Sync_process extends CI_Controller
         $this->load->template('sync_process/verify_products', $data);
     }
      
-
-public function execute_sql(){
-$this->load->database();
-$this->db->where('provider_name','EUCERIN');
-$this->db->delete('providers_products');
-
-}
-
-
     public function export_product_translations_to($web)
     {
         // Load models
