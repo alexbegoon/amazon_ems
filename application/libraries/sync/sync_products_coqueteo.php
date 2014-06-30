@@ -13,7 +13,7 @@ class Sync_products_coqueteo extends Sync_products
     {
         parent::__construct();
         
-        $this->_url_service = FCPATH .'upload/fichero.csv';
+        $this->_url_service = FCPATH .'upload/ficherootro.csv';
         
         $this->_provider_name = 'COQUETEO';
         
