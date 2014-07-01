@@ -512,7 +512,7 @@ class Products_model extends CI_Model
         {
             return FALSE;
         }
-            
+        $return=array();    
         reset($data);
         $first_key = key($data);
         
@@ -1338,7 +1338,9 @@ class Products_model extends CI_Model
                         $data['order_name']   = $order_id;
                         $data['created_at']   = date('Y-m-d H:i:s',time());
                         
-                        $this->db->insert('products_sales_history', $data); 
+                        log_message('INFO','Save story for order ID '.$data['order_id']);
+                        
+                        $this->db->insert('products_sales_history', $data);
                     }
                 }
             }
