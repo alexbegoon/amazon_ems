@@ -413,6 +413,7 @@ class Sync_general
                             if($order->procesado !== 'PTE_PAGO')
                             {
                                 $this->_CI->dashboard_model->cancel_order((int)$order->id);
+                                $this->_CI->dashboard_model->set_status((int)$order->id,'CANCELADO');
                             }
                             break;
                     }

@@ -428,12 +428,19 @@ class Dashboard_model extends CI_Model {
                    WHERE `id` = ? 
         ';
         
+        $user_id = $this->ion_auth->get_user_id();
+        if(empty($user_id))
+        {
+            $user_id = 0;
+        }
+            
+        
         if(is_string($status) && !empty($status))
         {
             if(is_integer($ids))
             {
                    $result = $this->db->query($query, array($status,$ids));
-                   $this->touch_status((int)$ids,$status,$this->ion_auth->get_user_id());
+                   $this->touch_status((int)$ids,$status,$user_id);
                    if($result)
                    {
                        return true;
@@ -451,7 +458,7 @@ class Dashboard_model extends CI_Model {
                         if((int)$id != 0)
                         {
                             $result = $this->db->query($query, array($status,(int)$id));
-                            $this->touch_status((int)$id,$status,$this->ion_auth->get_user_id());
+                            $this->touch_status((int)$id,$status,$user_id);
                         }
                         if(!$result)
                         {
