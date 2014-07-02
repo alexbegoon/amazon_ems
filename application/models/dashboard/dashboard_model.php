@@ -410,7 +410,6 @@ class Dashboard_model extends CI_Model {
             );
         }
         
-        if(!empty($insert_data))
         $this->db->insert_batch('order_modifications', $insert_data);
     }
     

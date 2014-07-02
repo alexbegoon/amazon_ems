@@ -154,19 +154,6 @@ class Export_csv extends CI_Controller {
         $this->load->template('export_csv/fedex_gls', $data);
     }
     
-    public function export_psellectiva_summary()
-    {
-        // Prepare data
-        $data['title'] = humanize($this->router->method);
-        $data['method'] = str_replace('_summary', '', $this->router->method);
-        
-        // Model tasks
-        $data['summary'] = $this->export_csv_model->get_summary($this->router->method);
-        
-        // Load view 
-        $this->load->template('export_csv/fedex_gls', $data);
-    }
-    
     public function export_warehouse_summary()
     {
         // Prepare data
@@ -225,28 +212,6 @@ class Export_csv extends CI_Controller {
     }
     
     public function export_coqueteo()
-    {
-        // Prepare data
-        $data['title'] = humanize($this->router->class);
-        
-        // Model tasks
-        $file = $this->export_csv_model->prepare_file($this->router->method);
-        
-        // Export file
-        if(!empty($file))
-        {
-            if(write_file(APPPATH . 'logs/'.$this->router->method. '_' .date('d-m-Y_H-i-s', time()).'.csv', $file->data))
-            {
-                $this->export_csv_model->batch_update_orders_statuses();
-                force_download($file->name, $file->data);
-            }
-        }
-        
-        // Load view 
-        $this->load->template('export_csv/fedex_gls', $data);
-    }
-    
-    public function export_psellectiva()
     {
         // Prepare data
         $data['title'] = humanize($this->router->class);
