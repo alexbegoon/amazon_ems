@@ -18,7 +18,7 @@ class Sync_products_psellectiva extends Sync_products
         $this->_provider_name = 'PSELLECTIVA';
         
         // Test mode toggle
-        $this->_test_mode = TRUE;
+//        $this->_test_mode = TRUE;
         
         // Extract products
         $this->extract_products();
