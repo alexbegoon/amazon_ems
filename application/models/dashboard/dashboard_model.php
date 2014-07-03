@@ -410,6 +410,7 @@ class Dashboard_model extends CI_Model {
             );
         }
         
+        if(!empty($insert_data))
         $this->db->insert_batch('order_modifications', $insert_data);
     }
     
@@ -440,7 +441,9 @@ class Dashboard_model extends CI_Model {
             if(is_integer($ids))
             {
                    $result = $this->db->query($query, array($status,$ids));
+
                    $this->touch_status((int)$ids,$status,$user_id);
+
                    if($result)
                    {
                        return true;
@@ -458,7 +461,9 @@ class Dashboard_model extends CI_Model {
                         if((int)$id != 0)
                         {
                             $result = $this->db->query($query, array($status,(int)$id));
+
                             $this->touch_status((int)$id,$status,$user_id);
+
                         }
                         if(!$result)
                         {

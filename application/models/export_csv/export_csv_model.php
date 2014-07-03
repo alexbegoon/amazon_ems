@@ -109,6 +109,14 @@ class Export_csv_model extends CI_Model
 
             return $name . '.xls';
         }
+        if($service == 'export_psellectiva')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'psellectiva_products_order_'.$date;
+
+            return $name . '.xls';
+        }
         if($service == 'export__warehouse')
         {
             $date = date('d-m-Y_H-i-s', time());
@@ -241,6 +249,18 @@ class Export_csv_model extends CI_Model
     private function get_file_data_export_coqueteo()
     {
         $provider_order_id = $this->providers_model->create_provider_order('COQUETEO');
+        
+        if($provider_order_id === false)
+        {
+            return FALSE;
+        }
+        
+        return $this->_get_provider_order_xls($provider_order_id);
+    }
+    
+    private function get_file_data_export_psellectiva()
+    {
+        $provider_order_id = $this->providers_model->create_provider_order('psellectiva');
         
         if($provider_order_id === false)
         {
@@ -480,6 +500,7 @@ class Export_csv_model extends CI_Model
              || $service == 'export_engelsa_summary'
              || $service == 'export_pinternacional_summary'
              || $service == 'export_coqueteo_summary'
+             || $service == 'export_psellectiva_summary'
              || $service == 'export_warehouse_summary'
         )
         {
