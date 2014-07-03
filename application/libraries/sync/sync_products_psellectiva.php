@@ -13,12 +13,12 @@ class Sync_products_psellectiva extends Sync_products
     {
         parent::__construct();
         
-        $this->_url_service = 'http://datosnova.ademan.com:15469/catalogo.4155.txt.php';
-        $this->_url_service = FCPATH .'catalogo.perfuemria.selectiva.xml';
+        $this->_url_service = 'http://buyincomercioweb.ademan.com:15469/catalogo.56223.txt.php';
+//        $this->_url_service = FCPATH .'catalogo.perfuemria.selectiva.xml';
         $this->_provider_name = 'PSELLECTIVA';
         
         // Test mode toggle
-//        $this->_test_mode = TRUE;
+        $this->_test_mode = TRUE;
         
         // Extract products
         $this->extract_products();
@@ -55,7 +55,7 @@ class Sync_products_psellectiva extends Sync_products
                 echo '<pre>';
             }
             
-            if(isset($product[3]) && preg_match('/^\s*$/', $product[1])===0 && (float)$product[5] > 0)
+            if(isset($product[3]) && preg_match('/^\s*$/', $product[1])===0 && (float)$product[5] > 0 && strlen($product[3])>5)
             {
                 $this->_products[$i]['sku'] = trim($product[3]);
                 $this->_products[$i]['product_name'] = trim($product[1]);
