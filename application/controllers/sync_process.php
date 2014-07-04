@@ -274,6 +274,9 @@ class Sync_process extends CI_Controller
             'ENGELSA' => array(
                 'url' => base_url().'index.php/sync_process/sync_engelsa_products'
             ),
+            'PSELLECTIVA' => array(
+                'url' => base_url().'index.php/sync_process/sync_psellectiva_products'
+            ),
             
         );
         
