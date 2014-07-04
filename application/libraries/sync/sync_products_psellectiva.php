@@ -60,7 +60,7 @@ class Sync_products_psellectiva extends Sync_products
                 $this->_products[$i]['sku'] = trim($product[3]);
                 $this->_products[$i]['product_name'] = trim($product[1]);
                 $this->_products[$i]['provider_name'] = $this->_provider_name;
-                $this->_products[$i]['price']   = (float)$product[5];
+                $this->_products[$i]['price']   = (float)$product[5] * 1.04;
                 if(in_array((string)$this->_products[$i]['sku'], $this->_eans_to_exclude) || (int)$product[8] <= 3)
                 {
                     $this->_products[$i]['stock'] = 0;
