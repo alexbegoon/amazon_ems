@@ -167,6 +167,7 @@ class Export_csv_model extends CI_Model
             
             'NOMBRE',
             'EAN DEL PRODUCTO',
+            'INTERIOR ID',
             'CANTIDAD',
             
         );
@@ -190,8 +191,9 @@ class Export_csv_model extends CI_Model
         {
             $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $product->product_name, PHPExcel_Cell_DataType::TYPE_STRING);
             $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $product->sku, PHPExcel_Cell_DataType::TYPE_STRING);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $product->inner_id, PHPExcel_Cell_DataType::TYPE_STRING);
             $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(1, $i)->getFont()->setBold(true);
-            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $product->quantity, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $product->quantity, PHPExcel_Cell_DataType::TYPE_NUMERIC);
             $i++;
         }
         

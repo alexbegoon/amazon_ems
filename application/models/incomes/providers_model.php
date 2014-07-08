@@ -498,9 +498,10 @@ class Providers_model extends CI_Model
                         WHEN i.provider_price IS NULL THEN ROUND((h.warehouse_price * SUM(i.quantity)),2)
                         ELSE ROUND((i.provider_price * SUM(i.quantity)),2)
                     END price '
-                . '')
+                . ', p.inner_id ')
                  ->from('products_sales_history as h')
                  ->join('provider_order_items as i','i.order_item_id = h.id','inner')
+                 ->join('providers_products as p','h.provider_product_id = p.id','left')
                  ->where('i.provider_order_id',(int)$id)
                  ->group_by('h.sku')
                  ->order_by('quantity','desc')

@@ -58,10 +58,12 @@ class Sync_products_psellectiva extends Sync_products
             if(isset($product[3]) && preg_match('/^\s*$/', $product[1])===0 && (float)$product[5] > 0 && strlen($product[3])>5)
             {
                 $this->_products[$i]['sku'] = trim($product[3]);
+                $this->_products[$i]['inner_id'] = $product[0]?trim(strip_tags($product[0])):NULL;
+                $this->_products[$i]['provider_image_url'] = $product[10]?trim($product[10]):NULL;
                 $this->_products[$i]['product_name'] = trim($product[1]);
                 $this->_products[$i]['provider_name'] = $this->_provider_name;
                 $this->_products[$i]['price']   = (float)$product[5] * 1.04;
-                if(in_array((string)$this->_products[$i]['sku'], $this->_eans_to_exclude) || (int)$product[8] <= 3)
+                if(in_array((string)$this->_products[$i]['sku'], $this->_eans_to_exclude) || (int)$product[8] <= 1)
                 {
                     $this->_products[$i]['stock'] = 0;
                 }
