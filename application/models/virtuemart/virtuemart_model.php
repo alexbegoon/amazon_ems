@@ -473,10 +473,12 @@ class Virtuemart_model extends CI_Model
                 }
             }
             
+            if(!empty($update_data))
             $db->update_batch('virtuemart_products_'.$lang_suffix,$update_data,'virtuemart_product_id');
         }
         else
         {
+            if(!empty($data))
             $db->update_batch('vm_product',$data,'product_sku');
         }
     }
