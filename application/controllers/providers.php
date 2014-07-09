@@ -126,5 +126,12 @@ class Providers extends CI_Controller
         $this->load->template('providers/compare', $data);
     }
     
-    
+    public function add_products_to_order($order_id)
+    {
+        $data['order'] = $this->providers_model->get_provider_order((int)$order_id);
+        $data['id'] = (int)$order_id;
+
+        // Load view
+        $this->load->view('providers/add_products_to_order', $data);
+    }
 }

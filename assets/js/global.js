@@ -1127,6 +1127,50 @@ Amazoni.claim_provider_order = function(order_id)
     });
 }
 
+Amazoni.add_products_to_provider_order = function(order_id)
+{
+    if ($( "#modal_window" ).length === 0)
+    {
+        $('body').append('<div id="modal_window"></div>');
+    }
+
+    $( "#modal_window" ).empty();
+    $( "#modal_window" ).dialog({
+        minHeight: 300,
+        minWidth: 400,
+        width: 900,
+        modal: true,
+        title: 'Add products to order ID '+order_id,
+        resizable: true,
+        buttons: null,
+        close: function( event, ui ) {
+            $( "#modal_window" ).empty();
+            $( "#modal_window" ).dialog( "destroy" );
+        },
+        open: function(event, ui) {
+
+            $( "#modal_window" ).append('<div id="ajax-loader" style="display: none;"></div>');
+            $("#ajax-loader").css('display', 'block');
+
+            $.ajax({
+                type: "POST",
+                url: url_before_index + "index.php/providers/add_products_to_order/"+order_id,
+                data: {id:order_id}
+            }).success(function( msg ) {
+                $( "#modal_window" ).append(msg);
+                $("#ajax-loader").css('display', 'none');
+                $("#edit-close").click(function() {
+                    $('#modal_window').dialog('close');
+                });
+            }).error(function( jqXHR, textStatus, errorThrown ) {
+                $( "#modal_window" ).append(textStatus + ':  ' + errorThrown);
+                $("#ajax-loader").css('display', 'none');
+            });
+        }
+
+    });
+}
+
 $(function() {
         $('body').on('submit', "#stokoni_add_product", function (event) {
 
