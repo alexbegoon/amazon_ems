@@ -1767,7 +1767,7 @@ class Products_model extends CI_Model
                 ->get();
             }
             
-            $data = $query->result();
+            $data = $query->result_array();
                     
             $this->virtuemart_model->update_product_meta_batch($web, $data, $language);
         }
