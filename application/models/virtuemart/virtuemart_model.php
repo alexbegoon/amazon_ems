@@ -455,10 +455,13 @@ class Virtuemart_model extends CI_Model
         $virtuemart_version = $this->check_version($web);
         $lang_suffix = strtolower(str_replace('-', '_', $language_code));
         
-        if($virtuemart_version == '2.0.0.0' && $lang_suffix=='es_es')
+        if($virtuemart_version == '2.0.0.0' )
         {
             foreach($data as $k=>$t)
             {
+                if($lang_suffix!='es_es')
+                    break;
+                    
                 $query = $db->select('t.virtuemart_product_id')->
                      from('virtuemart_products_'.$lang_suffix.' as t')->
                      join('virtuemart_products as p','p.virtuemart_product_id = t.virtuemart_product_id', 'inner')->
