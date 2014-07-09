@@ -455,7 +455,7 @@ class Virtuemart_model extends CI_Model
         $virtuemart_version = $this->check_version($web);
         $lang_suffix = strtolower(str_replace('-', '_', $language_code));
         
-        if($virtuemart_version == '2.0.0.0')
+        if($virtuemart_version == '2.0.0.0' && $lang_suffix=='es_es')
         {
             foreach($data as $k=>$t)
             {
