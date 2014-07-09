@@ -471,11 +471,6 @@ class Virtuemart_model extends CI_Model
                     $update_data[$k]['virtuemart_product_id'] = $query->row()->virtuemart_product_id;
                     unset($update_data[$k]['sku']);
                 }
-                
-                if($k>100)
-                {
-                    break;
-                }
             }
             
             $db->update_batch('virtuemart_products_'.$lang_suffix,$update_data,'virtuemart_product_id');
