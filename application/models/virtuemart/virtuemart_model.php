@@ -462,7 +462,8 @@ class Virtuemart_model extends CI_Model
             {                    
                 if(isset($sku_rules[$language_code]))
                     $sku_prefix=$sku_rules[$language_code];
-                    
+                  
+                $db->cache_on();
                 $query = $db->select('t.virtuemart_product_id')->
                      from('virtuemart_products_'.$lang_suffix.' as t')->
                      join('virtuemart_products as p','p.virtuemart_product_id = t.virtuemart_product_id', 'inner')->
@@ -475,11 +476,10 @@ class Virtuemart_model extends CI_Model
                     $update_data[$k]['virtuemart_product_id'] = $query->row()->virtuemart_product_id;
                     unset($update_data[$k]['sku']);
                 }
+                $db->cache_off();
             }
             
             if(!empty($update_data))
-                var_dump ($update_data);die;
-                
             $db->update_batch('virtuemart_products_'.$lang_suffix,$update_data,'virtuemart_product_id');
         }
         else
