@@ -469,18 +469,26 @@ class Virtuemart_model extends CI_Model
                      where('p.product_sku',$sku_prefix.$t['sku'])->
                      get();
                 
-                echo $db->last_query();die;
                 if($query->num_rows() === 1)
                 {
                     $update_data[$k]=$t;
                     $update_data[$k]['virtuemart_product_id'] = $query->row()->virtuemart_product_id;
                     unset($update_data[$k]['sku']);
+                    
+                    if(empty($update_data[$k]['product_name']))
+                        unset($update_data[$k]['product_name']);
+                    
+                    if(empty($update_data[$k]['product_desc']))
+                        unset($update_data[$k]['product_desc']);
+                    
+                    if(empty($update_data[$k]['product_s_desc']))
+                        unset($update_data[$k]['product_s_desc']);
+                    
                 }
             }
             $db->cache_off();
             if(!empty($update_data))
             {
-                var_dump($update_data);die;
                 $db->update_batch('virtuemart_products_'.$lang_suffix,$update_data,'virtuemart_product_id');
             }
             

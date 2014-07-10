@@ -1751,8 +1751,7 @@ class Products_model extends CI_Model
             {
                 $query = $this->db
                 ->select('sku, product_name, product_desc, '
-                        .'product_s_desc, meta_desc as metadesc, meta_keywords as metakey, custom_title as customtitle, '
-                        .'slug')
+                        .'product_s_desc')
                 ->from('products_translation')
                 ->where('language_code', $language)
                 ->get();
