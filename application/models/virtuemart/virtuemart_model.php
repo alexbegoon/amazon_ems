@@ -458,11 +458,11 @@ class Virtuemart_model extends CI_Model
         
         if($virtuemart_version == '2.0.0.0' )
         {
-            foreach($data as $k=>$t)
-            {                    
-                if(isset($sku_rules[$language_code]))
+            if(isset($sku_rules[$language_code]))
                     $sku_prefix=$sku_rules[$language_code];
-                  
+            
+            foreach($data as $k=>$t)
+            {                   
                 $db->cache_on();
                 $query = $db->select('t.virtuemart_product_id')->
                      from('virtuemart_products_'.$lang_suffix.' as t')->
