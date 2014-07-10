@@ -450,7 +450,8 @@ class Virtuemart_model extends CI_Model
         {
             return false;
         }
-        
+        $sku_prefix='';
+        $sku_rules = $this->_get_sku_rules();
         $update_data=array();
         $virtuemart_version = $this->check_version($web);
         $lang_suffix = strtolower(str_replace('-', '_', $language_code));
@@ -462,10 +463,13 @@ class Virtuemart_model extends CI_Model
                 if($lang_suffix!='es_es')
                     break;
                     
+                if(isset($sku_rules[$language_code]))
+                    $sku_prefix=$sku_rules[$language_code];
+                    
                 $query = $db->select('t.virtuemart_product_id')->
                      from('virtuemart_products_'.$lang_suffix.' as t')->
                      join('virtuemart_products as p','p.virtuemart_product_id = t.virtuemart_product_id', 'inner')->
-                     like('p.product_sku',$t['sku'])->
+                     where('p.product_sku',$sku_prefix.$t['sku'])->
                      get();
                 
                 if($query->num_rows() === 1)
@@ -486,6 +490,24 @@ class Virtuemart_model extends CI_Model
         }
     }
     
+    private function _get_sku_rules()
+    {
+        return array(
+            'de-DE' => 'DE#',
+            'en-AU' => 'AU#',
+            'en-GB' => 'UK#',
+            'en-US' => 'US#',
+            'es-ES' => '#',
+            'fr-FR' => 'FR#',
+            'it-IT' => 'IT#',
+            'nl-NL' => 'NL#',
+            'nn-NO' => '',
+            'pt-PT' => '',
+            'sv-SE' => '',
+        );
+    }
+
+
     public function update_product_meta($web, $language_code, $sku, $data)
     {
         $db = $this->create_db_connection($web);
