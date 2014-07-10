@@ -459,10 +459,7 @@ class Virtuemart_model extends CI_Model
         if($virtuemart_version == '2.0.0.0' )
         {
             foreach($data as $k=>$t)
-            {
-                if($lang_suffix!='es_es')
-                    break;
-                    
+            {                    
                 if(isset($sku_rules[$language_code]))
                     $sku_prefix=$sku_rules[$language_code];
                     
