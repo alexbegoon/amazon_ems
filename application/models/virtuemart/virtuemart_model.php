@@ -478,6 +478,8 @@ class Virtuemart_model extends CI_Model
             }
             
             if(!empty($update_data))
+                var_dump ($update_data);die;
+                
             $db->update_batch('virtuemart_products_'.$lang_suffix,$update_data,'virtuemart_product_id');
         }
         else
