@@ -148,6 +148,7 @@ class Export_csv_model extends CI_Model
         // Prepare data
         
         $products = $this->providers_model->get_provider_order($provider_order_id);
+        $extra_products = $this->providers_model->get_provider_order_extra_items($provider_order_id);
         
         $provider_name = $this->providers_model->get_provider_name_by_order_id($provider_order_id);
         
@@ -170,6 +171,10 @@ class Export_csv_model extends CI_Model
             'INTERIOR ID',
             'CANTIDAD',
             
+        );
+        
+        $extra_header = array(
+            'PRODUCTOS ADICIONALES'
         );
         
         $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, $this->_file_header);
@@ -195,6 +200,42 @@ class Export_csv_model extends CI_Model
             $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(1, $i)->getFont()->setBold(true);
             $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $product->quantity, PHPExcel_Cell_DataType::TYPE_NUMERIC);
             $i++;
+        }
+        if(!empty($extra_products))
+        {
+            $i++;
+            $i++;
+
+            foreach ($extra_header as $cell)
+            {
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $cell);
+                $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFill()
+                ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => array('rgb' => 'ededed')
+                ));
+                $i++;
+            }
+
+            $j=0;
+            foreach ($header as $cell)
+            {
+                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($j, $i, $cell);
+                $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($j, $i)->getFill()
+                ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'startcolor' => array('rgb' => 'ededed')
+                ));
+                $j++;
+            }
+            $i++;
+            foreach ($extra_products as $product)
+            {
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $product->product_name, PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(1, $i, $product->sku, PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(2, $i, $product->inner_id, PHPExcel_Cell_DataType::TYPE_STRING);
+                $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(1, $i)->getFont()->setBold(true);
+                $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(3, $i, $product->quantity, PHPExcel_Cell_DataType::TYPE_NUMERIC);
+                $i++;
+            }
         }
         
         

@@ -14,6 +14,7 @@
             <th>PRECIO</th>
         </tr>
         <?php $total = 0;?>
+        <?php $subtotal = 0;?>
     <?php foreach($order as $row):?>
         <tr>
             <td><?php echo $row->product_name;?></td>
@@ -22,7 +23,38 @@
             <td><?php echo $row->price;?> &euro;</td>
         </tr>
             <?php $total += $row->price;?>
+        <?php $subtotal += $row->price;?>
     <?php endforeach;?>
+        <?php if(!empty($extra_items)):?>
+    <tr>
+        <td></td>
+        <td></td>
+        <td class="bold">SubTotal:</td>
+        <td class="bold"><?php echo number_format($subtotal,2);?> &euro;</td>
+    </tr>
+    <?php endif;?>
+    <?php if(!empty($extra_items)):?>
+                <?php $subtotal=0;?>
+        <tr>
+            <td class="header-td" colspan="4">PRODUCTOS ADICIONALES</td>
+        </tr>
+        <?php foreach($extra_items as $i): ?>
+        <tr>
+            <td><?php echo $i->product_name;?></td>
+            <td class="bold"><?php echo $i->sku;?></td>
+            <td><?php echo $i->quantity;?></td>
+            <td><?php echo $i->price;?> &euro;</td>
+        </tr>
+        <?php $total += $i->price;?>
+        <?php $subtotal += $i->price;?>
+        <?php endforeach;?>
+        <tr>
+            <td></td>
+            <td></td>
+            <td class="bold">SubTotal:</td>
+            <td class="bold"><?php echo number_format($subtotal,2);?> &euro;</td>
+        </tr>
+    <?php endif;?>
         <tr>
             <td></td>
             <td></td>
