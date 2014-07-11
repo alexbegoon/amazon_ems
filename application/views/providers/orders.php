@@ -7,6 +7,11 @@
 ?>
 <article>
     <h1><?php echo $title;?></h1>
+    <?php if (!empty($this->session->flashdata('provider_order_extra_items'))) { ?>
+    <div id="ajax-msg" style="display: none;">
+            <?php echo $this->session->flashdata('provider_order_extra_items');?>
+    </div>
+    <?php } ?>
     <?php echo form_open(current_url(), 'id="provider-orders-form"');?>
     <div class="filters">
         <label for="providers_list">Provider:</label>
@@ -96,4 +101,9 @@ $(function(){
                 }
             });
 });
+</script>
+<script>
+    $(function() {
+        $("#ajax-msg").fadeIn();
+    }); 
 </script>

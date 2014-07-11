@@ -1191,6 +1191,6 @@ class Providers_model extends CI_Model
         if(!empty($insert_data))
             $this->db->insert_batch('provider_order_extra_items',$insert_data);
         
-        
+        $this->session->set_flashdata('provider_order_extra_items', 'Products successfully added to provider order.');
     }
 }
