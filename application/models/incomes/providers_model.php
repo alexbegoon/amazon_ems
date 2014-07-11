@@ -361,6 +361,16 @@ class Providers_model extends CI_Model
         }
         
         $this->db->insert_batch('provider_order_items', $insert_data);
+        
+        // Assign extra items
+        $this->db->where('provider_id',$provider_id);
+        $this->db->where('date_needed',date('Y-m-d'));
+        $this->db->where('provider_order_id IS NULL', null, false);
+        $this->db->update('provider_order_extra_items',array(
+            'provider_order_id'=>$provider_order_id,
+            'modified_by'=>(int)$this->ion_auth->get_user_id(),
+            'modified_on'=>date('Y-m-d H:i:s'),
+            ));
                 
         $this->dashboard_model->update_status_of_orders();
 //        $this->db->trans_rollback();
@@ -403,6 +413,21 @@ class Providers_model extends CI_Model
         if($query->num_rows() === 1)
         {
             return $query->row()->provider_name;
+        }
+        
+        return '';
+    }
+    
+    public function get_provider_id_by_order_id($provider_order_id)
+    {
+        $query = $this->db->select('provider_id')
+                 ->from('provider_orders')
+                 ->where('id',$provider_order_id)
+                 ->get();
+        
+        if($query->num_rows() === 1)
+        {
+            return $query->row()->provider_id;
         }
         
         return '';
@@ -515,6 +540,24 @@ class Providers_model extends CI_Model
         return $query->result();
     }
     
+    public function get_provider_order_extra_items($order_id)
+    {
+        $query = $this->db->select('p.*, SUM(ex.quantity) as quantity, ROUND((p.price * SUM(ex.quantity)),2)  as price')->
+                        where('provider_order_id',$order_id)->
+                        from('provider_order_extra_items as ex')->
+                        join('providers_products as p','ex.product_id = p.id','left')->
+                        group_by('p.sku')->
+                        order_by('quantity','DESC')->
+                        get();
+        
+        if($query->num_rows() > 0)
+        {
+            return $query->result();
+        }
+                            
+        return  FALSE;
+    }
+
     public function send_order ($id)
     {
         $query = $this->db->select('provider_id')
@@ -1114,5 +1157,40 @@ class Providers_model extends CI_Model
         $file->data = read_file($file->path);
                 
         return $file;
+    }
+    
+    public function save_extra_items_order($data)
+    {
+        $insert_data = array();
+        $products = array_unique($data['products']);
+        
+        foreach ($products as $key => $product) 
+        {            
+            if(preg_match('/\d+$/', $product, $product_id) !== 1)
+            {
+                continue;
+            }
+            
+            $insert_data[] = array(
+                'product_id' => $product_id[0],
+                'provider_order_id' => $data['date_needed'][$key]<=date('Y-m-d')?$data['order_id']:NULL,
+                'provider_id' => $this->get_provider_id_by_order_id($data['order_id']),
+                'provider_name' => $this->get_provider_name_by_order_id($data['order_id']),
+                'product_sku' => $this->products_model->get_product_by_id($product_id[0])->sku,
+                'product_name' => $this->products_model->get_product_by_id($product_id[0])->product_name,
+                'quantity' => $data['quantity_needed'][$key],
+                'date_needed' => $data['date_needed'][$key],
+                'reason' => $data['reasons'][$key],
+                'created_by' => (int)$this->ion_auth->get_user_id(),
+                'created_on' => date('Y-m-d H:i:s'),
+                'modified_by' => (int)$this->ion_auth->get_user_id(),
+                'modified_on' => date('Y-m-d H:i:s'),
+            );
+        }
+        
+        if(!empty($insert_data))
+            $this->db->insert_batch('provider_order_extra_items',$insert_data);
+        
+        
     }
 }

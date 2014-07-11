@@ -51,6 +51,7 @@ class Providers extends CI_Controller
     public function get_order ($id, $return_url) 
     {
         $data['order'] = $this->providers_model->get_provider_order((int)$id);
+        $data['extra_items'] = $this->providers_model->get_provider_order_extra_items((int)$id);
         $data['id'] = (int)$id;
         $data['return_url'] = $return_url;
         
@@ -133,5 +134,14 @@ class Providers extends CI_Controller
 
         // Load view
         $this->load->view('providers/add_products_to_order', $data);
+    }
+    
+    public function process_added_products()
+    {
+        $post_data = $this->input->post();
+        
+        $this->providers_model->save_extra_items_order($post_data);
+        
+        redirect('providers/orders/');
     }
 }
