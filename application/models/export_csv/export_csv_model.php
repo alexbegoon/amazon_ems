@@ -173,10 +173,6 @@ class Export_csv_model extends CI_Model
             
         );
         
-        $extra_header = array(
-            'PRODUCTOS ADICIONALES'
-        );
-        
         $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, 1, $this->_file_header);
         
         $i = 0;
@@ -203,30 +199,6 @@ class Export_csv_model extends CI_Model
         }
         if(!empty($extra_products))
         {
-            $i++;
-            $i++;
-
-            foreach ($extra_header as $cell)
-            {
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow(0, $i, $cell);
-                $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow(0, $i)->getFill()
-                ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
-                'startcolor' => array('rgb' => 'ededed')
-                ));
-                $i++;
-            }
-
-            $j=0;
-            foreach ($header as $cell)
-            {
-                $objPHPExcel->getActiveSheet()->setCellValueByColumnAndRow($j, $i, $cell);
-                $objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($j, $i)->getFill()
-                ->applyFromArray(array('type' => PHPExcel_Style_Fill::FILL_SOLID,
-                'startcolor' => array('rgb' => 'ededed')
-                ));
-                $j++;
-            }
-            $i++;
             foreach ($extra_products as $product)
             {
                 $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow(0, $i, $product->product_name, PHPExcel_Cell_DataType::TYPE_STRING);
