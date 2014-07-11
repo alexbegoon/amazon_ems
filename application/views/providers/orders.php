@@ -7,7 +7,7 @@
 ?>
 <article>
     <h1><?php echo $title;?></h1>
-    <?php if (!empty($this->session->flashdata('provider_order_extra_items'))) { ?>
+    <?php if ($this->session->flashdata('provider_order_extra_items')) { ?>
     <div id="ajax-msg" style="display: none;">
             <?php echo $this->session->flashdata('provider_order_extra_items');?>
     </div>
