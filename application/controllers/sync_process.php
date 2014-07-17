@@ -55,9 +55,7 @@ class Sync_process extends CI_Controller
     
     public function sync_engelsa()
     {
-        $this->load->library($this->_path_to_library . 'Sync_engelsa', array('config' => 'Config_engelsa'));
-        
-        $this->output->set_output('Done');
+        $this->sync_engelsa_products();
     }
     
     public function sync_grutinet()
@@ -128,13 +126,13 @@ class Sync_process extends CI_Controller
     
     public function sync_product_list_with_engelsa_and_grutinet()
     {
-        $this->sync_engelsa();
+        $this->sync_engelsa_products();
         $this->sync_grutinet();
         
         // Load model
         $this->load->model('products/products_model');
         
-        $this->products_model->sync_with_engelsa();
+//        $this->products_model->sync_with_engelsa();
         $this->products_model->sync_with_grutinet();
         
         $this->output->set_output('Done');
@@ -188,8 +186,8 @@ class Sync_process extends CI_Controller
         $this->output->set_output('Done');
     }
     
-    public function sync_providers_products()
-    {
+//    public function sync_providers_products()
+//    {
 //        $this->sync_product_list_with_engelsa_and_grutinet();
 //        
 //        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_pinternacional.php';
@@ -199,13 +197,15 @@ class Sync_process extends CI_Controller
 //        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_coqueteo.php';
 //        
 //        new Sync_products_coqueteo();
-        
-        $this->output->set_output('Done');
-    }
+//        
+//        $this->output->set_output('Done');
+//    }
     
     public function sync_engelsa_products()
     {
-        $this->sync_product_list_with_engelsa_and_grutinet();
+        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_engelsa.php';
+        
+        new Sync_products_engelsa();
         
         $this->session->unset_userdata('verify_products_accepted');
         

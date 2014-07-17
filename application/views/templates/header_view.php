@@ -57,12 +57,6 @@
                         <a href="<?php echo base_url().'index.php/incomes/page';?>">Incomes</a>
                     </li>
                     <li>
-                        <a href="<?php echo base_url().'index.php/engelsa/page';?>">Engelsa</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/grutinet/page';?>">Grutinet</a>
-                    </li>
-                    <li>
                         <a href="<?php echo base_url().'index.php/stokoni/page';?>">Stokoni</a>
                     </li>
                     <li>
@@ -178,12 +172,6 @@
                     </li>
                     <li>
                         <a href="<?php echo base_url().'index.php/recurrent/page';?>">Recurrent buyers</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/engelsa/page';?>">Engelsa</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo base_url().'index.php/grutinet/page';?>">Grutinet</a>
                     </li>
                     <li>
                         <a href="<?php echo base_url().'index.php/stokoni/page';?>">Stokoni</a>

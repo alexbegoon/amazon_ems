@@ -69,10 +69,11 @@ class Sync_products_coqueteo extends Sync_products
                 $ean = (string)preg_replace('/^#/', '', $product[3]);
             }
             
-            if( isset($ean) && preg_match('/^\d{13}/', $ean) )
+            if( isset($ean) && preg_match('/^\d{6,13}/', $ean) )
             {
                 
                 $this->_products[$i]['sku'] = $ean;
+                $this->_products[$i]['inner_sku'] = $product[3];
                 $this->_products[$i]['product_name'] = trim($product[2]);
                 $this->_products[$i]['provider_name'] = $this->_provider_name;
                 $this->_products[$i]['price']   = $price;
