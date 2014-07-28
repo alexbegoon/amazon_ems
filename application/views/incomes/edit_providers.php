@@ -33,6 +33,24 @@
                 <td>Email Copy:</td>
                 <td><textarea id="cc_emails_list" name="cc_emails_list" placeholder="one@example.com, two@example.com, three@example.com"><?=$provider->cc_emails_list?></textarea></td>
             </tr>
+            <tr>
+                <td>Send CSV file in the email:</td>
+                    <input type="hidden" name="send_csv" value="0" />
+                <td><input type="checkbox" id="send_csv" name="send_csv" value="1" <?php echo $provider->send_csv==0?null:'checked="checked"';?> /></td>
+            </tr>
+            <tr>
+                <td>CSV file format:</td>
+                <td><textarea id="csv_format" name="csv_format"><?=$provider->csv_format?></textarea></td>
+            </tr>
+            <tr>
+                <td>Send XLS file in the email:</td>
+                    <input type="hidden" name="send_xls" value="0" />
+                <td><input type="checkbox" id="send_xls" name="send_xls" value="1" <?php echo $provider->send_xls==0?null:'checked="checked"';?> /></td>
+            </tr>
+            <tr>
+                <td>XLS file format:</td>
+                <td><textarea id="csv_format" name="xls_format"><?=$provider->xls_format?></textarea></td>
+            </tr>
         </table>
         <br>
         <div class="edit-buttons">

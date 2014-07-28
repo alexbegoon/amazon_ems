@@ -83,6 +83,13 @@ th a {
     height: 16px;
     background: url(../imgs/icon_excel.png);
 }
+.csv_icon{
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: url(../imgs/File-Types-Csv-icon.png);
+    background-size: contain;
+}
 .invoice_icon
 {
     display: inline-block;

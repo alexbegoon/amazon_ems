@@ -418,6 +418,33 @@ class Providers_model extends CI_Model
         return '';
     }
     
+    public function get_csv_format($provider_id)
+    {
+        $provider = $this->getProvider($provider_id);
+        
+        if($provider)
+        {
+            if($provider->csv_format)
+                return explode(';',$provider->csv_format);
+        }
+        
+        return array('{sku}','{quantity}');
+    }
+    
+    public function get_xls_format($provider_id)
+    {
+        $provider = $this->getProvider($provider_id);
+        
+        if($provider)
+        {
+            if($provider->xls_format)
+                return explode(';',$provider->xls_format);
+        }
+        
+        return array('{sku}','{quantity}');
+    }
+    
+    
     public function get_provider_id_by_order_id($provider_order_id)
     {
         $query = $this->db->select('provider_id')
@@ -559,13 +586,8 @@ class Providers_model extends CI_Model
     }
 
     public function send_order ($id)
-    {
-        $query = $this->db->select('provider_id')
-                ->from('provider_orders')
-                ->where('id', $id)
-                ->get();
-        
-        $provider_id = $query->row()->provider_id;
+    {        
+        $provider_id = $this->get_provider_id_by_order_id($id);
         
         $provider = $this->getProvider((int)$provider_id);
         
@@ -581,9 +603,17 @@ class Providers_model extends CI_Model
         $this->email->subject($provider->email_subject);
         $this->email->message($provider->email_content);
         
-        $file = $this->export_csv_model->download_provider_order($id);
+        if($provider->send_xls==1)
+        {
+            $file = $this->export_csv_model->download_provider_order($id);
+            $this->email->attach(FCPATH .'upload/'.$file->name);
+        }
         
-        $this->email->attach(FCPATH .'upload/'.$file->name);
+        if($provider->send_csv==1)
+        {
+            $file_csv = $this->export_csv_model->download_provider_order_csv($id);
+            $this->email->attach(FCPATH .'upload/'.$file_csv->name);
+        }
         
         if(!$this->email->send())
         {

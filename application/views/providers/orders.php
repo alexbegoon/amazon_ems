@@ -35,7 +35,7 @@
             <th>Created on</th>
             <th>Created by</th>
             <th>Sent to provider</th>
-            <th colspan="5">Action</th>
+            <th colspan="6">Action</th>
         </tr>
         <?php foreach($orders as $order):?>
         <tr>
@@ -49,6 +49,7 @@
             <td title="Send order to provider"><a href="<?php echo base_url('index.php/providers/send_order/'.$order->id.'/'.base64_url_encode(current_url()));?>" onclick="Amazoni.confirm_order_sending(this);return false;" ><span class="email_send_icon pointer_cursor"></span></a></td>
             <td title="View order"><span onclick="Amazoni.get_provider_order('<?php echo $order->id;?>', '<?php echo base64_url_encode(current_url());?>')" class="invoice_icon pointer_cursor"></span></td>
             <td title="Download order in Excel format"><a href="<?php echo base_url('index.php/providers/download_order/'.$order->id);?>"><span class="excel_icon pointer_cursor"></span></a></td>
+            <td title="Download order in CSV format"><a href="<?php echo base_url('index.php/providers/download_order_csv/'.$order->id);?>"><span class="csv_icon pointer_cursor"></span></a></td>
             <td title="Add more products to the order"><a href="javascript:void(0);" onclick="Amazoni.add_products_to_provider_order(<?php echo $order->id; ?>);"><span class="shop-cart-add-icon"></span></a></td>
             <td><a href="javascript:void(0);" onclick="Amazoni.claim_provider_order(<?php echo $order->id; ?>);"><b class="error_icon" title="Report about problem with provider report"></b></a></td>
         </tr>

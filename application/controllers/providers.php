@@ -69,6 +69,16 @@ class Providers extends CI_Controller
         }
     }
     
+    public function download_order_csv ($id)
+    {
+        $file = $this->export_csv_model->download_provider_order_csv($id);
+        
+        if($file)
+        {
+            force_download($file->name, $file->data);
+        }
+    }
+    
     public function send_order ($id, $return_url = null)
     {
         $this->providers_model->send_order($id);

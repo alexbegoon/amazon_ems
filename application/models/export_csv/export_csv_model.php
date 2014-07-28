@@ -117,6 +117,38 @@ class Export_csv_model extends CI_Model
 
             return $name . '.xls';
         }
+        if($service == 'export_csv_engelsa')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'engelsa_products_order_'.$date;
+
+            return $name . '.csv';
+        }
+        if($service == 'export_csv_pinternacional')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'pinternacional_products_order_'.$date;
+
+            return $name . '.csv';
+        }
+        if($service == 'export_csv_coqueteo')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'coqueteo_products_order_'.$date;
+
+            return $name . '.csv';
+        }
+        if($service == 'export_csv_psellectiva')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'psellectiva_products_order_'.$date;
+
+            return $name . '.csv';
+        }
         if($service == 'export__warehouse')
         {
             $date = date('d-m-Y_H-i-s', time());
@@ -143,6 +175,79 @@ class Export_csv_model extends CI_Model
         return false;        
     }
     
+    private function _get_provider_order_csv($provider_order_id)
+    {
+        // Prepare data
+        
+        $products = $this->providers_model->get_provider_order($provider_order_id);
+        $extra_products = $this->providers_model->get_provider_order_extra_items($provider_order_id);
+        
+        $provider_name = $this->providers_model->get_provider_name_by_order_id($provider_order_id);
+        $provider_id   = $this->providers_model->get_provider_id_by_order_id($provider_order_id);
+        $csv_format    = $this->providers_model->get_csv_format($provider_id);
+        
+        $objPHPExcel = new PHPExcel();
+        
+        $i=0;
+        foreach ($products as $product)
+        {
+            $row=0;
+            foreach ($csv_format as $field)
+            {
+                if(preg_match('/^\{.+\}$/', $field)===1)
+                {
+                    $field = str_replace(array('{','}'), '', $field);
+                    if(property_exists($product,$field))
+                    {
+                        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($row, $i, $product->{$field});
+                        $row++;
+                    }
+                }
+                else
+                {
+                    $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($row, $i, $field);
+                    $row++;
+                }
+            }
+            $i++;
+        }
+        
+        if(!empty($extra_products))
+        {
+            foreach ($extra_products as $product)
+            {
+                $row=0;
+                foreach ($csv_format as $field)
+                {
+                    if(preg_match('/^\{.+\}$/', $field)===1)
+                    {
+                        $field = str_replace(array('{','}'), '', $field);
+                        if(property_exists($product,$field))
+                        {
+                            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($row, $i, $product->{$field});
+                            $row++;
+                        }
+                    }
+                    else
+                    {
+                        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($row, $i, $field);
+                        $row++;
+                    }
+                }
+                $i++;
+            }
+        }
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV');
+        $objWriter->setDelimiter(';');
+        
+        $filename = FCPATH .'upload/'.  $this->construct_file_name('export_csv_'. strtolower($provider_name));
+        
+        $file = $objWriter->save($filename);
+                
+        return read_file($filename);
+    }
+
     private function _get_provider_order_xls($provider_order_id)
     {
         // Prepare data
@@ -232,6 +337,22 @@ class Export_csv_model extends CI_Model
         
         $file->data = $this->_get_provider_order_xls($id);
         $file->name = $this->construct_file_name('export_'. strtolower($provider_name));
+        
+        if(!empty($file->data))
+        {
+            return $file;
+        }
+        return FALSE;
+    }
+    
+    public function download_provider_order_csv($id)
+    {
+        $file = new stdClass();
+        
+        $provider_name = $this->providers_model->get_provider_name_by_order_id($id);
+        
+        $file->data = $this->_get_provider_order_csv($id);
+        $file->name = $this->construct_file_name('export_csv_'. strtolower($provider_name));
         
         if(!empty($file->data))
         {
