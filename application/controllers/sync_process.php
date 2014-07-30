@@ -322,4 +322,17 @@ class Sync_process extends CI_Controller
         
         $this->products_model->export_all_translations_to_website($web);
     }
+    
+    public function import_product_descriptions()
+    {
+        // Load models
+        $this->load->model('products/products_model');
+        
+        $file_path = FCPATH.'Products_Description_in_English.xlsx';
+        $language = array('en-AU','en-GB','en-US');
+        
+        $this->products_model->import_product_descriptions($file_path, $language);
+        
+        $this->output->set_output('Done');  
+    }
 }

@@ -27,6 +27,7 @@ class Products_model extends CI_Model
         
         // Load  libraries
         $this->load->library('email');
+        $this->load->library('excel');
         $this->load->library('table');
     }
     
@@ -1785,5 +1786,24 @@ class Products_model extends CI_Model
                 get();
                 
         return $query->result();
+    }
+    
+    public function import_product_descriptions($file_path, $language)
+    {
+        $objPHPExcel = PHPExcel_IOFactory::load($file_path);
+        
+        $sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
+        
+        foreach ($sheetData  as $row)
+        {
+            foreach ($language as $lang)
+            {
+                $this->db->where('sku', str_replace('#', '', $row['C']));
+                $this->db->where('language_code', $lang);
+                $this->db->update('products_translation',array(
+                    'product_desc'=>'<p>'.$row['D'].'</p>'
+                ));
+            }
+        }
     }
 }
