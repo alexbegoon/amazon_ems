@@ -1799,13 +1799,38 @@ class Products_model extends CI_Model
         $this->db->trans_begin();
         foreach ($sheetData  as $row)
         {
+            
+            
             foreach ($language as $lang)
             {
-                $this->db->where('sku', str_replace('#', '', $row['C']));
-                $this->db->where('language_code', $lang);
-                $this->db->update('products_translation',array(
-                    'product_desc'=>'<p>'.$row['D'].'</p>'
-                ));
+                $query = $this->db->get_where('products_translation', array('sku' => str_replace('#', '', $row['C']),'language_code'=>$lang), 1);
+                
+                if($query->num_rows()>0)
+                {
+                    $translation_exists = true;
+                }
+                else 
+                {
+                    $translation_exists = false;
+                }
+                
+                if($translation_exists)
+                {
+                    $this->db->where('sku', str_replace('#', '', $row['C']));
+                    $this->db->where('language_code', $lang);
+                    $this->db->update('products_translation',array(
+                        'product_desc'=>'<p>'.$row['D'].'</p>'
+                    ));
+                }
+                else 
+                {
+                    $this->db->insert('products_translation',array(
+                        'product_desc'=>'<p>'.$row['D'].'</p>',
+                        'product_name'=>$row['A'],
+                        'sku' => str_replace('#', '', $row['C']),
+                        'language_code'=>$lang
+                    ));
+                }
             }
         }
         $this->db->trans_commit();
