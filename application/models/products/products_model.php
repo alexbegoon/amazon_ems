@@ -1734,10 +1734,13 @@ class Products_model extends CI_Model
         foreach($query->result() as $row)
         {
             $language = strtolower(str_replace('-', '_', $row->language_code));
-            // Check installed language
-            if(strpos($site->installed_languages, $language) !== false)
+            if(!empty($language))
             {
-                $languages_list[] = $row->language_code;
+                // Check installed language
+                if(strpos($site->installed_languages, $language) !== false)
+                {
+                    $languages_list[] = $row->language_code;
+                }
             }
         }
         
