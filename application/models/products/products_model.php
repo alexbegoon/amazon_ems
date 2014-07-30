@@ -1793,7 +1793,7 @@ class Products_model extends CI_Model
         $objPHPExcel = PHPExcel_IOFactory::load($file_path);
         
         $sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
-        
+        $this->db->trans_begin();
         foreach ($sheetData  as $row)
         {
             foreach ($language as $lang)
@@ -1805,5 +1805,6 @@ class Products_model extends CI_Model
                 ));
             }
         }
+        $this->db->trans_commit();
     }
 }
