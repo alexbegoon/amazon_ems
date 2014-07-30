@@ -188,10 +188,10 @@ class Export_csv_model extends CI_Model
         
         $objPHPExcel = new PHPExcel();
         
-        $i=0;
+        $i=1;
         foreach ($products as $product)
         {
-            $row=0;
+            $column=0;
             foreach ($csv_format as $field)
             {
                 if(preg_match('/^\{.+\}$/', $field)===1)
@@ -199,14 +199,14 @@ class Export_csv_model extends CI_Model
                     $field = str_replace(array('{','}'), '', $field);
                     if(property_exists($product,$field))
                     {
-                        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($row, $i, $product->{$field});
-                        $row++;
+                        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($column, $i, $product->{$field});
+                        $column++;
                     }
                 }
                 else
                 {
-                    $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($row, $i, $field);
-                    $row++;
+                    $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($column, $i, $field);
+                    $column++;
                 }
             }
             $i++;
@@ -216,7 +216,7 @@ class Export_csv_model extends CI_Model
         {
             foreach ($extra_products as $product)
             {
-                $row=0;
+                $column=0;
                 foreach ($csv_format as $field)
                 {
                     if(preg_match('/^\{.+\}$/', $field)===1)
@@ -224,14 +224,14 @@ class Export_csv_model extends CI_Model
                         $field = str_replace(array('{','}'), '', $field);
                         if(property_exists($product,$field))
                         {
-                            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($row, $i, $product->{$field});
-                            $row++;
+                            $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($column, $i, $product->{$field});
+                            $column++;
                         }
                     }
                     else
                     {
-                        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($row, $i, $field);
-                        $row++;
+                        $objPHPExcel->getActiveSheet()->setCellValueExplicitByColumnAndRow($column, $i, $field);
+                        $column++;
                     }
                 }
                 $i++;
