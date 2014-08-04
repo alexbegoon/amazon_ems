@@ -364,7 +364,7 @@ class Providers_model extends CI_Model
         
         // Assign extra items
         $this->db->where('provider_id',$provider_id);
-        $this->db->where('date_needed',date('Y-m-d'));
+        $this->db->where('date_needed <=',date('Y-m-d'));
         $this->db->where('provider_order_id IS NULL', null, false);
         $this->db->update('provider_order_extra_items',array(
             'provider_order_id'=>$provider_order_id,
