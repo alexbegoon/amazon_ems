@@ -92,6 +92,21 @@ class Sync_products_engelsa extends Sync_products
     {        
         $this->_eans_to_exclude = array();
         
+        $xls_path = FCPATH . '/calvin_klein_shock_ean.xls';
+        
+        $objReader = PHPExcel_IOFactory::createReader('Excel5');
+        
+        $objPHPExcel = $objReader->load($xls_path);
+        
+        $sheetData = $objPHPExcel->getActiveSheet()->toArray(null,true,true,true);
+        
+        foreach($sheetData as $row)
+        {
+            $eans_to_exclude[] = (string)preg_replace('/^#/', '', $row['A']);
+        }
+        
+        $this->_eans_to_exclude = array_merge($this->_eans_to_exclude, $eans_to_exclude);
+        
         return TRUE;
     }
 }
