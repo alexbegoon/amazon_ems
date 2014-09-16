@@ -15,7 +15,8 @@ class Sync_process extends CI_Controller
     public function __construct()
     {
          parent::__construct();
-         
+         ini_set ('memory_limit', "1024M");
+         ini_set('max_execution_time', 1000);
 //         $this->output->enable_profiler(TRUE);
     }
     

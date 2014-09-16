@@ -51,6 +51,7 @@ abstract class Sync_products
         if(is_array($this->_products) && !$this->_test_mode)
         {
             // Check format
+            $this->_products = $this->kill_duplicates($this->_products);
             reset($this->_products);
             $first_key = key($this->_products);
             
@@ -66,6 +67,116 @@ abstract class Sync_products
     }
     
     /**
+     * Kill duplicates. Sum stock. Set highest price.
+     * @param type $products
+     * @return type
+     */
+    private function kill_duplicates($products)
+    {
+        $filtered_data = $products;
+        $duplicates = array();
+        $duplicate_products = array();
+        
+        //Find duplicates        
+        foreach ($products as $product)
+        {
+            isset($skus[$product['sku']])?$skus[$product['sku']]+=1:$skus[$product['sku']]=1;
+        }
+        $duplicates = array_filter(
+        $skus,
+        function ($value){
+            return ($value >= 2);
+        }
+        );
+        //Process duplicates
+        foreach ($duplicates as $duplicate_sku=>$v)
+        {
+            foreach ($products as $k=>$product)
+            {
+                if($product['sku']===$duplicate_sku)
+                {
+                    $duplicate_products[$product['sku']][$k] = $product;
+                }
+            }
+        }
+        $ids_to_exclude = array();
+        $total_stock = array();
+        $final_price = array();
+        foreach($duplicate_products as $p_sku=>$duplicate_product)
+        {
+            $max_stock = 0;
+            $max_price  = floatval(0);
+            
+            foreach ($duplicate_product as $p)
+            {
+                isset($total_stock[$p['sku']])?$total_stock[$p['sku']]+=$p['stock']:$total_stock[$p['sku']]=$p['stock'];
+                if($max_stock<$p['stock'])
+                    $max_stock=$p['stock'];
+                if($max_price<$p['price'])
+                    $max_price=$p['price'];
+            }
+            $final_price[$p_sku]=$max_price;
+            foreach ($duplicate_product as $k=>$p)
+            {
+                if($p['stock']<$max_stock)
+                    $ids_to_exclude[$k] = $k;
+            }
+            
+            foreach ($ids_to_exclude as $id)
+            {
+                unset($duplicate_product[$id]);
+            }
+            
+            if(count($duplicate_product)==1)
+                continue;
+            
+            foreach ($duplicate_product as $k=>$p)
+            {
+                if($p['price']<$max_price)
+                    $ids_to_exclude[$k] = $k;
+            }
+            
+            foreach ($ids_to_exclude as $id)
+            {
+                unset($duplicate_product[$id]);
+            }
+            
+            if(count($duplicate_product)==1)
+                continue;
+            
+            $i=0;
+            arsort($duplicate_product);
+            foreach ($duplicate_product as $k=>$p)
+            {
+                $i++;
+                if($i==1)
+                    continue;
+                
+                $ids_to_exclude[$k] = $k;
+            }
+        }
+        
+        foreach ($ids_to_exclude as $id)
+        {
+            unset($filtered_data[$id]);
+        }
+        foreach ($total_stock as $sku=>$v)
+        {
+            foreach($filtered_data as $k=>$p)
+            {
+                if($p['sku']==$sku)
+                {
+                    $filtered_data[$k]['price'] = $final_price[$sku];
+                    $filtered_data[$k]['stock']=$v;
+                }
+                
+            }
+        }
+        
+        return $filtered_data;
+    }
+
+        /**
      * Remove products from providers_products table
      * @param int $id
      */

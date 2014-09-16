@@ -360,49 +360,53 @@ class Products_model extends CI_Model
         
         if(!empty($products))
         {
-            $this->db->trans_begin();
-            // Reset stock before update
-            reset($products);
-            $first_key = key($products);
-            if($this->providers_model->get_provider_id_by_name($products[$first_key]['provider_name']))
+            try
             {
-                $this->db->where('provider_name', $products[$first_key]['provider_name']);
-                $data = array('stock' => 0, 'updated_on' => date('Y-m-d H:i:s', time()));
-                $this->db->update('providers_products', $data);
-            }
-            
-            foreach ($products as $product)
-            {
-                $provider_id = $this->providers_model->get_provider_id_by_name($product['provider_name']);
-                
-                if($provider_id != 0 && is_integer($provider_id) )
+                $this->db->trans_begin();
+                // Reset stock before update
+                reset($products);
+                $first_key = key($products);
+                if($this->providers_model->get_provider_id_by_name($products[$first_key]['provider_name']))
                 {
-                    $product['provider_id'] = $provider_id;
-                    
-                    if( !isset($existing_products[$product['sku'].'_'.$product['provider_name']]) )
+                    $this->db->where('provider_name', $products[$first_key]['provider_name']);
+                    $data = array('stock' => 0, 'updated_on' => date('Y-m-d H:i:s', time()));
+                    $this->db->update('providers_products', $data);
+                }
+
+                foreach ($products as $product)
+                {
+                    $provider_id = $this->providers_model->get_provider_id_by_name($product['provider_name']);
+
+                    if($provider_id != 0 && is_integer($provider_id) )
                     {
-                        $product['created_on'] = $product['updated_on'] = date('Y-m-d H:i:s', time());
-                        $products_to_insert[] = $product;
-                    }
-                    else
-                    {
-                        if($product['stock'] <= 0)
+                        $product['provider_id'] = $provider_id;
+
+                        if( !isset($existing_products[$product['sku'].'_'.$product['provider_name']]) )
                         {
-                            $product['provider_ordered'] = 0;
+                            $product['created_on'] = $product['updated_on'] = date('Y-m-d H:i:s', time());
+                            $products_to_insert[] = $product;
                         }
-                        $product['id'] = $existing_products[$product['sku'].'_'.$product['provider_name']];
-                        $product['updated_on'] = date('Y-m-d H:i:s', time());
-                        $products_to_update[] = $product;
+                        else
+                        {
+                            if($product['stock'] <= 0)
+                            {
+                                $product['provider_ordered'] = 0;
+                            }
+                            $product['id'] = $existing_products[$product['sku'].'_'.$product['provider_name']];
+                            $product['updated_on'] = date('Y-m-d H:i:s', time());
+                            $products_to_update[] = $product;
+                        }
                     }
                 }
+                $this->batch_insert($products_to_insert);
+                $summary->affected_rows += $this->db->affected_rows();
+                $this->batch_update($products_to_update);
+                $summary->affected_rows += $this->db->affected_rows();
+                $this->db->trans_commit();
+            } catch (Exception $ex) {
+                $this->db->trans_rollback();
+                error_log($ex->getMessage());
             }
-            $this->batch_insert($products_to_insert);
-            $summary->affected_rows += $this->db->affected_rows();
-            $this->batch_update($products_to_update);
-            $summary->affected_rows += $this->db->affected_rows();
-            
-            $this->db->trans_commit();
-            
             //Notify staff
             $this->notify_staff_about_new_products($products_to_insert);
             

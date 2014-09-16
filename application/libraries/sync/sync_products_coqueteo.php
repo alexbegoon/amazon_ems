@@ -30,7 +30,7 @@ class Sync_products_coqueteo extends Sync_products
     protected function extract_products() 
     {
         $data_file = read_file($this->_url_service);
-        
+        $data_file = mb_convert_encoding($data_file, 'UTF-8');
         if(!$data_file)
         {
             echo "Can't open a file";
@@ -47,7 +47,7 @@ class Sync_products_coqueteo extends Sync_products
         
         foreach ($data_array as $row)
         {
-            $product = explode(";", $row);
+            $product = str_getcsv($row,";");
             
             if($this->_test_mode)
             {
