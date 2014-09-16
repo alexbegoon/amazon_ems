@@ -405,7 +405,7 @@ class Products_model extends CI_Model
                 $this->db->trans_commit();
             } catch (Exception $ex) {
                 $this->db->trans_rollback();
-                error_log($ex->getMessage());
+                log_message('ERROR',$ex->getMessage());
             }
             //Notify staff
             $this->notify_staff_about_new_products($products_to_insert);
