@@ -61,7 +61,7 @@ abstract class Sync_products
                    isset($products[$first_key]['price']) &&
                    isset($products[$first_key]['stock'])     )
             {
-                $this->_CI->products_model->update_products_table($this->_products);
+                $this->_CI->products_model->update_products_table($products);
             }
         }
     }
