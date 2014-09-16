@@ -79,7 +79,7 @@ abstract class Sync_products
         //Find duplicates        
         foreach ($products as $product)
         {
-            isset($skus["{$product['sku']}"])?$skus["{$product['sku']}"]+=1:$skus["{$product['sku']}"]=1;
+            isset($skus[$product['sku']])?$skus[$product['sku']]+=1:$skus[$product['sku']]=1;
         }
         $duplicates = array_filter(
         $skus,
@@ -87,6 +87,7 @@ abstract class Sync_products
             return ($value >= 2);
         }
         );
+        var_dump($duplicates);die;
         //Process duplicates
         foreach ($duplicates as $duplicate_sku=>$v)
         {
@@ -94,12 +95,12 @@ abstract class Sync_products
             {
                 if($product['sku']===$duplicate_sku)
                 {
-                    $duplicate_products["{$product['sku']}"][$k] = $product;
+                    $duplicate_products[$product['sku']][$k] = $product;
                 }
             }
         }
         
-            var_dump($duplicate_products);die;
+            
         $ids_to_exclude = array();
         $total_stock = array();
         $final_price = array();
