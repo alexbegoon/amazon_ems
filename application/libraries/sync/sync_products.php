@@ -99,7 +99,6 @@ abstract class Sync_products
                 }
             }
         }
-        var_dump($duplicate_products);die;
             
         $ids_to_exclude = array();
         $total_stock = array();
