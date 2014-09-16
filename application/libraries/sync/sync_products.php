@@ -54,7 +54,7 @@ abstract class Sync_products
             $products = $this->kill_duplicates($this->_products);
             reset($products);
             $first_key = key($products);
-            
+            var_dump($products);die;
             if(    isset($products[$first_key]['sku']) &&
                    isset($products[$first_key]['product_name']) &&
                    isset($products[$first_key]['provider_name']) &&
