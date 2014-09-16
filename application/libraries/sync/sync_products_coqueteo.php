@@ -38,7 +38,7 @@ class Sync_products_coqueteo extends Sync_products
             
             return FALSE;
         }
-        $data_file = mb_convert_encoding($data_file, 'UTF-8');
+        $data_file = utf8_encode($data_file);
         $data_array = explode("\n",$data_file);
         
         $this->_products = array();
