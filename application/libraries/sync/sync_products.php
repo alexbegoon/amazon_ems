@@ -51,15 +51,15 @@ abstract class Sync_products
         if(is_array($this->_products) && !$this->_test_mode)
         {
             // Check format
-            $this->_products = $this->kill_duplicates($this->_products);
-            reset($this->_products);
-            $first_key = key($this->_products);
+            $products = $this->kill_duplicates($this->_products);
+            reset($products);
+            $first_key = key($products);
             
-            if(    isset($this->_products[$first_key]['sku']) &&
-                   isset($this->_products[$first_key]['product_name']) &&
-                   isset($this->_products[$first_key]['provider_name']) &&
-                   isset($this->_products[$first_key]['price']) &&
-                   isset($this->_products[$first_key]['stock'])     )
+            if(    isset($products[$first_key]['sku']) &&
+                   isset($products[$first_key]['product_name']) &&
+                   isset($products[$first_key]['provider_name']) &&
+                   isset($products[$first_key]['price']) &&
+                   isset($products[$first_key]['stock'])     )
             {
                 $this->_CI->products_model->update_products_table($this->_products);
             }
