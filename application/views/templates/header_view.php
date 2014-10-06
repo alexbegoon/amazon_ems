@@ -125,6 +125,9 @@
                                 <a href="<?php echo base_url().'index.php/dashboard/roturastock_report/';?>" >RoturaStock Report</a>
                             </li>
                             <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_aghata_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Aghata</a>
+                            </li>
+                            <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/export_engelsa_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Engelsa</a>
                             </li>
                             <li>
