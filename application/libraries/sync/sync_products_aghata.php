@@ -77,16 +77,16 @@ class Sync_products_aghata extends Sync_products
                 $this->_products[$i]['product_name'] = trim($product[2]);
                 $this->_products[$i]['provider_name'] = $this->_provider_name;
                 $this->_products[$i]['price']   = $price * 1.04;
-                if( $price <= floatval(1) || in_array((string)$ean, $this->_eans_to_exclude))
+                if( $price <= floatval(1) || in_array((string)$ean, $this->_eans_to_exclude) || $product[10]<=1)
                 {
                     $this->_products[$i]['stock']   = 0;
                 }
                 else 
                 {
-                    $this->_products[$i]['stock']   = 5;
+                    $this->_products[$i]['stock']   = (integer)$product[10];
                 }
                 $this->_products[$i]['brand']   = trim($product[6]);
-                $this->_products[$i]['provider_image_url']   = trim($product[10]);
+                $this->_products[$i]['provider_image_url']   = trim($product[11]);
             }
             else
             {
