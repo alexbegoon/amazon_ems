@@ -625,6 +625,7 @@ class Products_model extends CI_Model
             }
             
             $provider_name = $this->providers_model->get_provider_name($sku,$web);
+            $available_providers = $this->web_field_model->get_available_providers($web);
             
             if(!empty($provider_name))
             {
@@ -639,18 +640,17 @@ class Products_model extends CI_Model
                         $sku = preg_replace($regexps->sku_regexp_2, '', $sku);
                     }
                     
-                    $query = ' SELECT `product_name`, `sku`, `provider_name`, `id`, 
-                                        `price`, `provider_id`, `stock`, `brand` 
-                               FROM `'.$this->db->dbprefix('providers_products').'` 
-                               WHERE `sku` = \''.$sku.'\' 
-                               ORDER BY `price` 
-                    ';
+                    $this->db->select('product_name, sku, provider_name, id, price, provider_id, stock, brand');
+                    $this->db->from('providers_products');
+                    $this->db->where('sku',$sku);
+                    $this->db->where_in('provider_id',$available_providers);
+                    $this->db->order_by('price');
                     
-                    $result = $this->db->query($query);
+                    $query = $this->db->get();
 
-                    if($result->num_rows() >= 1)
+                    if($query->num_rows() >= 1)
                     {
-                        $this->_products['products_by_web_and_sku'][$sku][$web] = $result->result();
+                        $this->_products['products_by_web_and_sku'][$sku][$web] = $query->result();
                         return $this->_products['products_by_web_and_sku'][$sku][$web];
                     }
                 }

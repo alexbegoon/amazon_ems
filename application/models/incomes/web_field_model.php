@@ -622,6 +622,39 @@ class Web_field_model extends CI_Model
         
         return $html;
     }
-            
-            
+        
+    /**
+     * Return list of assigned providers to WebShop
+     * @param string $web
+     * @return array Providers IDs list
+     */
+    public function get_available_providers($web)
+    {
+        if(isset($this->_buffer_data['xref_webshop_providers'][$web]))
+        {
+            return $this->_buffer_data['xref_webshop_providers'][$web];
+        }
+        $providers=array();
+        
+        if(empty($web))
+            return $providers;
+        
+        $this->db->select('provider_id');
+        $this->db->from('web_provider');
+        $this->db->where('web',$web);
+
+        $query = $this->db->get();
+        
+        if($query->num_rows()>0)
+        {
+            foreach ($query->result() as $row)
+            {
+                $providers[$row->provider_id]=$row->provider_id;
+            }
+        }
+        
+        $this->_buffer_data['xref_webshop_providers'][$web]=$providers;
+        
+        return $providers;
+    }
 }
