@@ -246,6 +246,17 @@ class Sync_process extends CI_Controller
         $this->output->set_output('Done');
     }
     
+    public function sync_coqueteo2_products()
+    {
+        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_coqueteo2.php';
+        
+        new Sync_products_coqueteo2();
+        
+        $this->session->unset_userdata('verify_products_accepted');
+        
+        $this->output->set_output('Done');
+    }
+    
     public function sync_psellectiva_products()
     {
         require_once FCPATH . $this->_path_to_sync_library . 'sync_products_psellectiva.php';
@@ -293,6 +304,9 @@ class Sync_process extends CI_Controller
             ),
             'BLACKJACK' => array(
                 'url' => base_url().'index.php/sync_process/sync_blackjack_products'
+            ),
+            'COQUETEO2' => array(
+                'url' => base_url().'index.php/sync_process/sync_coqueteo2_products'
             ),
             'COQUETEO' => array(
                 'url' => base_url().'index.php/sync_process/sync_coqueteo_products'

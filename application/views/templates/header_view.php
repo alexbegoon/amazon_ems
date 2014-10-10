@@ -140,6 +140,9 @@
                                 <a href="<?php echo base_url().'index.php/export_csv/export_coqueteo_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Coqueteo</a>
                             </li>
                             <li>
+                                <a href="<?php echo base_url().'index.php/export_csv/export_coqueteo2_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Coqueteo 2</a>
+                            </li>
+                            <li>
                                 <a href="<?php echo base_url().'index.php/export_csv/export_psellectiva_summary';?>" onclick="Amazoni.confirm(this);return false;">Exportar Preparacion Psellectiva</a>
                             </li>
                             <li>
