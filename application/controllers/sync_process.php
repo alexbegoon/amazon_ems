@@ -235,6 +235,17 @@ class Sync_process extends CI_Controller
         $this->output->set_output('Done');
     }
     
+    public function sync_blackjack_products()
+    {
+        require_once FCPATH . $this->_path_to_sync_library . 'sync_products_blackjack.php';
+        
+        new Sync_products_blackjack();
+        
+        $this->session->unset_userdata('verify_products_accepted');
+        
+        $this->output->set_output('Done');
+    }
+    
     public function sync_psellectiva_products()
     {
         require_once FCPATH . $this->_path_to_sync_library . 'sync_products_psellectiva.php';
@@ -280,6 +291,9 @@ class Sync_process extends CI_Controller
             'AGHATA' => array(
                 'url' => base_url().'index.php/sync_process/sync_aghata_products'
             ),
+            'BLACKJACK' => array(
+                'url' => base_url().'index.php/sync_process/sync_blackjack_products'
+            ),
             'COQUETEO' => array(
                 'url' => base_url().'index.php/sync_process/sync_coqueteo_products'
             ),
@@ -294,6 +308,8 @@ class Sync_process extends CI_Controller
             ),
             
         );
+        
+        asort($data['providers']);
         
         // Load view 
         $this->load->template('sync_process/update_stock', $data);

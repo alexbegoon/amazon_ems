@@ -117,6 +117,14 @@ class Export_csv_model extends CI_Model
 
             return $name . '.xls';
         }
+        if($service == 'export_blackjack')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'blackjack_products_order_'.$date;
+
+            return $name . '.xls';
+        }
         if($service == 'export_psellectiva')
         {
             $date = date('d-m-Y_H-i-s', time());
@@ -154,6 +162,14 @@ class Export_csv_model extends CI_Model
             $date = date('d-m-Y_H-i-s', time());
         
             $name = 'aghata_products_order_'.$date;
+
+            return $name . '.csv';
+        }
+        if($service == 'export_csv_blackjack')
+        {
+            $date = date('d-m-Y_H-i-s', time());
+        
+            $name = 'blackjack_products_order_'.$date;
 
             return $name . '.csv';
         }
@@ -424,6 +440,18 @@ class Export_csv_model extends CI_Model
         return $this->_get_provider_order_xls($provider_order_id);
     }
     
+    private function get_file_data_export_blackjack()
+    {
+        $provider_order_id = $this->providers_model->create_provider_order('BLACKJACK');
+        
+        if($provider_order_id === false)
+        {
+            return FALSE;
+        }
+        
+        return $this->_get_provider_order_xls($provider_order_id);
+    }
+    
     private function get_file_data_export_psellectiva()
     {
         $provider_order_id = $this->providers_model->create_provider_order('psellectiva');
@@ -667,6 +695,7 @@ class Export_csv_model extends CI_Model
              || $service == 'export_pinternacional_summary'
              || $service == 'export_coqueteo_summary'
              || $service == 'export_aghata_summary'
+             || $service == 'export_blackjack_summary'
              || $service == 'export_psellectiva_summary'
              || $service == 'export_warehouse_summary'
         )
