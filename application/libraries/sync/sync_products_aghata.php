@@ -59,12 +59,12 @@ class Sync_products_aghata extends Sync_products
             $ean = null;
             $price = 0;
             
-            if(isset($product[1]))
+            if(isset($product[7]))
             {
                 $price = (float)preg_replace('/,/', '.', $product[7]);
             }
             
-            if(isset($product[3]))
+            if(isset($product[0]))
             {
                 $ean = (string)preg_replace('/^#/', '', $product[0]);
             }
